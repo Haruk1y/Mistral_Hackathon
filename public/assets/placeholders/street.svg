@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Street placeholder">
+  <rect width="800" height="450" fill="#f6f1ea"/>
+  <rect x="24" y="24" width="752" height="402" fill="#ffffff" stroke="#d8c6b4" stroke-width="3" stroke-dasharray="8 8"/>
+  <text x="50%" y="46%" text-anchor="middle" fill="#6f4f3c" font-size="34" font-family="sans-serif">STREET PLACEHOLDER</text>
+  <text x="50%" y="56%" text-anchor="middle" fill="#8a6a55" font-size="20" font-family="sans-serif">Temporary mock asset</text>
+</svg>
