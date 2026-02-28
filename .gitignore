@@ -21,11 +21,14 @@ firebase-debug.log*
 # Generated artifacts / datasets
 artifacts/eval/
 artifacts/loop/
+artifacts/wandb/
 data/ft/
 
 # Logs / temp
 *.log
 *.tmp
+__pycache__/
+*.pyc
 
 # Editor / OS
 .DS_Store

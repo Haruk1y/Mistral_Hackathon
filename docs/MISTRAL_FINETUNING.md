@@ -1,5 +1,8 @@
 # Mistral Fine-tuning まとめ（2026-02-28確認）
 
+> Project note (2026-02-28): 本リポジトリの実行方針は **HF Jobs + HF HubのMinistral 3B FT** をprimaryに変更。  
+> Mistral Managed FTは比較実験（secondary）として扱います。
+
 このドキュメントは、以下の公式ページを確認して作成した要約です。
 
 - https://docs.mistral.ai/capabilities/finetuning

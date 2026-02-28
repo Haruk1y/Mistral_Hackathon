@@ -9,9 +9,9 @@
 
 | Cycle | Goal | Inputs (MCP/Skill) | Automated Action | Output Artifact | Evidence URL | Metric Delta |
 |---|---|---|---|---|---|---|
-| 0 | Baseline確立 | Weave eval summary | baseline run集計 | `artifacts/eval/runs/*` | TODO | TODO |
-| 1 | ハイパラ調整 | Weave failure traces | `next_hparams.yaml` 自動生成 | `artifacts/loop/cycle_1/` | TODO | TODO |
-| 2 | 苦手軸データ増強 | weak-dim profile | `augmentation_spec.json` + dataset拡張 | `data/ft/dataset_v*.jsonl` | TODO | TODO |
+| 0 | Baseline確立 | Weave eval summary | baseline run集計 | `artifacts/eval/runs/*` | TODO | `json_valid_rate`, `vector_mae` baseline |
+| 1 | ハイパラ調整 | Weave failure traces | `next_hparams.yaml` 自動生成 | `artifacts/loop/cycle_1/` | TODO | `auto_improvement_delta` |
+| 2 | 苦手軸データ増強 | weak-dim profile | `augmentation_spec.json` + dataset拡張 | `artifacts/loop/cycle_2/` | TODO | `loop_completion_rate` |
 
 ## 2. Skills / MCP Usage Log
 
@@ -19,6 +19,8 @@
 |---|---|---|---|---|
 | 2026-02-28 | Codex | `weights-and-biases` skill | Weave/Modelsメトリクス設計 | loop design docs |
 | 2026-02-28 | Codex | `firebase-*` skills | callable migration方針 | firebase config + callable stubs |
+| 2026-02-28 | Codex | `hugging-face-model-trainer` skill | TRL SFT script for Ministral 3B | `scripts/hf/train_sft_request_to_hidden.py` |
+| 2026-02-28 | Codex | `hugging-face-jobs` skill | HF Jobs submit/publish automation | `scripts/hf/submit_sft_job.mjs`, `scripts/hf/publish_ft_dataset.mjs` |
 
 ## 3. Generated Assets for Submission
 
@@ -41,6 +43,9 @@ npm run eval:aggregate
 npm run ft:generate
 npm run ft:filter
 npm run ft:split
+npm run hf:job:submit
+npm run wandb:report:assets
+npm run loop:cycle
 ```
 
 ## 5. Notes

@@ -11,7 +11,9 @@
 ## 2. Setup
 
 - Dataset version: `frozen_eval_set.v1`
-- Model candidates: `ministral-3b-latest` (main), `ministral-8b-latest` (compare)
+- Base model (HF): `mistralai/Ministral-3-3B-Instruct-2512` (main)
+- Compare model: `mistralai/Ministral-8B-Instruct-*` or managed FT baseline
+- Training infra: `HF Jobs` (`a10g-small` with 20 USD credits)
 - Baselines:
   - rule baseline
   - prompt baseline
@@ -35,12 +37,19 @@
 
 - Run table:
   - run id
+  - HF Job id
   - model
   - hparams
   - dataset version
   - core metrics
 - Sweep highlights:
   - best/worst runs and reason
+
+## 4.1 HF Jobs Cost Snapshot
+
+- flavor / runtime / estimated cost
+- run count vs remaining credits
+- cost_per_100_requests_usd trend
 
 ## 5. Weave Traces
 
@@ -94,4 +103,6 @@
 - W&B report URL:
 - Weave trace board URL:
 - HF model/artifact URL:
+- HF jobs URL:
+- HF dataset URL:
 - Repo commit/PR URL:
