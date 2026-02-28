@@ -9,8 +9,13 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "eval:run": "node --loader ts-node/esm scripts/eval/run_eval.ts",
-    "eval:aggregate": "node --loader ts-node/esm scripts/eval/aggregate_metrics.ts"
+    "eval:run": "node scripts/eval/run_eval.mjs",
+    "eval:aggregate": "node scripts/eval/aggregate_metrics.mjs",
+    "eval:freeze": "node scripts/eval/generate_frozen_eval_set.mjs",
+    "ft:generate": "node scripts/ft/generate_teacher_pairs.mjs",
+    "ft:filter": "node scripts/ft/quality_filter.mjs",
+    "ft:split": "node scripts/ft/build_train_valid_test.mjs",
+    "ft:jobs": "node scripts/ft/mistral_ft_jobs.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",

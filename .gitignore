@@ -1,8 +1,34 @@
-.next
-node_modules
-coverage
+# Dependencies / build outputs
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Environment / secrets
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.p12
+*serviceAccount*.json
+
+# Firebase local files
+.firebase/
+firebase-debug.log*
+
+# Generated artifacts / datasets
+artifacts/eval/
+artifacts/loop/
+data/ft/
+
+# Logs / temp
 *.log
+*.tmp
+
+# Editor / OS
 .DS_Store
+*.swp
+.vscode/
+.idea/

@@ -1,0 +1,20 @@
+{
+  "dataset_version": "frozen_eval_set.v1",
+  "mode": "rule_baseline",
+  "evaluated_count": 70,
+  "timestamp": "2026-02-28T03:10:54.453Z",
+  "metrics": {
+    "json_valid_rate": 0.9571428571428572,
+    "vector_mae": 6.898009950248756,
+    "mse_raw": 64.27611940298507,
+    "mse_norm": 0.006427611940298507,
+    "r2_score": 0.8162004484397928,
+    "constraint_match_rate": 0.7611940298507462,
+    "slot_exact_match": 0.6529850746268657,
+    "intent_score_mean": 84.86567164179104,
+    "output_sanity_score": 61.77142857142857,
+    "p95_inference_latency_ms": 295,
+    "p50_inference_latency_ms": 216,
+    "cost_per_100_requests_usd": 0.02001936020358865
+  }
+}

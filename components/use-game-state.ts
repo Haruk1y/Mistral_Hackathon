@@ -77,6 +77,15 @@ export const useGameState = () => {
             ...current,
             interpreterOutput: response,
             targetProfile: response.targetProfile,
+            targetHiddenParams: response.targetHiddenParams,
+            interpreterHiddenParams: response.targetHiddenParams,
+            generationSource:
+              response.evaluationMeta.model_source === "fine_tuned"
+                ? "ft_model"
+                : response.evaluationMeta.model_source === "prompt_baseline"
+                  ? "prompt_baseline"
+                  : "baseline",
+            traceId: response.evaluationMeta.trace_id,
             status: "mixing",
             updatedAt: new Date().toISOString()
           }))
@@ -117,6 +126,8 @@ export const useGameState = () => {
             rank: result.rank,
             rewardMoney: result.rewardMoney,
             coachFeedbackBySlot: result.coachFeedbackBySlot,
+            distanceBreakdown: result.distanceBreakdown,
+            evalSnapshot: result.evalSnapshot,
             status: "generating",
             updatedAt: new Date().toISOString()
           };
@@ -135,22 +146,24 @@ export const useGameState = () => {
         const createResponse = await createMusicJobApi({
           commissionId,
           requestText: commission.requestText,
-          selectedPartsBySlot
+          selectedPartsBySlot,
+          targetHiddenParams: commission.targetHiddenParams
         });
 
         updateState((prev) => ({
           ...prev,
           jobs: {
             ...prev.jobs,
-            [createResponse.jobId]: {
-              id: createResponse.jobId,
-              commissionId,
-              requestText: commission.requestText,
-              selectedPartsBySlot,
-              status: "queued",
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            }
+              [createResponse.jobId]: {
+                id: createResponse.jobId,
+                commissionId,
+                requestText: commission.requestText,
+                selectedPartsBySlot,
+                status: "queued",
+                traceId: commission.traceId,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
           },
           commissions: {
             ...prev.commissions,
@@ -194,6 +207,10 @@ export const useGameState = () => {
                 status: status.status,
                 audioUrl: status.audioUrl,
                 error: status.error,
+                compositionPlan: status.compositionPlan,
+                songMetadata: status.songMetadata,
+                outputSanityScore: status.outputSanityScore,
+                traceId: status.traceId ?? existing.traceId,
                 updatedAt: new Date().toISOString()
               }
             }
@@ -214,6 +231,10 @@ export const useGameState = () => {
                 usedPartsBySlot: commission.selectedPartsBySlot,
                 score: commission.score,
                 rank: commission.rank,
+                compositionPlan: status.compositionPlan,
+                songMetadata: status.songMetadata,
+                outputSanityScore: status.outputSanityScore,
+                traceId: status.traceId ?? commission.traceId,
                 createdAt: new Date().toISOString()
               };
 
@@ -228,6 +249,7 @@ export const useGameState = () => {
                   ...commission,
                   status: "delivered",
                   trackId: track.id,
+                  traceId: status.traceId ?? commission.traceId,
                   updatedAt: new Date().toISOString()
                 }
               };

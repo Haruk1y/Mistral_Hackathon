@@ -1,0 +1,3572 @@
+{
+  "dataset_version": "frozen_eval_set.v1_teacher_mistral",
+  "created_at": "2026-02-28T03:18:28.426Z",
+  "request_generation_mode": "mistral_teacher",
+  "teacher_model": "mistral-large-latest",
+  "count": 70,
+  "items": [
+    {
+      "id": "fixed_001",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A quiet evening after rain in a small town. Variant-1",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 79,
+          "brightness": 52,
+          "acousticness": 66,
+          "complexity": 58,
+          "nostalgia": 47
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_002",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A bright and smiling market morning tune. Variant-2",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 34,
+          "brightness": 33,
+          "acousticness": 68,
+          "complexity": 41,
+          "nostalgia": 30
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_003",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Calm focus music for reading in a cafe. Variant-3",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 38,
+          "brightness": 74,
+          "acousticness": 70,
+          "complexity": 24,
+          "nostalgia": 79
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_004",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A memory of old streets and warm lights. Variant-4",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 43,
+          "brightness": 55,
+          "acousticness": 73,
+          "complexity": 57,
+          "nostalgia": 62
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_005",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Soft night drive with nostalgic city air. Variant-5",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 47,
+          "brightness": 36,
+          "acousticness": 75,
+          "complexity": 41,
+          "nostalgia": 46
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_006",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Gentle handmade mood for twilight. Variant-1",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 52,
+          "brightness": 77,
+          "acousticness": 77,
+          "complexity": 24,
+          "nostalgia": 30
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_007",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A playful walk by the river on sunny day. Variant-2",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 56,
+          "brightness": 58,
+          "acousticness": 79,
+          "complexity": 57,
+          "nostalgia": 78
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_008",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A cozy indoor rainy day composition. Variant-3",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 61,
+          "brightness": 39,
+          "acousticness": 82,
+          "complexity": 41,
+          "nostalgia": 62
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_009",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A retro yet uplifting track for friends. Variant-4",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 65,
+          "brightness": 20,
+          "acousticness": 84,
+          "complexity": 24,
+          "nostalgia": 45
+        },
+        "tags": [
+          "acoustic",
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_010",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A simple but emotional sketch for sunset. Variant-5",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 59,
+          "warmth": 70,
+          "brightness": 61,
+          "acousticness": 26,
+          "complexity": 57,
+          "nostalgia": 29
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_011",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A quiet evening after rain in a small town. Variant-1",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 74,
+          "brightness": 42,
+          "acousticness": 28,
+          "complexity": 41,
+          "nostalgia": 78
+        },
+        "tags": [
+          "nostalgic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_012",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A bright and smiling market morning tune. Variant-2",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 79,
+          "brightness": 24,
+          "acousticness": 30,
+          "complexity": 24,
+          "nostalgia": 61
+        },
+        "tags": [
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_013",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Calm focus music for reading in a cafe. Variant-3",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 34,
+          "brightness": 65,
+          "acousticness": 33,
+          "complexity": 57,
+          "nostalgia": 45
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_014",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A memory of old streets and warm lights. Variant-4",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 38,
+          "brightness": 46,
+          "acousticness": 35,
+          "complexity": 41,
+          "nostalgia": 28
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_015",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Soft night drive with nostalgic city air. Variant-5",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 43,
+          "brightness": 27,
+          "acousticness": 37,
+          "complexity": 24,
+          "nostalgia": 77
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_016",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Gentle handmade mood for twilight. Variant-1",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 47,
+          "brightness": 68,
+          "acousticness": 39,
+          "complexity": 57,
+          "nostalgia": 61
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_017",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A playful walk by the river on sunny day. Variant-2",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 52,
+          "brightness": 49,
+          "acousticness": 42,
+          "complexity": 41,
+          "nostalgia": 44
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_018",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A cozy indoor rainy day composition. Variant-3",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 56,
+          "brightness": 30,
+          "acousticness": 44,
+          "complexity": 24,
+          "nostalgia": 28
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_019",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A retro yet uplifting track for friends. Variant-4",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 61,
+          "brightness": 71,
+          "acousticness": 46,
+          "complexity": 57,
+          "nostalgia": 76
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_020",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A simple but emotional sketch for sunset. Variant-5",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 65,
+          "brightness": 52,
+          "acousticness": 48,
+          "complexity": 41,
+          "nostalgia": 60
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_021",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A quiet evening after rain in a small town. Variant-1",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 70,
+          "brightness": 33,
+          "acousticness": 50,
+          "complexity": 24,
+          "nostalgia": 44
+        },
+        "tags": [
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_022",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A bright and smiling market morning tune. Variant-2",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 74,
+          "brightness": 74,
+          "acousticness": 53,
+          "complexity": 57,
+          "nostalgia": 27
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_023",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Calm focus music for reading in a cafe. Variant-3",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 79,
+          "brightness": 55,
+          "acousticness": 55,
+          "complexity": 41,
+          "nostalgia": 76
+        },
+        "tags": [
+          "nostalgic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_024",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A memory of old streets and warm lights. Variant-4",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 33,
+          "brightness": 37,
+          "acousticness": 57,
+          "complexity": 24,
+          "nostalgia": 59
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_025",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Soft night drive with nostalgic city air. Variant-5",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 38,
+          "brightness": 78,
+          "acousticness": 59,
+          "complexity": 57,
+          "nostalgia": 43
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_026",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Gentle handmade mood for twilight. Variant-1",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 42,
+          "brightness": 59,
+          "acousticness": 62,
+          "complexity": 41,
+          "nostalgia": 27
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_027",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A playful walk by the river on sunny day. Variant-2",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 47,
+          "brightness": 40,
+          "acousticness": 64,
+          "complexity": 24,
+          "nostalgia": 75
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_028",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A cozy indoor rainy day composition. Variant-3",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 52,
+          "brightness": 21,
+          "acousticness": 66,
+          "complexity": 57,
+          "nostalgia": 59
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_029",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A retro yet uplifting track for friends. Variant-4",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 56,
+          "brightness": 62,
+          "acousticness": 68,
+          "complexity": 41,
+          "nostalgia": 42
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_030",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A simple but emotional sketch for sunset. Variant-5",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 61,
+          "brightness": 43,
+          "acousticness": 70,
+          "complexity": 24,
+          "nostalgia": 26
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_031",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A quiet evening after rain in a small town. Variant-1",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 65,
+          "brightness": 24,
+          "acousticness": 73,
+          "complexity": 57,
+          "nostalgia": 75
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic",
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_032",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A bright and smiling market morning tune. Variant-2",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 70,
+          "brightness": 65,
+          "acousticness": 75,
+          "complexity": 41,
+          "nostalgia": 58
+        },
+        "tags": [
+          "acoustic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_033",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Calm focus music for reading in a cafe. Variant-3",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 74,
+          "brightness": 46,
+          "acousticness": 77,
+          "complexity": 24,
+          "nostalgia": 42
+        },
+        "tags": [
+          "acoustic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_034",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A memory of old streets and warm lights. Variant-4",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 79,
+          "brightness": 27,
+          "acousticness": 79,
+          "complexity": 57,
+          "nostalgia": 25
+        },
+        "tags": [
+          "acoustic",
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_035",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Soft night drive with nostalgic city air. Variant-5",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 33,
+          "brightness": 68,
+          "acousticness": 82,
+          "complexity": 41,
+          "nostalgia": 74
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_036",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Gentle handmade mood for twilight. Variant-1",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 38,
+          "brightness": 50,
+          "acousticness": 84,
+          "complexity": 24,
+          "nostalgia": 58
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_037",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A playful walk by the river on sunny day. Variant-2",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 42,
+          "brightness": 31,
+          "acousticness": 26,
+          "complexity": 57,
+          "nostalgia": 41
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_038",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A cozy indoor rainy day composition. Variant-3",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 47,
+          "brightness": 72,
+          "acousticness": 28,
+          "complexity": 40,
+          "nostalgia": 90
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_039",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A retro yet uplifting track for friends. Variant-4",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 51,
+          "brightness": 53,
+          "acousticness": 30,
+          "complexity": 24,
+          "nostalgia": 73
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_040",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A simple but emotional sketch for sunset. Variant-5",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 56,
+          "brightness": 34,
+          "acousticness": 33,
+          "complexity": 57,
+          "nostalgia": 57
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_041",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A quiet evening after rain in a small town. Variant-1",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 61,
+          "brightness": 75,
+          "acousticness": 35,
+          "complexity": 40,
+          "nostalgia": 41
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_042",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A bright and smiling market morning tune. Variant-2",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 65,
+          "brightness": 56,
+          "acousticness": 37,
+          "complexity": 24,
+          "nostalgia": 89
+        },
+        "tags": [
+          "nostalgic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_043",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Calm focus music for reading in a cafe. Variant-3",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 70,
+          "brightness": 37,
+          "acousticness": 39,
+          "complexity": 57,
+          "nostalgia": 73
+        },
+        "tags": [
+          "nostalgic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_044",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A memory of old streets and warm lights. Variant-4",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 74,
+          "brightness": 78,
+          "acousticness": 42,
+          "complexity": 40,
+          "nostalgia": 56
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_045",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Soft night drive with nostalgic city air. Variant-5",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 79,
+          "brightness": 59,
+          "acousticness": 44,
+          "complexity": 24,
+          "nostalgia": 40
+        },
+        "tags": [
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_046",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "Gentle handmade mood for twilight. Variant-1",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 33,
+          "brightness": 40,
+          "acousticness": 46,
+          "complexity": 57,
+          "nostalgia": 89
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_047",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A playful walk by the river on sunny day. Variant-2",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 38,
+          "brightness": 21,
+          "acousticness": 48,
+          "complexity": 40,
+          "nostalgia": 72
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_048",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A cozy indoor rainy day composition. Variant-3",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 42,
+          "brightness": 63,
+          "acousticness": 50,
+          "complexity": 24,
+          "nostalgia": 56
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_049",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A retro yet uplifting track for friends. Variant-4",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_harmony_stack"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 47,
+          "brightness": 44,
+          "acousticness": 53,
+          "complexity": 57,
+          "nostalgia": 39
+        },
+        "tags": [
+          "balanced"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "fixed_050",
+      "split": "frozen_eval",
+      "scenario": "fixed_request",
+      "request_text": "A simple but emotional sketch for sunset. Variant-5",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 60,
+          "warmth": 51,
+          "brightness": 25,
+          "acousticness": 55,
+          "complexity": 40,
+          "nostalgia": 88
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_001",
+      "split": "frozen_eval",
+      "scenario": "high_nostalgia",
+      "request_text": "Profile scenario high nostalgia sample 1",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 70,
+          "brightness": 42,
+          "acousticness": 70,
+          "complexity": 51,
+          "nostalgia": 85
+        },
+        "tags": [
+          "nostalgic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_002",
+      "split": "frozen_eval",
+      "scenario": "low_brightness",
+      "request_text": "Profile scenario low brightness sample 2",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 74,
+          "brightness": 25,
+          "acousticness": 72,
+          "complexity": 34,
+          "nostalgia": 85
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic",
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_003",
+      "split": "frozen_eval",
+      "scenario": "high_energy",
+      "request_text": "Profile scenario high energy sample 3",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_sun_glow",
+        "gimmick": "gimmick_filter_rise"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 81,
+          "warmth": 79,
+          "brightness": 64,
+          "acousticness": 74,
+          "complexity": 17,
+          "nostalgia": 69
+        },
+        "tags": [
+          "nostalgic",
+          "upbeat",
+          "acoustic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "filter_rise"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_004",
+      "split": "frozen_eval",
+      "scenario": "acoustic_focus",
+      "request_text": "Profile scenario acoustic focus sample 4",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 33,
+          "brightness": 45,
+          "acousticness": 94,
+          "complexity": 51,
+          "nostalgia": 52
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_005",
+      "split": "frozen_eval",
+      "scenario": "rainy_quiet",
+      "request_text": "Profile scenario rainy quiet sample 5",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 14,
+          "warmth": 38,
+          "brightness": 7,
+          "acousticness": 79,
+          "complexity": 34,
+          "nostalgia": 73
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_006",
+      "split": "frozen_eval",
+      "scenario": "high_nostalgia",
+      "request_text": "Profile scenario high nostalgia sample 6",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 43,
+          "brightness": 67,
+          "acousticness": 81,
+          "complexity": 17,
+          "nostalgia": 88
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_007",
+      "split": "frozen_eval",
+      "scenario": "low_brightness",
+      "request_text": "Profile scenario low brightness sample 7",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 47,
+          "brightness": 7,
+          "acousticness": 83,
+          "complexity": 51,
+          "nostalgia": 68
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_008",
+      "split": "frozen_eval",
+      "scenario": "high_energy",
+      "request_text": "Profile scenario high energy sample 8",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_filter_rise"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 85,
+          "warmth": 52,
+          "brightness": 29,
+          "acousticness": 26,
+          "complexity": 34,
+          "nostalgia": 52
+        },
+        "tags": [
+          "upbeat",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "filter_rise"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_009",
+      "split": "frozen_eval",
+      "scenario": "acoustic_focus",
+      "request_text": "Profile scenario acoustic focus sample 9",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_2000s_pop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 56,
+          "brightness": 70,
+          "acousticness": 98,
+          "complexity": 17,
+          "nostalgia": 35
+        },
+        "tags": [
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "pop_2000s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_010",
+      "split": "frozen_eval",
+      "scenario": "rainy_quiet",
+      "request_text": "Profile scenario rainy quiet sample 10",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 18,
+          "warmth": 61,
+          "brightness": 22,
+          "acousticness": 30,
+          "complexity": 51,
+          "nostalgia": 86
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_011",
+      "split": "frozen_eval",
+      "scenario": "high_nostalgia",
+      "request_text": "Profile scenario high nostalgia sample 11",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 65,
+          "brightness": 32,
+          "acousticness": 32,
+          "complexity": 34,
+          "nostalgia": 92
+        },
+        "tags": [
+          "nostalgic",
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_012",
+      "split": "frozen_eval",
+      "scenario": "low_brightness",
+      "request_text": "Profile scenario low brightness sample 12",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 70,
+          "brightness": 10,
+          "acousticness": 34,
+          "complexity": 17,
+          "nostalgia": 51
+        },
+        "tags": [
+          "rain",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_013",
+      "split": "frozen_eval",
+      "scenario": "high_energy",
+      "request_text": "Profile scenario high energy sample 13",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_soft_strings",
+        "mood": "mood_sun_glow",
+        "gimmick": "gimmick_filter_rise"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 89,
+          "warmth": 74,
+          "brightness": 55,
+          "acousticness": 37,
+          "complexity": 51,
+          "nostalgia": 35
+        },
+        "tags": [
+          "upbeat",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "filter_rise"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_014",
+      "split": "frozen_eval",
+      "scenario": "acoustic_focus",
+      "request_text": "Profile scenario acoustic focus sample 14",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 79,
+          "brightness": 36,
+          "acousticness": 81,
+          "complexity": 34,
+          "nostalgia": 83
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic",
+          "cozy"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_015",
+      "split": "frozen_eval",
+      "scenario": "rainy_quiet",
+      "request_text": "Profile scenario rainy quiet sample 15",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 22,
+          "warmth": 33,
+          "brightness": 11,
+          "acousticness": 41,
+          "complexity": 17,
+          "nostalgia": 75
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_016",
+      "split": "frozen_eval",
+      "scenario": "high_nostalgia",
+      "request_text": "Profile scenario high nostalgia sample 16",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 38,
+          "brightness": 58,
+          "acousticness": 43,
+          "complexity": 51,
+          "nostalgia": 96
+        },
+        "tags": [
+          "nostalgic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_017",
+      "split": "frozen_eval",
+      "scenario": "low_brightness",
+      "request_text": "Profile scenario low brightness sample 17",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_90s_hiphop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 42,
+          "brightness": 13,
+          "acousticness": 46,
+          "complexity": 34,
+          "nostalgia": 34
+        },
+        "tags": [
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "hiphop_90s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_018",
+      "split": "frozen_eval",
+      "scenario": "high_energy",
+      "request_text": "Profile scenario high energy sample 18",
+      "weather": "sunny",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_filter_rise"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 93,
+          "warmth": 47,
+          "brightness": 20,
+          "acousticness": 48,
+          "complexity": 17,
+          "nostalgia": 83
+        },
+        "tags": [
+          "nostalgic",
+          "upbeat",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "filter_rise"
+          ],
+          "avoidPartIds": [
+            "style_2000s_pop"
+          ]
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_019",
+      "split": "frozen_eval",
+      "scenario": "acoustic_focus",
+      "request_text": "Profile scenario acoustic focus sample 19",
+      "weather": "cloudy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_piano_upright",
+        "mood": "mood_night_drive",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 35,
+          "warmth": 52,
+          "brightness": 61,
+          "acousticness": 84,
+          "complexity": 51,
+          "nostalgia": 66
+        },
+        "tags": [
+          "nostalgic",
+          "acoustic"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    },
+    {
+      "id": "profile_020",
+      "split": "frozen_eval",
+      "scenario": "rainy_quiet",
+      "request_text": "Profile scenario rainy quiet sample 20",
+      "weather": "rainy",
+      "inventory_part_ids": [
+        "style_80s_citypop",
+        "style_90s_hiphop",
+        "style_2000s_pop",
+        "inst_piano_upright",
+        "inst_soft_strings",
+        "inst_analog_synth",
+        "mood_rain_ambience",
+        "mood_sun_glow",
+        "mood_night_drive",
+        "gimmick_beat_mute",
+        "gimmick_filter_rise",
+        "gimmick_harmony_stack"
+      ],
+      "expected_top1_by_slot": {
+        "style": "style_80s_citypop",
+        "instrument": "inst_analog_synth",
+        "mood": "mood_rain_ambience",
+        "gimmick": "gimmick_beat_mute"
+      },
+      "target_hidden_params": {
+        "vector": {
+          "energy": 25,
+          "warmth": 56,
+          "brightness": 26,
+          "acousticness": 52,
+          "complexity": 34,
+          "nostalgia": 88
+        },
+        "tags": [
+          "nostalgic",
+          "rain"
+        ],
+        "constraints": {
+          "preferredStyleTags": [
+            "citypop_80s"
+          ],
+          "preferredGimmickTags": [
+            "beat_mute"
+          ],
+          "avoidPartIds": []
+        }
+      },
+      "teacher_generated": false
+    }
+  ]
+}

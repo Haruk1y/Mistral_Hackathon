@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-02-28T03:10:54.455Z",
+  "split": {
+    "train": 327,
+    "valid": 40,
+    "test": 42,
+    "total": 409
+  },
+  "source_vector_stats": {
+    "energy": {
+      "mean": 52.7359413202934,
+      "min": 0,
+      "max": 99
+    },
+    "warmth": {
+      "mean": 52.12958435207824,
+      "min": 0,
+      "max": 100
+    },
+    "brightness": {
+      "mean": 47.31784841075795,
+      "min": 0,
+      "max": 100
+    },
+    "acousticness": {
+      "mean": 50.87530562347188,
+      "min": 1,
+      "max": 100
+    },
+    "complexity": {
+      "mean": 49.94865525672372,
+      "min": 0,
+      "max": 100
+    },
+    "nostalgia": {
+      "mean": 50.11491442542787,
+      "min": 0,
+      "max": 100
+    }
+  }
+}

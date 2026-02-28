@@ -1,0 +1,11 @@
+{
+  "input_count": 500,
+  "output_count": 409,
+  "dropped": {
+    "numeric_leak": 0,
+    "duplicate": 91,
+    "length": 0,
+    "language": 0
+  },
+  "generated_at": "2026-02-28T03:10:42.616Z"
+}

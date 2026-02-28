@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-02-28T03:11:00.969Z",
+  "runs_count": 3,
+  "latest_by_mode": {
+    "fine_tuned": {
+      "dataset_version": "frozen_eval_set.v1",
+      "mode": "fine_tuned",
+      "evaluated_count": 70,
+      "timestamp": "2026-02-28T03:10:54.453Z",
+      "metrics": {
+        "json_valid_rate": 1,
+        "vector_mae": 3.157142857142857,
+        "mse_raw": 13,
+        "mse_norm": 0.0013,
+        "r2_score": 0.9630788348986349,
+        "constraint_match_rate": 0.9,
+        "slot_exact_match": 0.8571428571428571,
+        "intent_score_mean": 93.07142857142857,
+        "output_sanity_score": 78.27142857142857,
+        "p95_inference_latency_ms": 684,
+        "p50_inference_latency_ms": 463,
+        "cost_per_100_requests_usd": 0.19003388355502057
+      },
+      "file": "2026-02-28T03-10-54-454Z_fine_tuned.json"
+    },
+    "prompt_baseline": {
+      "dataset_version": "frozen_eval_set.v1",
+      "mode": "prompt_baseline",
+      "evaluated_count": 70,
+      "timestamp": "2026-02-28T03:10:54.453Z",
+      "metrics": {
+        "json_valid_rate": 0.9857142857142858,
+        "vector_mae": 5.113526570048309,
+        "mse_raw": 34.78019323671498,
+        "mse_norm": 0.0034780193236714978,
+        "r2_score": 0.9012914748946483,
+        "constraint_match_rate": 0.8405797101449275,
+        "slot_exact_match": 0.75,
+        "intent_score_mean": 88.71014492753623,
+        "output_sanity_score": 71.68571428571428,
+        "p95_inference_latency_ms": 886,
+        "p50_inference_latency_ms": 656,
+        "cost_per_100_requests_usd": 0.2791774622198195
+      },
+      "file": "2026-02-28T03-10-54-454Z_prompt_baseline.json"
+    },
+    "rule_baseline": {
+      "dataset_version": "frozen_eval_set.v1",
+      "mode": "rule_baseline",
+      "evaluated_count": 70,
+      "timestamp": "2026-02-28T03:10:54.453Z",
+      "metrics": {
+        "json_valid_rate": 0.9571428571428572,
+        "vector_mae": 6.898009950248756,
+        "mse_raw": 64.27611940298507,
+        "mse_norm": 0.006427611940298507,
+        "r2_score": 0.8162004484397928,
+        "constraint_match_rate": 0.7611940298507462,
+        "slot_exact_match": 0.6529850746268657,
+        "intent_score_mean": 84.86567164179104,
+        "output_sanity_score": 61.77142857142857,
+        "p95_inference_latency_ms": 295,
+        "p50_inference_latency_ms": 216,
+        "cost_per_100_requests_usd": 0.02001936020358865
+      },
+      "file": "2026-02-28T03-10-54-454Z_rule_baseline.json"
+    }
+  },
+  "auto_improvement_delta": {
+    "intent_score_mean": 4.361283643892335,
+    "vector_mae": -1.9563837129054522,
+    "json_valid_rate": 0.014285714285714235
+  },
+  "loop_completion_rate": 0,
+  "loop_detail": {
+    "completed": 0,
+    "planned": 2,
+    "rate": 0
+  }
+}
