@@ -3,7 +3,7 @@
 import { useGame } from "@/components/game-context";
 import { useLocale } from "@/components/locale-context";
 import { PixelPanel, PixelTag } from "@/components/pixel-ui";
-import { CATALOG_PARTS } from "@/lib/catalog";
+import { CATALOG_PARTS, getPartDescription } from "@/lib/catalog";
 import { slotLabel } from "@/lib/i18n";
 import { SLOT_KEYS } from "@/lib/types";
 
@@ -61,7 +61,7 @@ export const KotoneDebugView = () => {
                         </span>
                         <div className="kotone-debug-item-copy">
                           <h4>{part.name}</h4>
-                          <p>{part.description}</p>
+                          <p>{getPartDescription(part, locale)}</p>
                         </div>
                       </div>
                       <p className="kotone-debug-item-id">{part.id}</p>

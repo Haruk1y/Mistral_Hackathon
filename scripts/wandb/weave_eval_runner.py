@@ -185,7 +185,8 @@ def hf_predict_vector(
         ]
     )
 
-    url = f"https://api-inference.huggingface.co/models/{model_id}"
+    base_url = env_str("HF_INFERENCE_BASE_URL", "https://router.huggingface.co/hf-inference/models").rstrip("/")
+    url = f"{base_url}/{model_id}"
     payload = {
         "inputs": prompt,
         "parameters": {
@@ -242,6 +243,119 @@ def hf_predict_vector(
     return vector, None
 
 
+def should_try_mistral_fallback(parse_error: str | None) -> bool:
+    if not parse_error:
+        return False
+    lowered = parse_error.lower()
+    return (
+        lowered.startswith("http_404")
+        or lowered.startswith("http_410")
+        or "no longer supported" in lowered
+        or "model_not_supported" in lowered
+    )
+
+
+def mistral_predict_vector(
+    model_id: str,
+    request_text: str,
+    weather: str,
+    api_key: str,
+    base_url: str,
+    timeout_s: int = 90,
+) -> tuple[dict[str, int] | None, str | None]:
+    if not api_key:
+        return None, "MISTRAL_API_KEY missing"
+    if not model_id:
+        return None, "MISTRAL model_id missing"
+
+    prompt = "\n".join(
+        [
+            "You estimate 6 hidden music parameters.",
+            "Return strict JSON only with numeric keys:",
+            '{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}',
+            "Values must be integers between 0 and 100.",
+            f"weather={weather}",
+            f"request_text={request_text}",
+        ]
+    )
+
+    url = f"{base_url.rstrip('/')}/chat/completions"
+    payload = {
+        "model": model_id,
+        "temperature": 0.1,
+        "max_tokens": 96,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You output only strict JSON with six integer fields.",
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+    }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=timeout_s)
+    except requests.RequestException as error:
+        return None, f"mistral_request_error:{error}"
+
+    if response.status_code >= 400:
+        return None, f"mistral_http_{response.status_code}:{response.text[:240]}"
+
+    try:
+        data = response.json()
+    except json.JSONDecodeError as error:
+        return None, f"mistral_non_json_response:{error}"
+
+    content: Any = ""
+    choices = data.get("choices")
+    if isinstance(choices, list) and choices:
+        first = choices[0]
+        if isinstance(first, dict):
+            message = first.get("message")
+            if isinstance(message, dict):
+                content = message.get("content", "")
+
+    if isinstance(content, list):
+        text_parts: list[str] = []
+        for part in content:
+            if isinstance(part, dict):
+                if part.get("type") in {"text", "output_text"}:
+                    text_parts.append(str(part.get("text", "")))
+                elif "content" in part:
+                    text_parts.append(str(part.get("content", "")))
+        text = "".join(text_parts).strip()
+    else:
+        text = str(content).strip()
+
+    if not text:
+        return None, "mistral_empty_content"
+
+    blob = extract_json_blob(text)
+    if not blob:
+        return None, "mistral_json_block_not_found"
+
+    try:
+        parsed = json.loads(blob)
+    except json.JSONDecodeError as error:
+        return None, f"mistral_json_decode_error:{error}"
+
+    if not isinstance(parsed, dict):
+        return None, "mistral_parsed_payload_not_object"
+
+    try:
+        vector = sanitize_vector(parsed)
+    except Exception as error:  # noqa: BLE001
+        return None, f"mistral_invalid_vector:{error}"
+    return vector, None
+
+
 def weave_trace_url(entity: str | None, project: str, trace_id: str) -> str | None:
     if not project:
         return None
@@ -257,6 +371,11 @@ class EvalConfig:
     prompt_model_id: str
     fine_tuned_model_id: str
     hf_token: str
+    mistral_api_key: str
+    mistral_base_url: str
+    mistral_prompt_model_id: str
+    mistral_fine_tuned_model_id: str
+    mistral_fallback_enabled: bool
     top_failures: int
     weave_project: str
     weave_enabled: bool
@@ -273,6 +392,14 @@ def load_config(root: Path) -> EvalConfig:
         prompt_model_id=env_str("EVAL_PROMPT_BASELINE_MODEL_ID", env_str("HF_BASE_MODEL_ID", "mistralai/Ministral-3-3B-Instruct-2512")),
         fine_tuned_model_id=env_str("EVAL_FINE_TUNED_MODEL_ID", env_str("HF_FT_OUTPUT_MODEL_ID", "")),
         hf_token=env_str("HF_TOKEN", env_str("HF_API_TOKEN", "")),
+        mistral_api_key=env_str("MISTRAL_API_KEY", ""),
+        mistral_base_url=env_str("MISTRAL_BASE_URL", "https://api.mistral.ai/v1"),
+        mistral_prompt_model_id=env_str("EVAL_MISTRAL_PROMPT_MODEL_ID", env_str("MISTRAL_BASE_MODEL", "mistral-small-latest")),
+        mistral_fine_tuned_model_id=env_str(
+            "EVAL_MISTRAL_FINE_TUNED_MODEL_ID",
+            env_str("MISTRAL_FINE_TUNED_MODEL_ID", env_str("MISTRAL_FT_MODEL_ID", "")),
+        ),
+        mistral_fallback_enabled=env_bool("EVAL_MISTRAL_FALLBACK_ENABLED", True),
         top_failures=env_int("EVAL_TOP_FAILURES", 20),
         weave_project=env_str("WEAVE_PROJECT", "atelier-kotone-weave"),
         weave_enabled=env_bool("EVAL_WEAVE_ENABLED", True),
@@ -403,10 +530,34 @@ def main() -> None:
 
         parse_error: str | None = None
         predicted_vector: dict[str, int] | None = None
+        effective_model_id = model_id
+        inference_backend = "rule_based"
         if mode == "rule_baseline":
             predicted_vector = rule_based_predict(request_text)
         else:
             predicted_vector, parse_error = hf_predict_vector(model_id, request_text, weather, cfg.hf_token)
+            inference_backend = "hf_router_hf_inference"
+            if predicted_vector is None and cfg.mistral_fallback_enabled and should_try_mistral_fallback(parse_error):
+                fallback_model_id = cfg.mistral_prompt_model_id
+                if mode == "fine_tuned":
+                    fallback_model_id = cfg.mistral_fine_tuned_model_id or cfg.mistral_prompt_model_id
+                fallback_vector, fallback_error = mistral_predict_vector(
+                    fallback_model_id,
+                    request_text,
+                    weather,
+                    cfg.mistral_api_key,
+                    cfg.mistral_base_url,
+                )
+                if fallback_vector is not None:
+                    predicted_vector = fallback_vector
+                    parse_error = None
+                    effective_model_id = fallback_model_id
+                    inference_backend = "mistral_chat_fallback"
+                elif fallback_error:
+                    if parse_error:
+                        parse_error = f"{parse_error};{fallback_error}"
+                    else:
+                        parse_error = fallback_error
 
         elapsed_ms = max(0.0, (time.perf_counter() - started) * 1000.0)
         cost_usd = cost_per_request(mode)
@@ -425,6 +576,8 @@ def main() -> None:
             "weather": weather,
             "model_source": model_source,
             "model_id": model_id,
+            "effective_model_id": effective_model_id,
+            "inference_backend": inference_backend,
             "trace_id": trace_id,
             "trace_url": weave_trace_url(cfg.wandb_entity, cfg.weave_project, trace_id),
             "json_valid": json_valid,

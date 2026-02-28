@@ -30,6 +30,13 @@ const promptModelId = process.env.EVAL_PROMPT_BASELINE_MODEL_ID || process.env.H
 const fineTunedModelId = process.env.EVAL_FINE_TUNED_MODEL_ID || process.env.HF_FT_OUTPUT_MODEL_ID || promptModelId;
 const modelId = mode === "fine_tuned" ? fineTunedModelId : mode === "prompt_baseline" ? promptModelId : "rule_based_keyword_v1";
 const hfToken = process.env.HF_TOKEN || process.env.HF_API_TOKEN || "";
+const hfInferenceBaseUrl = (process.env.HF_INFERENCE_BASE_URL || "https://router.huggingface.co/hf-inference/models").replace(/\/$/, "");
+const mistralApiKey = process.env.MISTRAL_API_KEY || "";
+const mistralBaseUrl = (process.env.MISTRAL_BASE_URL || "https://api.mistral.ai/v1").replace(/\/$/, "");
+const mistralPromptModelId = process.env.EVAL_MISTRAL_PROMPT_MODEL_ID || process.env.MISTRAL_BASE_MODEL || "mistral-small-latest";
+const mistralFineTunedModelId =
+  process.env.EVAL_MISTRAL_FINE_TUNED_MODEL_ID || process.env.MISTRAL_FINE_TUNED_MODEL_ID || process.env.MISTRAL_FT_MODEL_ID || "";
+const allowMistralFallback = !["0", "false", "no"].includes((process.env.EVAL_MISTRAL_FALLBACK_ENABLED || "true").toLowerCase());
 const traceProject = process.env.WEAVE_PROJECT || "atelier-kotone-weave";
 const traceEntity = process.env.WANDB_ENTITY || "";
 const topFailures = Math.max(1, Number(process.env.EVAL_TOP_FAILURES || 20));
@@ -103,7 +110,7 @@ const hfPredict = async (requestText, weather) => {
       `request_text=${requestText}`,
     ].join("\n");
 
-    const response = await fetch(`https://api-inference.huggingface.co/models/${modelId}`, {
+    const response = await fetch(`${hfInferenceBaseUrl}/${modelId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${hfToken}`,
@@ -119,12 +126,84 @@ const hfPredict = async (requestText, weather) => {
       }),
     });
     if (!response.ok) {
-      return { vector: null, parseError: `http_${response.status}` };
+      const body = await response.text();
+      return { vector: null, parseError: `http_${response.status}:${String(body || "").slice(0, 240)}` };
     }
     const payload = await response.json();
     const text = Array.isArray(payload) ? payload[0]?.generated_text || "" : payload?.generated_text || "";
     const block = extractJsonBlock(String(text || ""));
     if (!block) return { vector: null, parseError: "json_block_not_found" };
+    const parsed = JSON.parse(block);
+    return { vector: sanitizeVector(parsed), parseError: null };
+  } catch (error) {
+    return { vector: null, parseError: error instanceof Error ? error.message : String(error) };
+  }
+};
+
+const shouldTryMistralFallback = (parseError) => {
+  if (!parseError) return false;
+  const lowered = parseError.toLowerCase();
+  return (
+    lowered.startsWith("http_404") ||
+    lowered.startsWith("http_410") ||
+    lowered.includes("no longer supported") ||
+    lowered.includes("model_not_supported")
+  );
+};
+
+const mistralPredict = async (requestText, weather, mistralModelId) => {
+  if (!mistralApiKey) return { vector: null, parseError: "MISTRAL_API_KEY missing" };
+  if (!mistralModelId) return { vector: null, parseError: "Mistral model_id missing" };
+
+  try {
+    const prompt = [
+      "You estimate 6 hidden music parameters.",
+      "Return strict JSON only with keys energy,warmth,brightness,acousticness,complexity,nostalgia.",
+      "Each value must be integer between 0 and 100.",
+      `weather=${weather}`,
+      `request_text=${requestText}`,
+    ].join("\n");
+    const response = await fetch(`${mistralBaseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${mistralApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: mistralModelId,
+        temperature: 0.1,
+        max_tokens: 96,
+        messages: [
+          {
+            role: "system",
+            content: "You output only strict JSON with six integer fields.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      }),
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      return { vector: null, parseError: `mistral_http_${response.status}:${String(body || "").slice(0, 240)}` };
+    }
+
+    const payload = await response.json();
+    let content = payload?.choices?.[0]?.message?.content ?? "";
+    if (Array.isArray(content)) {
+      content = content
+        .map((part) => {
+          if (!part || typeof part !== "object") return "";
+          if (part.type === "text" || part.type === "output_text") return String(part.text || "");
+          if ("content" in part) return String(part.content || "");
+          return "";
+        })
+        .join("");
+    }
+    const block = extractJsonBlock(String(content || ""));
+    if (!block) return { vector: null, parseError: "mistral_json_block_not_found" };
     const parsed = JSON.parse(block);
     return { vector: sanitizeVector(parsed), parseError: null };
   } catch (error) {
@@ -163,12 +242,27 @@ const run = async () => {
     const traceId = `eval_${mode}_${nanoid(10)}`;
     let vector = null;
     let parseError = null;
+    let effectiveModelId = modelId;
+    let inferenceBackend = "rule_based";
     if (mode === "rule_baseline") {
       vector = rulePredict(item.request_text || "");
     } else {
       const predicted = await hfPredict(item.request_text || "", item.weather || "sunny");
       vector = predicted.vector;
       parseError = predicted.parseError;
+      inferenceBackend = "hf_router_hf_inference";
+      if (!vector && allowMistralFallback && shouldTryMistralFallback(parseError)) {
+        const fallbackModelId = mode === "fine_tuned" ? mistralFineTunedModelId || mistralPromptModelId : mistralPromptModelId;
+        const fallback = await mistralPredict(item.request_text || "", item.weather || "sunny", fallbackModelId);
+        if (fallback.vector) {
+          vector = fallback.vector;
+          parseError = null;
+          effectiveModelId = fallbackModelId;
+          inferenceBackend = "mistral_chat_fallback";
+        } else if (fallback.parseError) {
+          parseError = parseError ? `${parseError};${fallback.parseError}` : fallback.parseError;
+        }
+      }
     }
 
     const latencyMs = Math.max(0, performance.now() - startedAt);
@@ -186,6 +280,8 @@ const run = async () => {
       weather: item.weather,
       model_source: mode,
       model_id: modelId,
+      effective_model_id: effectiveModelId,
+      inference_backend: inferenceBackend,
       trace_id: traceId,
       trace_url: traceUrl(traceId),
       json_valid: jsonValid,

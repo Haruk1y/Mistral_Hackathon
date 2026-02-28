@@ -1,0 +1,328 @@
+{
+  "generated_at": "2026-02-28T09:59:50.131386+00:00",
+  "entity": "haruk1y_",
+  "project": "atelier-kotone-ft",
+  "campaign": "balanced_6run",
+  "run_count": 6,
+  "runs": [
+    {
+      "run_id": "kt04tejg",
+      "run_name": "balanced-run1-cycle1-default",
+      "group": "balanced_6run-cycle1",
+      "state": "finished",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/kt04tejg",
+      "created_at": "2026-02-28T09:37:45Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 21.77479553222656,
+        "mse_raw": 682.1021118164062,
+        "mae_raw_energy": 18.762895584106445,
+        "mae_raw_warmth": 22.558046340942383,
+        "mae_raw_brightness": 19.94107437133789,
+        "mae_raw_acousticness": 22.514198303222656,
+        "mae_raw_complexity": 24.065288543701172,
+        "mae_raw_nostalgia": 22.807268142700195
+      },
+      "hard_case_stats": {
+        "artifact_name": "final-metrics-balanced-run1-cycle1-default:v0",
+        "artifact_type": "metrics",
+        "artifact_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/artifacts/metrics/final-metrics-balanced-run1-cycle1-default/v0",
+        "hard_cases_count": 80,
+        "hard_case_dim_mae_raw": {
+          "energy": 20.715622627735137,
+          "warmth": 24.647069644927978,
+          "brightness": 21.35848250389099,
+          "acousticness": 23.56995270252228,
+          "complexity": 26.49086265563965,
+          "nostalgia": 26.090335655212403
+        }
+      },
+      "top_dims": [
+        {
+          "dim": "complexity",
+          "mae_raw": 24.065288543701172
+        },
+        {
+          "dim": "nostalgia",
+          "mae_raw": 22.807268142700195
+        }
+      ]
+    },
+    {
+      "run_id": "tsyaom4h",
+      "run_name": "balanced-run5-cycle2-tuned-augmented",
+      "group": "balanced_6run-cycle2",
+      "state": "finished",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/tsyaom4h",
+      "created_at": "2026-02-28T09:39:40Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 21.751163482666016,
+        "mse_raw": 682.0678100585938,
+        "mae_raw_energy": 19.188003540039062,
+        "mae_raw_warmth": 23.115699768066406,
+        "mae_raw_brightness": 20.42106819152832,
+        "mae_raw_acousticness": 20.6538028717041,
+        "mae_raw_complexity": 24.366127014160156,
+        "mae_raw_nostalgia": 22.762269973754883
+      },
+      "hard_case_stats": {
+        "artifact_name": "final-metrics-balanced-run5-cycle2-tuned-augmented:v0",
+        "artifact_type": "metrics",
+        "artifact_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/artifacts/metrics/final-metrics-balanced-run5-cycle2-tuned-augmented/v0",
+        "hard_cases_count": 80,
+        "hard_case_dim_mae_raw": {
+          "energy": 21.289658343791963,
+          "warmth": 25.393282890319824,
+          "brightness": 22.176393890380858,
+          "acousticness": 22.14607164859772,
+          "complexity": 26.46711359024048,
+          "nostalgia": 25.561123609542847
+        }
+      },
+      "top_dims": [
+        {
+          "dim": "complexity",
+          "mae_raw": 24.366127014160156
+        },
+        {
+          "dim": "warmth",
+          "mae_raw": 23.115699768066406
+        }
+      ]
+    },
+    {
+      "run_id": "kz4r8fdp",
+      "run_name": "balanced-run2-cycle1-tuned",
+      "group": "balanced_6run-cycle1",
+      "state": "failed",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/kz4r8fdp",
+      "created_at": "2026-02-28T09:39:47Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 23.90757751464844,
+        "mse_raw": 813.9990844726562,
+        "mae_raw_energy": 21.52648162841797,
+        "mae_raw_warmth": 24.310976028442383,
+        "mae_raw_brightness": 23.021577835083008,
+        "mae_raw_acousticness": 23.69167709350586,
+        "mae_raw_complexity": 23.940717697143555,
+        "mae_raw_nostalgia": 26.95404052734375
+      },
+      "hard_case_stats": {
+        "artifact_name": null,
+        "artifact_type": null,
+        "artifact_url": null,
+        "hard_cases_count": 0,
+        "hard_case_dim_mae_raw": {}
+      },
+      "top_dims": [
+        {
+          "dim": "nostalgia",
+          "mae_raw": 26.95404052734375
+        },
+        {
+          "dim": "warmth",
+          "mae_raw": 24.310976028442383
+        }
+      ]
+    },
+    {
+      "run_id": "pudh5lxw",
+      "run_name": "balanced-run4-cycle2-tuned",
+      "group": "balanced_6run-cycle2",
+      "state": "finished",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/pudh5lxw",
+      "created_at": "2026-02-28T09:39:47Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 21.92542839050293,
+        "mse_raw": 696.016357421875,
+        "mae_raw_energy": 18.89155960083008,
+        "mae_raw_warmth": 22.293954849243164,
+        "mae_raw_brightness": 20.131671905517575,
+        "mae_raw_acousticness": 22.791175842285156,
+        "mae_raw_complexity": 24.4405574798584,
+        "mae_raw_nostalgia": 23.003643035888672
+      },
+      "hard_case_stats": {
+        "artifact_name": "final-metrics-balanced-run4-cycle2-tuned:v0",
+        "artifact_type": "metrics",
+        "artifact_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/artifacts/metrics/final-metrics-balanced-run4-cycle2-tuned/v0",
+        "hard_cases_count": 80,
+        "hard_case_dim_mae_raw": {
+          "energy": 21.23428484201431,
+          "warmth": 24.45306968688965,
+          "brightness": 21.607824993133544,
+          "acousticness": 23.815473103523253,
+          "complexity": 26.846797752380372,
+          "nostalgia": 26.00230724811554
+        }
+      },
+      "top_dims": [
+        {
+          "dim": "complexity",
+          "mae_raw": 24.4405574798584
+        },
+        {
+          "dim": "nostalgia",
+          "mae_raw": 23.003643035888672
+        }
+      ]
+    },
+    {
+      "run_id": "qyyzbzes",
+      "run_name": "balanced-run3-cycle1-tuned-augmented",
+      "group": "balanced_6run-cycle1",
+      "state": "finished",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/qyyzbzes",
+      "created_at": "2026-02-28T09:39:48Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 21.15081787109375,
+        "mse_raw": 654.0237426757812,
+        "mae_raw_energy": 18.602441787719727,
+        "mae_raw_warmth": 22.422407150268555,
+        "mae_raw_brightness": 19.623708724975582,
+        "mae_raw_acousticness": 19.802345275878903,
+        "mae_raw_complexity": 24.260839462280273,
+        "mae_raw_nostalgia": 22.193161010742188
+      },
+      "hard_case_stats": {
+        "artifact_name": "final-metrics-balanced-run3-cycle1-tuned-augmented:v0",
+        "artifact_type": "metrics",
+        "artifact_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/artifacts/metrics/final-metrics-balanced-run3-cycle1-tuned-augmented/v0",
+        "hard_cases_count": 80,
+        "hard_case_dim_mae_raw": {
+          "energy": 20.550835156440733,
+          "warmth": 24.928411459922792,
+          "brightness": 20.61006016731262,
+          "acousticness": 20.498259139060973,
+          "complexity": 27.12154598236084,
+          "nostalgia": 25.01729748249054
+        }
+      },
+      "top_dims": [
+        {
+          "dim": "complexity",
+          "mae_raw": 24.260839462280273
+        },
+        {
+          "dim": "warmth",
+          "mae_raw": 22.422407150268555
+        }
+      ]
+    },
+    {
+      "run_id": "3y872rl4",
+      "run_name": "balanced-run6-cycle2-retrain-harddims",
+      "group": "balanced_6run-cycle2-retrain",
+      "state": "finished",
+      "url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/runs/3y872rl4",
+      "created_at": "2026-02-28T09:46:49Z",
+      "updated_at": null,
+      "metrics": {
+        "mae_raw": 25.006122589111328,
+        "mse_raw": 886.0469360351562,
+        "mae_raw_energy": 16.057579040527344,
+        "mae_raw_warmth": 25.964691162109375,
+        "mae_raw_brightness": 20.00349235534668,
+        "mae_raw_acousticness": 33.702693939208984,
+        "mae_raw_complexity": 24.21552848815918,
+        "mae_raw_nostalgia": 30.092756271362305
+      },
+      "hard_case_stats": {
+        "artifact_name": "final-metrics-balanced-run6-cycle2-retrain-harddims:v0",
+        "artifact_type": "metrics",
+        "artifact_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft/artifacts/metrics/final-metrics-balanced-run6-cycle2-retrain-harddims/v0",
+        "hard_cases_count": 80,
+        "hard_case_dim_mae_raw": {
+          "energy": 19.09180200099945,
+          "warmth": 29.96975827217102,
+          "brightness": 23.44593689441681,
+          "acousticness": 37.00794851779938,
+          "complexity": 26.772736811637877,
+          "nostalgia": 35.686939692497255
+        }
+      },
+      "top_dims": [
+        {
+          "dim": "acousticness",
+          "mae_raw": 33.702693939208984
+        },
+        {
+          "dim": "nostalgia",
+          "mae_raw": 30.092756271362305
+        }
+      ]
+    }
+  ],
+  "aggregate_dim_mae_raw": [
+    {
+      "dim": "nostalgia",
+      "mean_mae_raw": 24.635523160298664,
+      "count": 6
+    },
+    {
+      "dim": "complexity",
+      "mean_mae_raw": 24.21484311421712,
+      "count": 6
+    },
+    {
+      "dim": "acousticness",
+      "mean_mae_raw": 23.859315554300945,
+      "count": 6
+    },
+    {
+      "dim": "warmth",
+      "mean_mae_raw": 23.44429588317871,
+      "count": 6
+    },
+    {
+      "dim": "brightness",
+      "mean_mae_raw": 20.523765563964844,
+      "count": 6
+    },
+    {
+      "dim": "energy",
+      "mean_mae_raw": 18.838160196940105,
+      "count": 6
+    }
+  ],
+  "aggregate_hard_case_dim_mae_raw": [
+    {
+      "dim": "nostalgia",
+      "mean_mae_raw": 27.671600737571715,
+      "count": 5
+    },
+    {
+      "dim": "complexity",
+      "mean_mae_raw": 26.739811358451846,
+      "count": 5
+    },
+    {
+      "dim": "warmth",
+      "mean_mae_raw": 25.878318390846253,
+      "count": 5
+    },
+    {
+      "dim": "acousticness",
+      "mean_mae_raw": 25.40754102230072,
+      "count": 5
+    },
+    {
+      "dim": "brightness",
+      "mean_mae_raw": 21.839739689826967,
+      "count": 5
+    },
+    {
+      "dim": "energy",
+      "mean_mae_raw": 20.57644059419632,
+      "count": 5
+    }
+  ],
+  "recommended_focus_dims": [
+    "nostalgia",
+    "complexity"
+  ]
+}

@@ -18,7 +18,7 @@ export const CommissionList = () => {
           <li key={commission.id}>
             <div className="commission-row">
               <div>
-                <strong>{getCustomerName(commission.customerId)}</strong>
+                <strong className="customer-id-label">{getCustomerName(commission.customerId)}</strong>
                 <p>{commission.requestText}</p>
               </div>
               <div className="commission-actions">

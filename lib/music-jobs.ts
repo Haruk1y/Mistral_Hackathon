@@ -1,6 +1,8 @@
 import { nanoid } from "nanoid";
 import type { CreateMusicRequest, MusicJobStatusResponse } from "@/lib/types";
-import { computeOutputSanityScore, generateMusicWithElevenLabs } from "@/lib/music-provider";
+import { runInterpreter } from "@/lib/interpreter";
+import { computeOutputSanityScore, createSinePrompt, generateMusicWithElevenLabs } from "@/lib/music-provider";
+import { buildPromptEvalFeedback, evaluatePromptHiddenParams } from "@/lib/prompt-hidden-param-eval";
 import { generateSineWaveDataUri } from "@/lib/audio";
 
 type InternalMusicJob = {
@@ -8,9 +10,14 @@ type InternalMusicJob = {
   status: "queued" | "running" | "done" | "failed";
   audioUrl?: string;
   error?: string;
+  rulePrompt?: string;
   compositionPlan?: unknown;
   songMetadata?: unknown;
   outputSanityScore?: number;
+  promptInferenceHiddenParams?: CreateMusicRequest["targetHiddenParams"];
+  promptInferenceMeta?: NonNullable<Awaited<ReturnType<typeof runInterpreter>>["evaluationMeta"]>;
+  promptEval?: ReturnType<typeof evaluatePromptHiddenParams>;
+  promptFeedback?: string;
   traceId?: string;
   attemptCount: number;
   createdAt: string;
@@ -38,9 +45,14 @@ const toInt = (value: string | undefined, fallback: number) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const toBool = (value: string | undefined, fallback: boolean) => {
+  if (!value) return fallback;
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+};
+
 const createFallbackResult = () => {
   const audioUrl = generateSineWaveDataUri();
-  const musicLengthMs = Math.max(3000, toInt(process.env.ELEVENLABS_MUSIC_LENGTH_MS, 30000));
+  const musicLengthMs = Math.max(3000, toInt(process.env.ELEVENLABS_MUSIC_LENGTH_MS, 20000));
 
   return {
     audioUrl,
@@ -55,7 +67,7 @@ const createFallbackResult = () => {
   };
 };
 
-const processMusicJob = async (jobId: string, payload: CreateMusicRequest) => {
+const processMusicJob = async (jobId: string, payload: CreateMusicRequest, rulePrompt: string) => {
   const jobs = getJobs();
   const target = jobs.get(jobId);
   if (!target) return;
@@ -75,7 +87,7 @@ const processMusicJob = async (jobId: string, payload: CreateMusicRequest) => {
       target.updatedAt = new Date().toISOString();
       jobs.set(jobId, { ...target });
 
-      result = await generateMusicWithElevenLabs(payload);
+      result = await generateMusicWithElevenLabs(payload, rulePrompt);
       if (result?.audioUrl) {
         break;
       }
@@ -87,20 +99,69 @@ const processMusicJob = async (jobId: string, payload: CreateMusicRequest) => {
 
     await wait(1400);
 
+    let promptInferenceHiddenParams: CreateMusicRequest["targetHiddenParams"] | undefined;
+    let promptInferenceMeta: NonNullable<Awaited<ReturnType<typeof runInterpreter>>["evaluationMeta"]> | undefined;
+
+    try {
+      const promptInference = await runInterpreter({
+        requestText: `RULE_PROMPT:\n${rulePrompt}`,
+        weather: payload.weather ?? "cloudy",
+        inventoryPartIds: Object.values(payload.selectedPartsBySlot)
+      });
+
+      promptInferenceHiddenParams = promptInference.targetHiddenParams;
+      promptInferenceMeta = promptInference.evaluationMeta;
+    } catch {
+      promptInferenceHiddenParams = undefined;
+      promptInferenceMeta = undefined;
+    }
+
+    const promptEval =
+      payload.targetHiddenParams && promptInferenceHiddenParams
+        ? evaluatePromptHiddenParams(payload.targetHiddenParams, promptInferenceHiddenParams)
+        : undefined;
+    const promptFeedback = buildPromptEvalFeedback(promptEval, payload.targetHiddenParams?.vector);
+    const allowFallbackAudio = toBool(process.env.ELEVENLABS_ALLOW_FALLBACK_AUDIO, false);
+
+    if (result?.audioUrl == null && !allowFallbackAudio) {
+      jobs.set(jobId, {
+        ...target,
+        status: "failed",
+        rulePrompt,
+        promptInferenceHiddenParams,
+        promptInferenceMeta,
+        promptEval,
+        promptFeedback,
+        error: "ElevenLabs generation failed. Check endpoint/key/plan and disable fallback beep.",
+        updatedAt: new Date().toISOString()
+      });
+      return;
+    }
+
     const finalized =
       result?.audioUrl != null
         ? {
             audioUrl: result.audioUrl,
+            rulePrompt: result.rulePrompt,
             compositionPlan: result.compositionPlan,
             songMetadata: result.songMetadata,
             outputSanityScore: result.outputSanityScore,
+            promptInferenceHiddenParams,
+            promptInferenceMeta,
+            promptEval,
+            promptFeedback,
             traceId: result.traceId,
             error: undefined
           }
         : {
             ...createFallbackResult(),
+            rulePrompt,
             compositionPlan: undefined,
             songMetadata: undefined,
+            promptInferenceHiddenParams,
+            promptInferenceMeta,
+            promptEval,
+            promptFeedback,
             error: "ElevenLabs generation failed; fallback audio generated."
           };
 
@@ -120,20 +181,22 @@ const processMusicJob = async (jobId: string, payload: CreateMusicRequest) => {
   }
 };
 
-export const createJob = (payload: CreateMusicRequest): { jobId: string } => {
+export const createJob = (payload: CreateMusicRequest): { jobId: string; rulePrompt: string } => {
   const jobs = getJobs();
   const jobId = nanoid();
+  const rulePrompt = createSinePrompt(payload);
 
   jobs.set(jobId, {
     id: jobId,
     status: "queued",
+    rulePrompt,
     attemptCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
 
-  void processMusicJob(jobId, payload);
-  return { jobId };
+  void processMusicJob(jobId, payload, rulePrompt);
+  return { jobId, rulePrompt };
 };
 
 export const getJobStatus = (jobId: string): MusicJobStatusResponse => {
@@ -149,9 +212,14 @@ export const getJobStatus = (jobId: string): MusicJobStatusResponse => {
     status: job.status,
     audioUrl: job.audioUrl,
     error: job.error,
+    rulePrompt: job.rulePrompt,
     compositionPlan: job.compositionPlan,
     songMetadata: job.songMetadata,
     outputSanityScore: job.outputSanityScore,
+    promptInferenceHiddenParams: job.promptInferenceHiddenParams,
+    promptInferenceMeta: job.promptInferenceMeta,
+    promptEval: job.promptEval,
+    promptFeedback: job.promptFeedback,
     traceId: job.traceId
   };
 };

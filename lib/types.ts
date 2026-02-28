@@ -44,6 +44,19 @@ export type TargetHiddenParams = {
   constraints: Record<string, unknown>;
 };
 
+export type HiddenParamVectorKey = keyof ProfileVector;
+
+export type PromptHiddenParamEval = {
+  mae_raw_mean: number;
+  mse_raw: number;
+  mae_raw_by_dim: Record<HiddenParamVectorKey, number>;
+  max_error_dim: HiddenParamVectorKey;
+  max_error_value: number;
+  tags_jaccard: number;
+  summary: string;
+  next_actions: string[];
+};
+
 export type InterpreterModelSource =
   | "rule_baseline"
   | "prompt_baseline"
@@ -93,6 +106,22 @@ export type InterpreterRequest = {
   commissionId?: string;
 };
 
+export type RequestGenerationRequest = {
+  templateText: string;
+  weather: Weather;
+  customerId: string;
+  customerName?: string;
+  customerPersonality?: string;
+};
+
+export type RequestGenerationResponse = {
+  requestText: string;
+  modelSource: InterpreterModelSource;
+  latencyMs: number;
+  traceId?: string;
+  parseError?: string;
+};
+
 export type InterpreterResponse = {
   recommended: Record<SlotKey, string[]>;
   targetProfile: TargetProfile;
@@ -140,21 +169,28 @@ export type SubmitCompositionResponse = {
 export type CreateMusicRequest = {
   commissionId: string;
   requestText: string;
+  weather?: Weather;
   selectedPartsBySlot: Record<SlotKey, string>;
   targetHiddenParams?: TargetHiddenParams;
 };
 
 export type CreateMusicResponse = {
   jobId: string;
+  rulePrompt?: string;
 };
 
 export type MusicJobStatusResponse = {
   status: MusicJobStatus;
   audioUrl?: string;
   error?: string;
+  rulePrompt?: string;
   compositionPlan?: unknown;
   songMetadata?: unknown;
   outputSanityScore?: number;
+  promptInferenceHiddenParams?: TargetHiddenParams;
+  promptInferenceMeta?: InterpreterEvaluationMeta;
+  promptEval?: PromptHiddenParamEval;
+  promptFeedback?: string;
   traceId?: string;
 };
 
@@ -169,6 +205,9 @@ export type Commission = {
   interpreterHiddenParams?: TargetHiddenParams;
   interpreterOutput?: InterpreterResponse;
   generationSource?: "baseline" | "prompt_baseline" | "ft_model";
+  requestGenerationSource?: "template" | "ft_model" | "fallback";
+  requestGenerationTraceId?: string;
+  requestGenerationParseError?: string;
   traceId?: string;
   selectedPartsBySlot?: Record<SlotKey, string>;
   score?: number;
@@ -179,6 +218,11 @@ export type Commission = {
   evalSnapshot?: EvalSnapshot;
   jobId?: string;
   trackId?: string;
+  rulePrompt?: string;
+  promptInferenceHiddenParams?: TargetHiddenParams;
+  promptInferenceMeta?: InterpreterEvaluationMeta;
+  promptEval?: PromptHiddenParamEval;
+  promptFeedback?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -193,6 +237,11 @@ export type Track = {
   compositionPlan?: unknown;
   songMetadata?: unknown;
   outputSanityScore?: number;
+  rulePrompt?: string;
+  promptInferenceHiddenParams?: TargetHiddenParams;
+  promptInferenceMeta?: InterpreterEvaluationMeta;
+  promptEval?: PromptHiddenParamEval;
+  promptFeedback?: string;
   traceId?: string;
   createdAt: string;
 };
@@ -205,9 +254,14 @@ export type MusicJob = {
   status: MusicJobStatus;
   audioUrl?: string;
   error?: string;
+  rulePrompt?: string;
   compositionPlan?: unknown;
   songMetadata?: unknown;
   outputSanityScore?: number;
+  promptInferenceHiddenParams?: TargetHiddenParams;
+  promptInferenceMeta?: InterpreterEvaluationMeta;
+  promptEval?: PromptHiddenParamEval;
+  promptFeedback?: string;
   traceId?: string;
   createdAt: string;
   updatedAt: string;

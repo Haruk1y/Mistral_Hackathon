@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-02-28T10:32:00+09:00",
+  "skills_used": [
+    {
+      "name": "weights-and-biases",
+      "purpose": "W&B/Weave tracking, failure trace collection, self-improvement evidence",
+      "evidence": [
+        "docs/hackathon/SKILLS_WORKFLOW_LOG.md",
+        "artifacts/loop/cycle_3/mcp_eval_snapshot.json",
+        "artifacts/wandb/weave_failure_playbook.md"
+      ]
+    },
+    {
+      "name": "hugging-face-jobs",
+      "purpose": "6-run FT campaign submission and retrain job execution",
+      "evidence": [
+        "artifacts/hf_jobs/submissions.jsonl",
+        "artifacts/hf_jobs/balanced_6run_validation_snapshot.json"
+      ]
+    },
+    {
+      "name": "hf-mcp",
+      "purpose": "W&B MCP probe and context fetch for loop decision input",
+      "evidence": [
+        "scripts/wandb/fetch_mcp_eval_context.mjs",
+        "artifacts/loop/cycle_3/mcp_decision_input.json"
+      ]
+    }
+  ],
+  "notes": [
+    "cycle_3 snapshot source=wandb_mcp_probe+api_fallback",
+    "iter_eval logging is now per-step and warning-free in smoke run 9n2y76dc"
+  ]
+}

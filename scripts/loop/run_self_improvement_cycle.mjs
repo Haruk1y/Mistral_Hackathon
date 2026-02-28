@@ -69,6 +69,16 @@ const asBool = (value, fallback = false) => {
   return ["1", "true", "yes", "on"].includes(String(value).toLowerCase());
 };
 
+const parseForcedWeakDims = () => {
+  const raw = String(process.env.LOOP_FORCE_WEAK_DIMS || "").trim();
+  if (!raw) return [];
+  const asSet = new Set(KEYS);
+  return raw
+    .split(",")
+    .map((x) => x.trim())
+    .filter((x) => x.length > 0 && asSet.has(x));
+};
+
 const loadSummary = async () => JSON.parse(await readFile(summaryPath, "utf8"));
 const loadJsonlFile = async (path) => parseJsonl(await readFile(path, "utf8"));
 
@@ -437,10 +447,30 @@ const writeBeforeAfterCsv = async (summary) => {
 
 const main = async () => {
   await mkdir(cycleDir, { recursive: true });
-  await runMcpFetcher();
+  const mcpEnabled = asBool(process.env.WANDB_MCP_ENABLED, true);
+  const mcpFetchOk = await runMcpFetcher();
 
   const mcpSnapshot = await loadMcpSnapshot();
   const mcpDecision = await loadMcpDecisionInput();
+  const hasMcpArtifacts = Boolean(mcpSnapshot.payload && mcpDecision.payload);
+  const allowStaleSnapshot = asBool(process.env.WANDB_MCP_ALLOW_STALE_SNAPSHOT, false);
+
+  if (mcpEnabled && !mcpFetchOk && !(allowStaleSnapshot && hasMcpArtifacts)) {
+    throw new Error(
+      "WANDB_MCP_ENABLED=true but MCP fetch failed. Check WANDB_MCP_BASE_URL / DNS / WANDB_API_KEY. " +
+        "If you intentionally want to reuse existing artifacts, set WANDB_MCP_ALLOW_STALE_SNAPSHOT=true.",
+    );
+  }
+
+  if (mcpEnabled && !hasMcpArtifacts) {
+    throw new Error(
+      "WANDB_MCP_ENABLED=true but MCP artifacts are missing. Expected mcp_eval_snapshot.json and mcp_decision_input.json.",
+    );
+  }
+
+  if (mcpEnabled && !mcpFetchOk && allowStaleSnapshot && hasMcpArtifacts) {
+    console.warn("MCP fetch failed; continuing with existing MCP snapshot artifacts (WANDB_MCP_ALLOW_STALE_SNAPSHOT=true).");
+  }
 
   const summary = mcpDecision.payload?.eval_summary?.latest_by_mode
     ? {
@@ -454,7 +484,10 @@ const main = async () => {
   const samplePack = await loadFineTunedSampleRows(summary);
   const mcpFailures = Array.isArray(mcpDecision.payload?.failures_top_k) ? mcpDecision.payload.failures_top_k : [];
   const weakSourceRows = mcpFailures.length > 0 ? mcpFailures : samplePack.rows;
-  const weak = computeWeakDims(weakSourceRows);
+  const computedWeak = computeWeakDims(weakSourceRows);
+  const forcedWeakDims = parseForcedWeakDims();
+  const weak = forcedWeakDims.length > 0 ? { ...computedWeak, focus_dims: forcedWeakDims } : computedWeak;
+  const weakDimsSource = forcedWeakDims.length > 0 ? "forced_from_training_validation" : mcpFailures.length > 0 ? "mcp_failures_top_k" : "eval_sample_rows";
 
   const recentRuns = Array.isArray(mcpDecision.payload?.recent_runs) ? mcpDecision.payload.recent_runs : [];
   const hparams = deriveNextHparams(summary, weak.focus_dims, recentRuns);
@@ -495,6 +528,8 @@ const main = async () => {
     `- base_dataset_path: ${baseDatasetPath}`,
     "",
     "## Weak Dimensions (from sample errors)",
+    `- source: ${weakDimsSource}`,
+    forcedWeakDims.length > 0 ? `- forced_dims: ${forcedWeakDims.join(", ")}` : "- forced_dims: none",
     "```json",
     JSON.stringify(weak.by_dim, null, 2),
     "```",
@@ -539,6 +574,7 @@ const main = async () => {
     auto_improvement_delta: summary.auto_improvement_delta ?? null,
     source_eval_run_id: samplePack.runId,
     weak_dims: augmentation.focus_dims,
+    weak_dims_source: weakDimsSource,
     generated_augmented_count: generatedRows.length,
     replay_count: replayRows.length,
     total_added_count: combinedRows.length,

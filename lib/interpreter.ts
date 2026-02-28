@@ -158,9 +158,36 @@ const extractJsonBlock = (text: string): string | null => {
   return null;
 };
 
+const resolveHfModelConfig = () => {
+  const run1ModelId = process.env.HF_RUN1_MODEL_ID?.trim();
+  const fineTunedModelId = process.env.MISTRAL_FINE_TUNED_MODEL_ID?.trim();
+  const defaultModelId = process.env.HF_MISTRAL_MODEL_ID?.trim();
+
+  if (run1ModelId) {
+    return {
+      modelId: run1ModelId,
+      modelSource: "fine_tuned" as const
+    };
+  }
+
+  if (fineTunedModelId) {
+    return {
+      modelId: fineTunedModelId,
+      modelSource: "fine_tuned" as const
+    };
+  }
+
+  return {
+    modelId: defaultModelId || "mistralai/Ministral-3-3B-Instruct-2512",
+    modelSource: "prompt_baseline" as const
+  };
+};
+
 const callHfModel = async (input: InterpreterRequest): Promise<InterpreterResponse | null> => {
-  const hfModelId = process.env.HF_MISTRAL_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512";
-  const hfToken = process.env.HF_API_TOKEN;
+  const { modelId: hfModelId, modelSource } = resolveHfModelConfig();
+  const hfToken = process.env.HF_API_TOKEN || process.env.HF_TOKEN;
+  const hfInferenceBaseUrl =
+    (process.env.HF_INFERENCE_BASE_URL || "https://router.huggingface.co/hf-inference/models").replace(/\/$/, "");
 
   if (!hfToken) {
     return null;
@@ -178,7 +205,7 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     "Use only provided inventory part IDs in recommended arrays."
   ].join("\n");
 
-  const response = await fetch(`https://api-inference.huggingface.co/models/${hfModelId}`, {
+  const response = await fetch(`${hfInferenceBaseUrl}/${hfModelId}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${hfToken}`,
@@ -222,10 +249,7 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     const latency = Math.max(0, performance.now() - startedAt);
     parsed.evaluationMeta = {
       json_valid: true,
-      model_source:
-        process.env.MISTRAL_FINE_TUNED_MODEL_ID && process.env.MISTRAL_FINE_TUNED_MODEL_ID.length > 0
-          ? "fine_tuned"
-          : "prompt_baseline",
+      model_source: modelSource,
       latency_ms: latency,
       trace_id: nanoid(),
       cost_usd: 0

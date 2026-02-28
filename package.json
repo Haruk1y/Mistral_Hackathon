@@ -19,10 +19,15 @@
     "hf:dataset:publish": "node scripts/hf/publish_ft_dataset.mjs",
     "hf:job:submit": "node scripts/hf/submit_sft_job.mjs",
     "hf:campaign:balanced": "node scripts/hf/run_balanced_campaign.mjs",
+    "hf:campaign:collect": "uv run scripts/hf/collect_campaign_validation.py",
     "hf:prize:check": "node scripts/hf/check_prize_readiness.mjs",
     "wandb:mcp:fetch": "node scripts/wandb/fetch_mcp_eval_context.mjs",
+    "wandb:mcp:fetch:resilient": "WANDB_MCP_ENABLED=true WANDB_MCP_RETRY_MAX=5 WANDB_MCP_RETRY_BACKOFF_MS=1200 WANDB_MCP_TRY_LOCAL_HTTP=true node scripts/wandb/fetch_mcp_eval_context.mjs",
+    "wandb:mcp:local:start": "WANDB_MCP_TRANSPORT=http WANDB_MCP_PORT=8080 uvx --from git+https://github.com/wandb/wandb-mcp-server wandb_mcp_server",
     "wandb:report:assets": "node scripts/wandb/generate_report_assets.mjs",
-    "loop:cycle": "node scripts/loop/run_self_improvement_cycle.mjs"
+    "wandb:failures:analyze": "node scripts/wandb/generate_weave_failure_playbook.mjs",
+    "loop:cycle": "node scripts/loop/run_self_improvement_cycle.mjs",
+    "loop:cycle:resilient": "WANDB_MCP_ENABLED=true WANDB_MCP_RETRY_MAX=5 WANDB_MCP_RETRY_BACKOFF_MS=1200 WANDB_MCP_TRY_LOCAL_HTTP=true node scripts/loop/run_self_improvement_cycle.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",

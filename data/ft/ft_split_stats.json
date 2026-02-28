@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-02-28T08:19:23.340Z",
+  "generated_at": "2026-02-28T09:43:45.554Z",
   "split": {
-    "train": 800,
-    "valid": 100,
-    "test": 100,
-    "total": 1000,
-    "source_rows_total": 500
+    "train": 984,
+    "valid": 122,
+    "test": 124,
+    "total": 1230,
+    "source_rows_total": 615
   },
-  "source_path": "/Users/yajima/Desktop/dev/Mistral_Hackathon/data/ft/teacher_pairs.filtered.jsonl",
+  "source_path": "/Users/yajima/Desktop/dev/Mistral_Hackathon/data/ft/teacher_pairs.cycle_2.jsonl",
   "output_prefix": "ft_request_param",
   "expansion": {
     "request_text_rows_per_source": 1,
@@ -15,32 +15,32 @@
   },
   "source_vector_stats": {
     "energy": {
-      "mean": 49.98,
+      "mean": 49.426016260162605,
       "min": 0,
       "max": 100
     },
     "warmth": {
-      "mean": 49.886,
+      "mean": 50.00813008130081,
       "min": 0,
       "max": 100
     },
     "brightness": {
-      "mean": 50.84,
+      "mean": 49.93658536585366,
       "min": 0,
       "max": 100
     },
     "acousticness": {
-      "mean": 50.292,
+      "mean": 51.144715447154475,
       "min": 0,
       "max": 100
     },
     "complexity": {
-      "mean": 50.61,
+      "mean": 51.357723577235774,
       "min": 0,
       "max": 100
     },
     "nostalgia": {
-      "mean": 49.966,
+      "mean": 50.05853658536585,
       "min": 0,
       "max": 100
     }

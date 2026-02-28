@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-02-28T09:59:50.131386+00:00",
+  "campaign": "balanced_6run",
+  "recommended_focus_dims": [
+    "nostalgia",
+    "complexity"
+  ],
+  "aggregate_dim_mae_raw": [
+    {
+      "dim": "nostalgia",
+      "mean_mae_raw": 24.635523160298664,
+      "count": 6
+    },
+    {
+      "dim": "complexity",
+      "mean_mae_raw": 24.21484311421712,
+      "count": 6
+    },
+    {
+      "dim": "acousticness",
+      "mean_mae_raw": 23.859315554300945,
+      "count": 6
+    },
+    {
+      "dim": "warmth",
+      "mean_mae_raw": 23.44429588317871,
+      "count": 6
+    },
+    {
+      "dim": "brightness",
+      "mean_mae_raw": 20.523765563964844,
+      "count": 6
+    },
+    {
+      "dim": "energy",
+      "mean_mae_raw": 18.838160196940105,
+      "count": 6
+    }
+  ],
+  "aggregate_hard_case_dim_mae_raw": [
+    {
+      "dim": "nostalgia",
+      "mean_mae_raw": 27.671600737571715,
+      "count": 5
+    },
+    {
+      "dim": "complexity",
+      "mean_mae_raw": 26.739811358451846,
+      "count": 5
+    },
+    {
+      "dim": "warmth",
+      "mean_mae_raw": 25.878318390846253,
+      "count": 5
+    },
+    {
+      "dim": "acousticness",
+      "mean_mae_raw": 25.40754102230072,
+      "count": 5
+    },
+    {
+      "dim": "brightness",
+      "mean_mae_raw": 21.839739689826967,
+      "count": 5
+    },
+    {
+      "dim": "energy",
+      "mean_mae_raw": 20.57644059419632,
+      "count": 5
+    }
+  ],
+  "source_snapshot": "/Users/yajima/Desktop/dev/Mistral_Hackathon/artifacts/hf_jobs/balanced_6run_validation_snapshot.json"
+}

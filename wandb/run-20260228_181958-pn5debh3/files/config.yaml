@@ -1,0 +1,53 @@
+_wandb:
+    value:
+        cli_version: 0.25.0
+        e:
+            p80w8ybnav1q1c955u0slha93f9ztwej:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 8
+                    memoryGb: 16
+                    name: Apple M1
+                    pcpuCores: 4
+                    ramTotalBytes: "17179869184"
+                    swapTotalBytes: "6442450944"
+                codePath: scripts/wandb/weave_eval_runner.py
+                codePathLocal: scripts/wandb/weave_eval_runner.py
+                cpu_count: 8
+                cpu_count_logical: 8
+                disk:
+                    /:
+                        total: "494384795648"
+                        used: "476211974144"
+                email: yajima.code@gmail.com
+                executable: /Users/yajima/Desktop/dev/Mistral_Hackathon/.uv-cache/archive-v0/FWcWYSj17erIgrA6RKqdb/bin/python3
+                git:
+                    commit: 7d6989bc944e893a7b7b2bfe0453b1a921de7374
+                    remote: git@github.com:Haruk1y/Mistral_Hackathon.git
+                host: yajimayoujunoMacBook-Air.local
+                memory:
+                    total: "17179869184"
+                os: macOS-15.7.3-arm64-arm-64bit
+                program: /Users/yajima/Desktop/dev/Mistral_Hackathon/scripts/wandb/weave_eval_runner.py
+                python: CPython 3.12.2
+                root: /Users/yajima/Desktop/dev/Mistral_Hackathon
+                startedAt: "2026-02-28T09:19:58.430754Z"
+                writerId: p80w8ybnav1q1c955u0slha93f9ztwej
+        m: []
+        python_version: 3.12.2
+        t:
+            "3":
+                - 15
+                - 16
+            "4": 3.12.2
+            "5": 0.25.0
+            "12": 0.25.0
+            "13": darwin-arm64
+dataset_path:
+    value: ""
+fine_tuned_model_id:
+    value: ""
+mode:
+    value: prompt_baseline
+prompt_model_id:
+    value: ""

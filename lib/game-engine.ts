@@ -13,6 +13,7 @@ import type {
   CreateMusicRequest,
   GameState,
   MusicJob,
+  TargetProfile,
   Rank,
   ShopStockItem,
   Track,
@@ -70,6 +71,14 @@ const pickRandomRequest = (weather: Weather) => {
   return weighted[Math.floor(Math.random() * weighted.length)];
 };
 
+const toTargetHiddenParams = (profile: TargetProfile) => ({
+  vector: profile.vector,
+  tags: [...new Set([...profile.requiredTags, ...profile.optionalTags])],
+  constraints: {
+    ...profile.constraints
+  }
+});
+
 const createDailyCommissions = (weather: Weather, count = 3): Commission[] => {
   const weighted = weightedRequests(weather);
   const shuffled = [...weighted];
@@ -99,7 +108,9 @@ const createDailyCommissions = (weather: Weather, count = 3): Commission[] => {
     requestText: request.text,
     weather,
     status: "queued",
+    requestGenerationSource: "template",
     targetProfile: request.targetProfile,
+    targetHiddenParams: toTargetHiddenParams(request.targetProfile),
     createdAt: now(),
     updatedAt: now()
   }));
@@ -198,7 +209,7 @@ export const migrateState = (state: GameState): GameState => {
 export const getPartById = (partId: string) => CATALOG_PARTS.find((part) => part.id === partId);
 
 export const getCustomerName = (customerId: string) =>
-  CATALOG_CUSTOMERS.find((customer) => customer.id === customerId)?.name ?? "Unknown";
+  (CATALOG_CUSTOMERS.find((customer) => customer.id === customerId)?.id ?? customerId).toLowerCase();
 
 export const updateCommission = (
   state: GameState,

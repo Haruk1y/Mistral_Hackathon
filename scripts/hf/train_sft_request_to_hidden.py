@@ -97,7 +97,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-length", type=int, default=env_int("HF_FT_MAX_LENGTH", 768))
     parser.add_argument("--logging-steps", type=int, default=env_int("HF_FT_LOGGING_STEPS", 1))
     parser.add_argument("--eval-steps", type=int, default=env_int("HF_FT_EVAL_STEPS", 25))
-    parser.add_argument("--detailed-eval-steps", type=int, default=env_int("HF_FT_DETAILED_EVAL_STEPS", 25))
+    parser.add_argument("--detailed-eval-steps", type=int, default=env_int("HF_FT_DETAILED_EVAL_STEPS", 1))
+    parser.add_argument("--max-steps", type=int, default=env_int("HF_FT_MAX_STEPS", -1))
     parser.add_argument("--hard-cases-top-k", type=int, default=env_int("HF_FT_HARD_CASE_TOP_K", 80))
 
     parser.add_argument("--lora-r", type=int, default=env_int("HF_FT_LORA_R", 16))
@@ -408,7 +409,9 @@ class DetailedEvalCallback(TrainerCallback):
         if self.has_wandb:
             import wandb
 
-            wandb.log(log_payload, step=step)
+            # Do not force global step here; Trainer may already advance W&B step.
+            # iter_eval/* is bound to iter_eval/step via wandb.define_metric.
+            wandb.log(log_payload)
 
         if self.has_trackio:
             import trackio
@@ -450,6 +453,7 @@ def setup_wandb(args: argparse.Namespace) -> bool:
             "logging_steps": args.logging_steps,
             "eval_steps": args.eval_steps,
             "detailed_eval_steps": args.detailed_eval_steps,
+            "max_steps": args.max_steps,
             "hard_cases_top_k": args.hard_cases_top_k,
             "lora_r": args.lora_r,
             "lora_alpha": args.lora_alpha,
@@ -466,6 +470,10 @@ def setup_wandb(args: argparse.Namespace) -> bool:
             args.cycle_id,
         ],
     )
+
+    # Keep iter_eval charts on their own x-axis to avoid collisions with Trainer logs.
+    wandb.define_metric("iter_eval/step")
+    wandb.define_metric("iter_eval/*", step_metric="iter_eval/step")
     return True
 
 
@@ -577,6 +585,19 @@ def maybe_log_eval_to_weave(
     def log_case(payload: dict[str, Any]) -> dict[str, Any]:
         return payload
 
+    def build_trace_url(trace_id: str) -> str:
+        entity = str(args.wandb_entity or "").strip()
+        project = str(args.wandb_project or "").strip()
+        project_name = project
+        if "/" in project:
+            left, right = project.split("/", 1)
+            if not entity:
+                entity = left
+            project_name = right
+        if entity:
+            return f"https://wandb.ai/{entity}/{project_name}/weave/traces?query={trace_id}"
+        return f"https://wandb.ai/{project_name}/weave/traces?query={trace_id}"
+
     traces: list[dict[str, Any]] = []
     limit = min(20, len(hard_cases))
     for index in range(limit):
@@ -599,7 +620,7 @@ def maybe_log_eval_to_weave(
         traces.append(
             {
                 "trace_id": trace_id,
-                "trace_url_hint": f"https://wandb.ai/{args.wandb_project}/weave/traces?query={trace_id}",
+                "trace_url_hint": build_trace_url(trace_id),
                 "rank": case.get("rank"),
                 "mae_raw": case.get("mae_raw"),
             }
@@ -672,6 +693,7 @@ def main() -> None:
         save_strategy="no",
         eval_strategy="steps",
         eval_steps=max(1, args.eval_steps),
+        max_steps=args.max_steps,
         bf16=True,
         report_to=report_to,
         remove_unused_columns=False,

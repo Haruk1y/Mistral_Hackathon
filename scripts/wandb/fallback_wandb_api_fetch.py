@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.10"
+# dependencies = [
+#   "wandb>=0.18.0",
+# ]
 # ///
 
 """Fallback context fetcher for self-improvement loop.

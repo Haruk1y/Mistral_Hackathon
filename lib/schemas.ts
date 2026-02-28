@@ -35,6 +35,24 @@ export const targetHiddenParamsSchema = z.object({
   constraints: z.record(z.unknown())
 });
 
+export const promptHiddenParamEvalSchema = z.object({
+  mae_raw_mean: z.number().nonnegative(),
+  mse_raw: z.number().nonnegative(),
+  mae_raw_by_dim: z.object({
+    energy: z.number().nonnegative(),
+    warmth: z.number().nonnegative(),
+    brightness: z.number().nonnegative(),
+    acousticness: z.number().nonnegative(),
+    complexity: z.number().nonnegative(),
+    nostalgia: z.number().nonnegative()
+  }),
+  max_error_dim: z.enum(["energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia"]),
+  max_error_value: z.number().nonnegative(),
+  tags_jaccard: z.number().min(0).max(1),
+  summary: z.string(),
+  next_actions: z.array(z.string())
+});
+
 export const interpreterEvaluationMetaSchema = z.object({
   json_valid: z.boolean(),
   parse_error: z.string().optional(),
@@ -78,6 +96,28 @@ export const interpreterRequestSchema = z.object({
   inventoryPartIds: z.array(z.string())
 });
 
+export const requestGenerationRequestSchema = z.object({
+  templateText: z.string().min(1),
+  weather: z.enum(["sunny", "cloudy", "rainy"]),
+  customerId: z.string().min(1),
+  customerName: z.string().optional(),
+  customerPersonality: z.string().optional()
+});
+
+export const requestGenerationResponseSchema = z.object({
+  requestText: z.string().min(1),
+  modelSource: z.enum([
+    "rule_baseline",
+    "prompt_baseline",
+    "fine_tuned",
+    "firebase_callable",
+    "unknown"
+  ]),
+  latencyMs: z.number().nonnegative(),
+  traceId: z.string().optional(),
+  parseError: z.string().optional()
+});
+
 export const interpreterResponseSchema = z.object({
   recommended: slotRecord(z.array(z.string())),
   targetProfile: targetProfileSchema,
@@ -95,6 +135,7 @@ export const submitCompositionSchema = z.object({
 export const createMusicRequestSchema = z.object({
   commissionId: z.string().min(1),
   requestText: z.string().min(1),
+  weather: z.enum(["sunny", "cloudy", "rainy"]).optional(),
   selectedPartsBySlot: slotRecord(z.string().min(1)),
   targetHiddenParams: targetHiddenParamsSchema.optional()
 });
@@ -112,9 +153,14 @@ export const musicJobStatusResponseSchema = z.object({
   status: z.enum(["queued", "running", "done", "failed"]),
   audioUrl: z.string().optional(),
   error: z.string().optional(),
+  rulePrompt: z.string().optional(),
   compositionPlan: z.unknown().optional(),
   songMetadata: z.unknown().optional(),
   outputSanityScore: z.number().optional(),
+  promptInferenceHiddenParams: targetHiddenParamsSchema.optional(),
+  promptInferenceMeta: interpreterEvaluationMetaSchema.optional(),
+  promptEval: promptHiddenParamEvalSchema.optional(),
+  promptFeedback: z.string().optional(),
   traceId: z.string().optional()
 });
 

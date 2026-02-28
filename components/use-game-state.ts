@@ -1,15 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import {
   createMusicJobApi,
+  generateRequestApi,
   getMusicJobApi,
   runInterpreterApi,
   submitCompositionApi,
   syncGameStateApi
 } from "@/lib/api-client";
-import { CATALOG_PARTS } from "@/lib/catalog";
+import { CATALOG_CUSTOMERS, CATALOG_PARTS, REQUEST_TEMPLATES } from "@/lib/catalog";
 import {
   canPurchasePart,
   createInitialState,
@@ -29,10 +30,14 @@ const persistAndSync = (nextState: GameState) => {
   });
 };
 
+const REQUEST_TEMPLATE_TEXT_SET = new Set(REQUEST_TEMPLATES.map((template) => template.text.trim()));
+
 export const useGameState = () => {
   const [state, setState] = useState<GameState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestGenerationInFlight = useRef<Set<string>>(new Set());
+  const requestGenerationAttempted = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     setState(loadGameState());
@@ -46,6 +51,76 @@ export const useGameState = () => {
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    if (!state) return;
+
+    const targets = state.commissionOrder
+      .map((id) => state.commissions[id])
+      .filter(
+        (commission): commission is Commission => {
+          if (!commission) return false;
+          if (commission.status !== "queued") return false;
+
+          const source = commission.requestGenerationSource;
+          const looksLikeTemplate = REQUEST_TEMPLATE_TEXT_SET.has(commission.requestText.trim());
+          const retryTemplateLikeOnce = looksLikeTemplate;
+
+          return !source || source === "template" || retryTemplateLikeOnce;
+        }
+      )
+      .filter(
+        (commission) =>
+          !requestGenerationInFlight.current.has(commission.id) &&
+          !requestGenerationAttempted.current.has(commission.id)
+      );
+
+    if (!targets.length) return;
+
+    for (const commission of targets) {
+      requestGenerationInFlight.current.add(commission.id);
+      requestGenerationAttempted.current.add(commission.id);
+      const customer = CATALOG_CUSTOMERS.find((item) => item.id === commission.customerId);
+
+      void generateRequestApi({
+        templateText: commission.requestText,
+        weather: commission.weather,
+        customerId: commission.customerId,
+        customerName: customer?.id,
+        customerPersonality: customer?.personality
+      })
+        .then((generated) => {
+          updateState((prev) =>
+            updateCommission(prev, commission.id, (current) => ({
+              ...current,
+              requestText: generated.requestText,
+              requestGenerationSource:
+                generated.modelSource === "fine_tuned"
+                  ? "ft_model"
+                  : generated.modelSource === "rule_baseline"
+                    ? "fallback"
+                    : "ft_model",
+              requestGenerationTraceId: generated.traceId,
+              requestGenerationParseError: generated.parseError,
+              updatedAt: new Date().toISOString()
+            }))
+          );
+        })
+        .catch(() => {
+          updateState((prev) =>
+            updateCommission(prev, commission.id, (current) => ({
+              ...current,
+              requestGenerationSource: "fallback",
+              requestGenerationParseError: "client_request_error",
+              updatedAt: new Date().toISOString()
+            }))
+          );
+        })
+        .finally(() => {
+          requestGenerationInFlight.current.delete(commission.id);
+        });
+    }
+  }, [state, updateState]);
 
   const selectCommission = useCallback(
     (commissionId: string) => {
@@ -76,8 +151,8 @@ export const useGameState = () => {
           updateCommission(prev, commissionId, (current) => ({
             ...current,
             interpreterOutput: response,
-            targetProfile: response.targetProfile,
-            targetHiddenParams: response.targetHiddenParams,
+            targetProfile: current.targetProfile ?? response.targetProfile,
+            targetHiddenParams: current.targetHiddenParams ?? response.targetHiddenParams,
             interpreterHiddenParams: response.targetHiddenParams,
             generationSource:
               response.evaluationMeta.model_source === "fine_tuned"
@@ -146,6 +221,7 @@ export const useGameState = () => {
         const createResponse = await createMusicJobApi({
           commissionId,
           requestText: commission.requestText,
+          weather: commission.weather,
           selectedPartsBySlot,
           targetHiddenParams: commission.targetHiddenParams
         });
@@ -160,6 +236,7 @@ export const useGameState = () => {
                 requestText: commission.requestText,
                 selectedPartsBySlot,
                 status: "queued",
+                rulePrompt: createResponse.rulePrompt,
                 traceId: commission.traceId,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
@@ -170,6 +247,7 @@ export const useGameState = () => {
             [commissionId]: {
               ...prev.commissions[commissionId],
               jobId: createResponse.jobId,
+              rulePrompt: createResponse.rulePrompt,
               status: "generating",
               updatedAt: new Date().toISOString()
             }
@@ -207,9 +285,14 @@ export const useGameState = () => {
                 status: status.status,
                 audioUrl: status.audioUrl,
                 error: status.error,
+                rulePrompt: status.rulePrompt ?? existing.rulePrompt,
                 compositionPlan: status.compositionPlan,
                 songMetadata: status.songMetadata,
                 outputSanityScore: status.outputSanityScore,
+                promptInferenceHiddenParams: status.promptInferenceHiddenParams,
+                promptInferenceMeta: status.promptInferenceMeta,
+                promptEval: status.promptEval,
+                promptFeedback: status.promptFeedback,
                 traceId: status.traceId ?? existing.traceId,
                 updatedAt: new Date().toISOString()
               }
@@ -234,6 +317,11 @@ export const useGameState = () => {
                 compositionPlan: status.compositionPlan,
                 songMetadata: status.songMetadata,
                 outputSanityScore: status.outputSanityScore,
+                rulePrompt: status.rulePrompt ?? commission.rulePrompt,
+                promptInferenceHiddenParams: status.promptInferenceHiddenParams,
+                promptInferenceMeta: status.promptInferenceMeta,
+                promptEval: status.promptEval,
+                promptFeedback: status.promptFeedback,
                 traceId: status.traceId ?? commission.traceId,
                 createdAt: new Date().toISOString()
               };
@@ -249,6 +337,11 @@ export const useGameState = () => {
                   ...commission,
                   status: "delivered",
                   trackId: track.id,
+                  rulePrompt: status.rulePrompt ?? commission.rulePrompt,
+                  promptInferenceHiddenParams: status.promptInferenceHiddenParams,
+                  promptInferenceMeta: status.promptInferenceMeta,
+                  promptEval: status.promptEval,
+                  promptFeedback: status.promptFeedback,
                   traceId: status.traceId ?? commission.traceId,
                   updatedAt: new Date().toISOString()
                 }

@@ -53,6 +53,31 @@
   box-sizing: border-box;
 }
 
+/* Pixel-themed scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7c5235 #e6d1af;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #e6d1af;
+  border: 2px solid #7a5439;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b98156 0%, #8a5b3e 100%);
+  border: 2px solid #6a432c;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c58f62 0%, #996747 100%);
+}
+
 html,
 body {
   margin: 0;
@@ -478,9 +503,8 @@ a {
 
 .compose-customer-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 8px;
 }
 
 .compose-customer-portrait {
@@ -504,7 +528,27 @@ a {
 }
 
 .compose-request {
-  min-height: 72px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  max-height: 10em;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.customer-id-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.compose-customer .pixel-panel-body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .muted {
@@ -578,7 +622,6 @@ a {
   overflow-x: auto;
   padding: 4px 2px 12px;
   scroll-snap-type: x proximity;
-  scrollbar-width: thin;
 }
 
 .slot-part-card {
@@ -766,9 +809,77 @@ a {
   margin: 0 0 8px;
 }
 
+.result-box p {
+  margin: 4px 0;
+}
+
 .result-box ul {
   margin: 0;
   padding-left: 18px;
+}
+
+.compose-generated-result {
+  display: grid;
+  gap: 10px;
+}
+
+.compose-dialogue {
+  margin: 2px 0;
+  line-height: 1.45;
+}
+
+.compose-feedback-list {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.35;
+}
+
+.compose-result-actions {
+  margin-top: 8px;
+}
+
+.compose-result-actions .pixel-button-link {
+  width: 100%;
+}
+
+.compose-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(17, 10, 8, 0.56);
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(1px);
+}
+
+.compose-loading-panel {
+  min-width: 260px;
+  border: 4px solid #5a3827;
+  background: linear-gradient(180deg, #f1ddbc 0%, #e2c79c 100%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  padding: 16px 14px;
+  text-align: center;
+}
+
+.compose-loading-panel p {
+  margin: 4px 0;
+}
+
+.compose-spinner {
+  width: 26px;
+  height: 26px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  border: 4px solid #d9b88b;
+  border-top-color: #7a4f34;
+  display: block;
+  animation: compose-spin 0.9s linear infinite;
+}
+
+@keyframes compose-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .audio-player {

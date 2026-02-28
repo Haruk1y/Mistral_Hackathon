@@ -3,6 +3,7 @@
 import { PixelButton, PixelPanel, PixelTag } from "@/components/pixel-ui";
 import { useGame } from "@/components/game-context";
 import { useLocale } from "@/components/locale-context";
+import { getPartDescription } from "@/lib/catalog";
 import { slotLabel } from "@/lib/i18n";
 
 const PART_CARD_BASE_ASSET =
@@ -52,7 +53,7 @@ export const ShopView = () => {
                   </span>
                   <div className="shop-item-copy">
                     <h4>{part.name}</h4>
-                    <p>{part.description}</p>
+                    <p>{getPartDescription(part, locale)}</p>
                   </div>
                 </div>
                 <div className="stack-row">

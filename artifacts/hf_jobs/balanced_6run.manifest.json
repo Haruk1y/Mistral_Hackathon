@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-28T08:47:55.596Z",
+  "generated_at": "2026-02-28T09:35:20.338Z",
   "campaign": "balanced_6run",
-  "submit_enabled": false,
+  "submit_enabled": true,
   "runs": [
     {
       "id": "run_0_baselines_only",

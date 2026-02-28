@@ -21,9 +21,9 @@ Each JSONL line is exactly one sample.
 
 ## Splits
 
-- train: 800
-- validation: 100
-- test: 100
+- train: 984
+- validation: 122
+- test: 124
 
 ## Columns
 

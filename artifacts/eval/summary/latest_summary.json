@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-28T08:48:50.250Z",
-  "runs_count": 7,
+  "generated_at": "2026-02-28T10:00:39.546Z",
+  "runs_count": 13,
   "latest_by_mode": {
     "fine_tuned": {
       "dataset_version": "frozen_eval_set.v1_teacher_mistral",
@@ -8,22 +8,23 @@
       "model_source": "fine_tuned",
       "model_id": "Haruk1y/atelier-kotone-ministral3b-ft",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T08:43:32.993Z",
+      "timestamp": "2026-02-28T09:23:05.874836+00:00",
       "metrics": {
-        "json_valid_rate": 0,
-        "vector_mae": 0,
-        "mse_raw": 0,
-        "mse_norm": 0,
-        "r2_score": 0,
-        "constraint_match_rate": 0,
-        "slot_exact_match": 0,
-        "intent_score_mean": 0,
-        "output_sanity_score": 12,
-        "p95_inference_latency_ms": 1.176000000000002,
-        "p50_inference_latency_ms": 0.5557909999999993,
+        "json_valid_rate": 1,
+        "vector_mae": 26.12857142857143,
+        "mse_raw": 1002.3761904761905,
+        "mse_norm": 0.10023761904761905,
+        "r2_score": -1.8468382170960642,
+        "constraint_match_rate": 0.11428571428571428,
+        "slot_exact_match": 0.3607142857142857,
+        "intent_score_mean": 45.129999999999995,
+        "output_sanity_score": 87.84285714285714,
+        "p95_inference_latency_ms": 1203.7897909976891,
+        "p50_inference_latency_ms": 842.6303749947692,
         "cost_per_100_requests_usd": 0.19
       },
-      "file": "2026-02-28T08-43-32-992Z_fine_tuned.json"
+      "weave_project": "atelier-kotone-weave",
+      "file": "2026-02-28T09-23-05-874099+00-00_fine_tuned.json"
     },
     "prompt_baseline": {
       "dataset_version": "frozen_eval_set.v1_teacher_mistral",
@@ -31,22 +32,23 @@
       "model_source": "prompt_baseline",
       "model_id": "mistralai/Ministral-3-3B-Instruct-2512",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T08:43:19.743Z",
+      "timestamp": "2026-02-28T09:21:25.788775+00:00",
       "metrics": {
-        "json_valid_rate": 0,
-        "vector_mae": 0,
-        "mse_raw": 0,
-        "mse_norm": 0,
-        "r2_score": 0,
-        "constraint_match_rate": 0,
-        "slot_exact_match": 0,
-        "intent_score_mean": 0,
-        "output_sanity_score": 12,
-        "p95_inference_latency_ms": 1.867750000000001,
-        "p50_inference_latency_ms": 0.653499999999994,
-        "cost_per_100_requests_usd": 0.2799999999999998
+        "json_valid_rate": 0.9857142857142858,
+        "vector_mae": 20.367149758454108,
+        "mse_raw": 630.6618357487922,
+        "mse_norm": 0.06306618357487923,
+        "r2_score": -0.7964754431722538,
+        "constraint_match_rate": 0.21739130434782608,
+        "slot_exact_match": 0.42028985507246375,
+        "intent_score_mean": 57.22898550724637,
+        "output_sanity_score": 83.41428571428571,
+        "p95_inference_latency_ms": 1558.7693749985192,
+        "p50_inference_latency_ms": 1164.6003749992815,
+        "cost_per_100_requests_usd": 0.27999999999999997
       },
-      "file": "2026-02-28T08-43-19-743Z_prompt_baseline.json"
+      "weave_project": "atelier-kotone-weave",
+      "file": "2026-02-28T09-21-25-788299+00-00_prompt_baseline.json"
     },
     "rule_baseline": {
       "dataset_version": "frozen_eval_set.v1_teacher_mistral",
@@ -54,51 +56,64 @@
       "model_source": "rule_baseline",
       "model_id": "rule_based_keyword_v1",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T08:43:02.673Z",
+      "timestamp": "2026-02-28T08:54:17.391739+00:00",
       "metrics": {
         "json_valid_rate": 1,
         "vector_mae": 19.076190476190476,
         "mse_raw": 564.7809523809524,
         "mse_norm": 0.05647809523809524,
-        "r2_score": -0.6040285222279524,
+        "r2_score": -0.6040285222279518,
         "constraint_match_rate": 0.2714285714285714,
         "slot_exact_match": 0.4142857142857143,
         "intent_score_mean": 59.940000000000005,
-        "output_sanity_score": 82.97142857142858,
-        "p95_inference_latency_ms": 0.03262499999999946,
-        "p50_inference_latency_ms": 0.0008750000000006253,
-        "cost_per_100_requests_usd": 0.020000000000000014
+        "output_sanity_score": 82.11428571428571,
+        "p95_inference_latency_ms": 0.03108399687334895,
+        "p50_inference_latency_ms": 0.008000002708286047,
+        "cost_per_100_requests_usd": 0.02
       },
-      "file": "2026-02-28T08-43-02-673Z_rule_baseline.json"
+      "weave_project": "atelier-kotone-weave",
+      "file": "2026-02-28T08-54-17-390506+00-00_rule_baseline.json"
     }
   },
   "latest_samples_by_mode": {
     "fine_tuned": {
-      "sample_file": "2026-02-28T08-43-32-992Z_fine_tuned.json",
-      "failure_count": 0,
-      "top_trace_urls": []
-    },
-    "prompt_baseline": {
-      "sample_file": "2026-02-28T08-43-19-743Z_prompt_baseline.json",
-      "failure_count": 0,
-      "top_trace_urls": []
-    },
-    "rule_baseline": {
-      "sample_file": "2026-02-28T08-43-02-673Z_rule_baseline.json",
+      "sample_file": "2026-02-28T09-23-05-874099+00-00_fine_tuned.json",
       "failure_count": 20,
       "top_trace_urls": [
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_zOTq-33UnT",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_wJ934bzymm",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_4IB7bfNdWU",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_34cOG4iX2-",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_4U9zHohtNf"
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_fine_tuned_eee110309ea24536",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_fine_tuned_452b1864069540e8",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_fine_tuned_b349d5c5f3834941",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_fine_tuned_12726f15d89749bd",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_fine_tuned_54db683d5a5a4ff7"
+      ]
+    },
+    "prompt_baseline": {
+      "sample_file": "2026-02-28T09-21-25-788299+00-00_prompt_baseline.json",
+      "failure_count": 20,
+      "top_trace_urls": [
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_056f6b2b9daa4fc9",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_54e03ff67f2e4a2c",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_383883a9e2b04bf5",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_86bd567e76964929",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_9b5265c57eea495b"
+      ]
+    },
+    "rule_baseline": {
+      "sample_file": "2026-02-28T08-54-17-390506+00-00_rule_baseline.json",
+      "failure_count": 20,
+      "top_trace_urls": [
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_ae27972eeba649bf",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_cb3421ae06404832",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_da46747112e84269",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_f8e3425b605c480e",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_df0c15db7cc640a1"
       ]
     }
   },
   "auto_improvement_delta": {
-    "intent_score_mean": 0,
-    "vector_mae": 0,
-    "json_valid_rate": 0
+    "intent_score_mean": -12.098985507246375,
+    "vector_mae": 5.761421670117322,
+    "json_valid_rate": 0.014285714285714235
   },
   "loop_completion_rate": 1,
   "loop_detail": {

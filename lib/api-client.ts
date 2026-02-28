@@ -5,6 +5,8 @@ import type {
   InterpreterRequest,
   InterpreterResponse,
   MusicJobStatusResponse,
+  RequestGenerationRequest,
+  RequestGenerationResponse,
   SubmitCompositionRequest,
   SubmitCompositionResponse
 } from "@/lib/types";
@@ -45,6 +47,18 @@ export const runInterpreterApi = async (payload: InterpreterRequest) => {
   }
 
   return request<InterpreterResponse>("/api/interpreter", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+};
+
+export const generateRequestApi = async (payload: RequestGenerationRequest) => {
+  if (callableBaseUrl) {
+    return callCallable<RequestGenerationResponse>("generateRequestText", payload);
+  }
+
+  return request<RequestGenerationResponse>("/api/request/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)

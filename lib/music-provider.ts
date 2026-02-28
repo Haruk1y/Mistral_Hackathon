@@ -4,6 +4,7 @@ import { CATALOG_PARTS } from "@/lib/catalog";
 
 export type ElevenLabsDetailedResult = {
   audioUrl: string | null;
+  rulePrompt: string;
   compositionPlan?: unknown;
   songMetadata?: unknown;
   outputSanityScore: number;
@@ -44,6 +45,30 @@ const pickString = (value: unknown): string | undefined => {
   return undefined;
 };
 
+const toDataUrlIfBase64 = (value: string | undefined, fallbackMime = "audio/mpeg"): string | undefined => {
+  if (!value) return undefined;
+  if (value.startsWith("data:")) return value;
+  const normalized = value.replace(/\s+/g, "");
+  if (!normalized || normalized.length < 64) return undefined;
+  const base64Pattern = /^[A-Za-z0-9+/=]+$/;
+  if (!base64Pattern.test(normalized)) return undefined;
+  return `data:${fallbackMime};base64,${normalized}`;
+};
+
+const normalizeMusicEndpoint = (endpoint: string): string => {
+  const trimmed = endpoint.trim().replace(/\/+$/, "");
+  return trimmed
+    .replace("/v1/music/compose-detailed", "/v1/music")
+    .replace("/v1/music/detailed", "/v1/music")
+    .replace("/v1/music/compose", "/v1/music");
+};
+
+const buildMusicEndpointCandidates = (): string[] => {
+  const envEndpoint = process.env.ELEVENLABS_MUSIC_ENDPOINT || process.env.ELEVENLABS_MUSIC_DETAILED_ENDPOINT || "";
+  const candidates = [normalizeMusicEndpoint(envEndpoint), "https://api.elevenlabs.io/v1/music"].filter(Boolean);
+  return [...new Set(candidates)];
+};
+
 const normalizeAudioUrl = async (response: Response, payload: unknown): Promise<string | null> => {
   if (!response.ok) return null;
 
@@ -62,9 +87,16 @@ const normalizeAudioUrl = async (response: Response, payload: unknown): Promise<
     pickString(objectPayload.audio_url),
     pickString(objectPayload.audioUrl),
     pickString(objectPayload.url),
+    toDataUrlIfBase64(pickString(objectPayload.audio_base64)),
+    toDataUrlIfBase64(pickString(objectPayload.audioBase64)),
+    toDataUrlIfBase64(pickString(objectPayload.audio)),
+    toDataUrlIfBase64(pickString(objectPayload.b64_audio)),
     nestedData ? pickString(nestedData.audio_url) : undefined,
     nestedData ? pickString(nestedData.audioUrl) : undefined,
-    nestedData ? pickString(nestedData.url) : undefined
+    nestedData ? pickString(nestedData.url) : undefined,
+    nestedData ? toDataUrlIfBase64(pickString(nestedData.audio_base64)) : undefined,
+    nestedData ? toDataUrlIfBase64(pickString(nestedData.audioBase64)) : undefined,
+    nestedData ? toDataUrlIfBase64(pickString(nestedData.audio)) : undefined
   ];
 
   return candidates.find((candidate) => Boolean(candidate)) ?? null;
@@ -170,9 +202,10 @@ export const createSinePrompt = (payload: CreateMusicRequest): string => {
   const lines = [
     "Compose nostalgic retro pixel-town background music.",
     "Return instrumental music suitable for a game scene.",
+    "This is a rule-based prompt generated from selected Kotone parts.",
     `User request: ${payload.requestText}`,
     hiddenParamsSummary,
-    "Selected composition parts:",
+    "Selected Kotone combination:",
     ...Object.entries(payload.selectedPartsBySlot).map(
       ([slot, partId]) => `- ${slot}: ${getPartName(partId)} (${partId})`
     ),
@@ -183,7 +216,8 @@ export const createSinePrompt = (payload: CreateMusicRequest): string => {
 };
 
 export const generateMusicWithElevenLabs = async (
-  payload: CreateMusicRequest
+  payload: CreateMusicRequest,
+  promptOverride?: string
 ): Promise<ElevenLabsDetailedResult | null> => {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
@@ -191,60 +225,72 @@ export const generateMusicWithElevenLabs = async (
   }
 
   const endpoint =
-    process.env.ELEVENLABS_MUSIC_DETAILED_ENDPOINT ||
     process.env.ELEVENLABS_MUSIC_ENDPOINT ||
-    "https://api.elevenlabs.io/v1/music/compose-detailed";
-
+    process.env.ELEVENLABS_MUSIC_DETAILED_ENDPOINT ||
+    "https://api.elevenlabs.io/v1/music";
+  const endpointCandidates = buildMusicEndpointCandidates();
   const modelId = process.env.ELEVENLABS_MODEL_ID || "music_v1";
-  const musicLengthMs = clamp(toInt(process.env.ELEVENLABS_MUSIC_LENGTH_MS, 30000), 3000, 600000);
+  const musicLengthMs = clamp(toInt(process.env.ELEVENLABS_MUSIC_LENGTH_MS, 20000), 3000, 300000);
+  const outputFormat = process.env.ELEVENLABS_OUTPUT_FORMAT || "mp3_44100_128";
   const forceInstrumental = (process.env.ELEVENLABS_FORCE_INSTRUMENTAL || "true") !== "false";
-  const prompt = createSinePrompt(payload);
+  const prompt = promptOverride || createSinePrompt(payload);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 45_000);
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": apiKey
-      },
-      body: JSON.stringify({
-        model_id: modelId,
-        prompt,
-        force_instrumental: forceInstrumental,
-        music_length_ms: musicLengthMs,
-        output_format: "mp3_44100_128"
-      }),
-      signal: controller.signal
-    });
+    for (const candidateEndpoint of [normalizeMusicEndpoint(endpoint), ...endpointCandidates]) {
+      const endpointUrl = new URL(candidateEndpoint);
+      endpointUrl.searchParams.set("output_format", outputFormat);
 
-    if (!response.ok) {
-      return null;
-    }
+      const response = await fetch(endpointUrl.toString(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xi-api-key": apiKey
+        },
+        body: JSON.stringify({
+          model_id: modelId,
+          prompt,
+          force_instrumental: forceInstrumental,
+          music_length_ms: musicLengthMs
+        }),
+        signal: controller.signal
+      });
 
-    const contentType = response.headers.get("content-type") || "";
-    const rawPayload: unknown = contentType.includes("application/json") ? await response.json() : null;
+      if (!response.ok) {
+        continue;
+      }
 
-    const audioUrl = await normalizeAudioUrl(response, rawPayload);
-    const compositionPlan = extractCompositionPlan(rawPayload);
-    const songMetadata = extractSongMetadata(rawPayload);
-    const traceId = extractTraceId(rawPayload) ?? `music_${nanoid()}`;
+      const contentType = response.headers.get("content-type") || "";
+      const rawPayload: unknown = contentType.includes("application/json") ? await response.json() : null;
 
-    return {
-      audioUrl,
-      compositionPlan,
-      songMetadata,
-      outputSanityScore: computeOutputSanityScore({
+      const audioUrl = await normalizeAudioUrl(response, rawPayload);
+      if (!audioUrl) {
+        continue;
+      }
+
+      const compositionPlan = extractCompositionPlan(rawPayload);
+      const songMetadata = extractSongMetadata(rawPayload);
+      const traceId = extractTraceId(rawPayload) ?? `music_${nanoid()}`;
+
+      return {
         audioUrl,
+        rulePrompt: prompt,
         compositionPlan,
         songMetadata,
-        musicLengthMs,
-        forceInstrumental
-      }),
-      traceId
-    };
+        outputSanityScore: computeOutputSanityScore({
+          audioUrl,
+          compositionPlan,
+          songMetadata,
+          musicLengthMs,
+          forceInstrumental
+        }),
+        traceId
+      };
+    }
+
+    return null;
   } catch {
     return null;
   } finally {

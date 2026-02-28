@@ -8,6 +8,57 @@ const profile = (
   constraints: TargetProfile["constraints"] = {}
 ): TargetProfile => ({ vector, requiredTags, optionalTags, forbiddenTags, constraints });
 
+const PART_DESCRIPTIONS_EN: Record<string, string> = {
+  style_80s_citypop: "Urban and warm 80s city-pop grammar.",
+  style_90s_hiphop: "Thick 90s hip-hop groove with a grounded beat.",
+  style_2000s_pop: "Catchy, bright 2000s pop style.",
+  style_70s_folk: "Simple 70s folk stride with woody warmth.",
+  style_2010s_edm: "2010s EDM that builds tension with a countdown feel.",
+  style_60s_parade_jazz: "60s parade-jazz swing with a marching snare feel.",
+  style_50s_clockwork_swing: "50s swing driven by ticking clockwork momentum.",
+  style_2010s_dance_pop: "Bouncy 2010s dance-pop with boot-stomp energy.",
+  inst_piano_upright: "Classic upright piano with natural wooden resonance.",
+  inst_soft_strings: "Soft, sparkling harp that wraps the air gently.",
+  inst_analog_synth: "Mechanical music-box tone with a quirky afterglow.",
+  inst_violin_bright: "Forward high notes that light up the main melody.",
+  inst_cello_warm: "Deep cello lows that anchor the track's core.",
+  inst_musicbox_garden: "Clear music-box chime suited to garden imagery.",
+  inst_clarinet_oak: "Rounded clarinet breath that adds wooden warmth.",
+  inst_tambourine_river: "Fine tambourine ticks that shimmer like water reflections.",
+  inst_mandolin_round: "Rounded mandolin plucks that support the harmony.",
+  inst_guitar_street: "Wooden guitar tone with a backstreet-live atmosphere.",
+  inst_lute_sun: "Bright lute touch that makes the mood feel optimistic.",
+  inst_recorder_tall: "Straight, clear highs that carry the melody cleanly.",
+  inst_accordion_travel: "Traveling accordion pulse that adds lively motion.",
+  inst_violin_vintage: "Vintage violin with gentle grit and nostalgic color.",
+  mood_rain_ambience: "Quiet rain ambience for a calm scene.",
+  mood_sun_glow: "Adds the warm temperature of a sunset sky.",
+  mood_night_drive: "Cool night-drive air that flows through city roads.",
+  mood_cozy_hearth: "Adds a safe, fireside sense of comfort.",
+  mood_hope_star: "A forward-looking atmosphere like a star of hope.",
+  mood_lonely_star: "Quiet loneliness like standing alone under stars.",
+  mood_mystic_hood: "A mysterious aura that adds depth to the song.",
+  mood_party_face: "Party heat with smiles that spread across the room.",
+  mood_pocket_memory: "Gentle nostalgia like an old photo in your pocket.",
+  mood_sun_laugh: "Sun-bright, bouncing laughter in musical form.",
+  gimmick_beat_mute: "A hook that briefly mutes the beat then snaps back.",
+  gimmick_filter_rise: "A filter rise that hypes the pre-chorus moment.",
+  gimmick_harmony_stack: "Layered harmonies in the ending section.",
+  gimmick_campfire_crackle: "Warmth from subtle campfire crackle texture.",
+  gimmick_chatty_crowd: "Light crowd chatter to add live presence.",
+  gimmick_cricket_pulse: "Cricket-like pulse rhythm placed as tiny beats.",
+  gimmick_moonwind_spark: "Moon-wind accent with small sparks of brightness.",
+  gimmick_rainfall: "Raindrop layer for a moist, cinematic scene.",
+  gimmick_river_flow: "Continuous flow that connects sections like a river.",
+  gimmick_stone_rattle: "Dry, granular rhythm support like rattling stones.",
+  gimmick_temple_bell: "Single bell hit that marks section transitions.",
+  gimmick_thunder_pop: "Thunder-like impact before the drop.",
+  gimmick_whisper_left: "Left-channel whisper for spatial staging."
+};
+
+export const getPartDescription = (part: Part, locale: "ja" | "en"): string =>
+  locale === "en" ? PART_DESCRIPTIONS_EN[part.id] ?? part.description : part.description;
+
 export const CATALOG_PARTS: Part[] = [
   // style
   {
@@ -472,15 +523,26 @@ export const STARTER_PART_IDS = [
   "style_80s_citypop",
   "style_90s_hiphop",
   "style_2000s_pop",
+  "style_70s_folk",
+  "style_2010s_dance_pop",
   "inst_piano_upright",
   "inst_soft_strings",
   "inst_guitar_street",
+  "inst_cello_warm",
+  "inst_clarinet_oak",
+  "inst_violin_vintage",
   "mood_rain_ambience",
   "mood_sun_glow",
   "mood_night_drive",
+  "mood_cozy_hearth",
+  "mood_pocket_memory",
+  "mood_hope_star",
   "gimmick_beat_mute",
   "gimmick_filter_rise",
-  "gimmick_harmony_stack"
+  "gimmick_harmony_stack",
+  "gimmick_campfire_crackle",
+  "gimmick_rainfall",
+  "gimmick_river_flow"
 ];
 
 export const SHOP_DEFAULT_STOCK = CATALOG_PARTS.map((part) => ({
@@ -491,27 +553,27 @@ export const SHOP_DEFAULT_STOCK = CATALOG_PARTS.map((part) => ({
 export const CATALOG_CUSTOMERS: Customer[] = [
   {
     id: "anna",
-    name: "こはる",
+    name: "Koharu",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_06_face_160.png",
-    personality: "赤いおだんご髪の配達見習い。朝市に合う軽やかな曲が好き。"
+    personality: "Courier apprentice with red buns. Loves light music for the morning market."
   },
   {
     id: "ben",
-    name: "湊",
+    name: "Minato",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_09_face_160.png",
-    personality: "丸メガネの書店手伝い。ページをめくる手が進む穏やかな曲を好む。"
+    personality: "Bookshop assistant with round glasses. Prefers calm tunes that help pages turn."
   },
   {
     id: "cara",
-    name: "澄江",
+    name: "Sumie",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_14_face_160.png",
-    personality: "眼鏡の仕立て屋。夕暮れに似合う上品で落ち着いた旋律を求める。"
+    personality: "Tailor with glasses. Wants elegant and composed melodies for dusk."
   },
   {
     id: "dan",
-    name: "宗玄",
+    name: "Sogen",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_20_face_160.png",
-    personality: "白髭の旅人。古い街の思い出を呼び起こす温かな音を探している。"
+    personality: "White-bearded traveler. Seeks warm sounds that recall old-town memories."
   }
 ];
 
