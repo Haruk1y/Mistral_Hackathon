@@ -1,80 +1,109 @@
 {
-  "generated_at": "2026-02-28T03:11:00.969Z",
-  "runs_count": 3,
+  "generated_at": "2026-02-28T08:48:50.250Z",
+  "runs_count": 7,
   "latest_by_mode": {
     "fine_tuned": {
-      "dataset_version": "frozen_eval_set.v1",
+      "dataset_version": "frozen_eval_set.v1_teacher_mistral",
       "mode": "fine_tuned",
+      "model_source": "fine_tuned",
+      "model_id": "Haruk1y/atelier-kotone-ministral3b-ft",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T03:10:54.453Z",
+      "timestamp": "2026-02-28T08:43:32.993Z",
       "metrics": {
-        "json_valid_rate": 1,
-        "vector_mae": 3.157142857142857,
-        "mse_raw": 13,
-        "mse_norm": 0.0013,
-        "r2_score": 0.9630788348986349,
-        "constraint_match_rate": 0.9,
-        "slot_exact_match": 0.8571428571428571,
-        "intent_score_mean": 93.07142857142857,
-        "output_sanity_score": 78.27142857142857,
-        "p95_inference_latency_ms": 684,
-        "p50_inference_latency_ms": 463,
-        "cost_per_100_requests_usd": 0.19003388355502057
+        "json_valid_rate": 0,
+        "vector_mae": 0,
+        "mse_raw": 0,
+        "mse_norm": 0,
+        "r2_score": 0,
+        "constraint_match_rate": 0,
+        "slot_exact_match": 0,
+        "intent_score_mean": 0,
+        "output_sanity_score": 12,
+        "p95_inference_latency_ms": 1.176000000000002,
+        "p50_inference_latency_ms": 0.5557909999999993,
+        "cost_per_100_requests_usd": 0.19
       },
-      "file": "2026-02-28T03-10-54-454Z_fine_tuned.json"
+      "file": "2026-02-28T08-43-32-992Z_fine_tuned.json"
     },
     "prompt_baseline": {
-      "dataset_version": "frozen_eval_set.v1",
+      "dataset_version": "frozen_eval_set.v1_teacher_mistral",
       "mode": "prompt_baseline",
+      "model_source": "prompt_baseline",
+      "model_id": "mistralai/Ministral-3-3B-Instruct-2512",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T03:10:54.453Z",
+      "timestamp": "2026-02-28T08:43:19.743Z",
       "metrics": {
-        "json_valid_rate": 0.9857142857142858,
-        "vector_mae": 5.113526570048309,
-        "mse_raw": 34.78019323671498,
-        "mse_norm": 0.0034780193236714978,
-        "r2_score": 0.9012914748946483,
-        "constraint_match_rate": 0.8405797101449275,
-        "slot_exact_match": 0.75,
-        "intent_score_mean": 88.71014492753623,
-        "output_sanity_score": 71.68571428571428,
-        "p95_inference_latency_ms": 886,
-        "p50_inference_latency_ms": 656,
-        "cost_per_100_requests_usd": 0.2791774622198195
+        "json_valid_rate": 0,
+        "vector_mae": 0,
+        "mse_raw": 0,
+        "mse_norm": 0,
+        "r2_score": 0,
+        "constraint_match_rate": 0,
+        "slot_exact_match": 0,
+        "intent_score_mean": 0,
+        "output_sanity_score": 12,
+        "p95_inference_latency_ms": 1.867750000000001,
+        "p50_inference_latency_ms": 0.653499999999994,
+        "cost_per_100_requests_usd": 0.2799999999999998
       },
-      "file": "2026-02-28T03-10-54-454Z_prompt_baseline.json"
+      "file": "2026-02-28T08-43-19-743Z_prompt_baseline.json"
     },
     "rule_baseline": {
-      "dataset_version": "frozen_eval_set.v1",
+      "dataset_version": "frozen_eval_set.v1_teacher_mistral",
       "mode": "rule_baseline",
+      "model_source": "rule_baseline",
+      "model_id": "rule_based_keyword_v1",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T03:10:54.453Z",
+      "timestamp": "2026-02-28T08:43:02.673Z",
       "metrics": {
-        "json_valid_rate": 0.9571428571428572,
-        "vector_mae": 6.898009950248756,
-        "mse_raw": 64.27611940298507,
-        "mse_norm": 0.006427611940298507,
-        "r2_score": 0.8162004484397928,
-        "constraint_match_rate": 0.7611940298507462,
-        "slot_exact_match": 0.6529850746268657,
-        "intent_score_mean": 84.86567164179104,
-        "output_sanity_score": 61.77142857142857,
-        "p95_inference_latency_ms": 295,
-        "p50_inference_latency_ms": 216,
-        "cost_per_100_requests_usd": 0.02001936020358865
+        "json_valid_rate": 1,
+        "vector_mae": 19.076190476190476,
+        "mse_raw": 564.7809523809524,
+        "mse_norm": 0.05647809523809524,
+        "r2_score": -0.6040285222279524,
+        "constraint_match_rate": 0.2714285714285714,
+        "slot_exact_match": 0.4142857142857143,
+        "intent_score_mean": 59.940000000000005,
+        "output_sanity_score": 82.97142857142858,
+        "p95_inference_latency_ms": 0.03262499999999946,
+        "p50_inference_latency_ms": 0.0008750000000006253,
+        "cost_per_100_requests_usd": 0.020000000000000014
       },
-      "file": "2026-02-28T03-10-54-454Z_rule_baseline.json"
+      "file": "2026-02-28T08-43-02-673Z_rule_baseline.json"
+    }
+  },
+  "latest_samples_by_mode": {
+    "fine_tuned": {
+      "sample_file": "2026-02-28T08-43-32-992Z_fine_tuned.json",
+      "failure_count": 0,
+      "top_trace_urls": []
+    },
+    "prompt_baseline": {
+      "sample_file": "2026-02-28T08-43-19-743Z_prompt_baseline.json",
+      "failure_count": 0,
+      "top_trace_urls": []
+    },
+    "rule_baseline": {
+      "sample_file": "2026-02-28T08-43-02-673Z_rule_baseline.json",
+      "failure_count": 20,
+      "top_trace_urls": [
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_zOTq-33UnT",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_wJ934bzymm",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_4IB7bfNdWU",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_34cOG4iX2-",
+        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_4U9zHohtNf"
+      ]
     }
   },
   "auto_improvement_delta": {
-    "intent_score_mean": 4.361283643892335,
-    "vector_mae": -1.9563837129054522,
-    "json_valid_rate": 0.014285714285714235
+    "intent_score_mean": 0,
+    "vector_mae": 0,
+    "json_valid_rate": 0
   },
-  "loop_completion_rate": 0,
+  "loop_completion_rate": 1,
   "loop_detail": {
-    "completed": 0,
+    "completed": 2,
     "planned": 2,
-    "rate": 0
+    "rate": 1
   }
 }

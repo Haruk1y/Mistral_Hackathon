@@ -1,0 +1,253 @@
+{
+  "input": "/Users/yajima/Desktop/dev/Mistral_Hackathon/docs/Generated Image February 28, 2026 - 3_57PM.png",
+  "mapping": "/Users/yajima/Desktop/dev/Mistral_Hackathon/docs/icon-mappings/instrument_sheet_2026-02-28_1557.json",
+  "params": {
+    "padding": 2,
+    "green_min": 170,
+    "green_dominance": 60,
+    "min_component_pixels": 400
+  },
+  "components_detected": 15,
+  "exports": [
+    {
+      "index": 5,
+      "filename": "slot_instrument_upright_piano.png",
+      "source_bbox": [
+        29,
+        41,
+        228,
+        234
+      ],
+      "crop_bbox": [
+        27,
+        39,
+        230,
+        236
+      ],
+      "output_size": [
+        200,
+        194
+      ]
+    },
+    {
+      "index": 1,
+      "filename": "slot_instrument_wooden_guitar.png",
+      "source_bbox": [
+        287,
+        23,
+        504,
+        246
+      ],
+      "crop_bbox": [
+        285,
+        21,
+        506,
+        248
+      ],
+      "output_size": [
+        218,
+        224
+      ]
+    },
+    {
+      "index": 2,
+      "filename": "slot_instrument_folk_lute.png",
+      "source_bbox": [
+        639,
+        23,
+        762,
+        246
+      ],
+      "crop_bbox": [
+        637,
+        21,
+        764,
+        248
+      ],
+      "output_size": [
+        124,
+        224
+      ]
+    },
+    {
+      "index": 6,
+      "filename": "slot_instrument_soft_violin.png",
+      "source_bbox": [
+        58,
+        281,
+        193,
+        509
+      ],
+      "crop_bbox": [
+        56,
+        279,
+        195,
+        511
+      ],
+      "output_size": [
+        136,
+        229
+      ]
+    },
+    {
+      "index": 9,
+      "filename": "slot_instrument_warm_cello.png",
+      "source_bbox": [
+        1202,
+        281,
+        1337,
+        498
+      ],
+      "crop_bbox": [
+        1200,
+        279,
+        1339,
+        500
+      ],
+      "output_size": [
+        136,
+        218
+      ]
+    },
+    {
+      "index": 7,
+      "filename": "slot_instrument_wooden_flute.png",
+      "source_bbox": [
+        358,
+        281,
+        404,
+        498
+      ],
+      "crop_bbox": [
+        356,
+        279,
+        406,
+        500
+      ],
+      "output_size": [
+        47,
+        218
+      ]
+    },
+    {
+      "index": 10,
+      "filename": "slot_instrument_accordion.png",
+      "source_bbox": [
+        557,
+        305,
+        850,
+        480
+      ],
+      "crop_bbox": [
+        555,
+        303,
+        852,
+        482
+      ],
+      "output_size": [
+        294,
+        176
+      ]
+    },
+    {
+      "index": 8,
+      "filename": "slot_instrument_mandolin.png",
+      "source_bbox": [
+        962,
+        281,
+        1073,
+        498
+      ],
+      "crop_bbox": [
+        960,
+        279,
+        1075,
+        500
+      ],
+      "output_size": [
+        112,
+        218
+      ]
+    },
+    {
+      "index": 14,
+      "filename": "slot_instrument_hand_drum.png",
+      "source_bbox": [
+        29,
+        551,
+        216,
+        738
+      ],
+      "crop_bbox": [
+        27,
+        549,
+        218,
+        740
+      ],
+      "output_size": [
+        188,
+        188
+      ]
+    },
+    {
+      "index": 12,
+      "filename": "slot_instrument_small_harp.png",
+      "source_bbox": [
+        299,
+        539,
+        463,
+        744
+      ],
+      "crop_bbox": [
+        297,
+        537,
+        465,
+        746
+      ],
+      "output_size": [
+        165,
+        206
+      ]
+    },
+    {
+      "index": 11,
+      "filename": "slot_instrument_clarinet.png",
+      "source_bbox": [
+        586,
+        533,
+        809,
+        744
+      ],
+      "crop_bbox": [
+        584,
+        531,
+        811,
+        746
+      ],
+      "output_size": [
+        224,
+        212
+      ]
+    },
+    {
+      "index": 15,
+      "filename": "slot_instrument_music_box.png",
+      "source_bbox": [
+        1196,
+        574,
+        1384,
+        721
+      ],
+      "crop_bbox": [
+        1194,
+        572,
+        1386,
+        723
+      ],
+      "output_size": [
+        189,
+        148
+      ]
+    }
+  ]
+}

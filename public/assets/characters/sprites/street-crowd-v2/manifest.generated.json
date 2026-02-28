@@ -1,0 +1,1102 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-02-27T12:41:51.173Z",
+  "inputFiles": [
+    "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_11PM.png",
+    "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_12PM.png",
+    "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_13PM.png",
+    "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_15PM.png",
+    "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_24PM.png"
+  ],
+  "outputSpritesDir": "public/assets/characters/sprites/street-crowd-v2",
+  "outputPortraitsDir": "public/assets/characters/portraits/street-crowd-v2",
+  "bgKey": "#00FF00",
+  "tolerance": 40,
+  "spriteTarget": "64x96",
+  "portraitTarget": "160x160",
+  "items": [
+    {
+      "castId": "crowd_01",
+      "index": 1,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_11PM.png",
+        "cell": {
+          "row": 0,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_01_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_01_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_01_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_01_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_01_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 16,
+          "top": 38,
+          "width": 143,
+          "height": 298
+        },
+        "diagLeft": {
+          "left": 202,
+          "top": 38,
+          "width": 120,
+          "height": 298
+        },
+        "diagRight": {
+          "left": 354,
+          "top": 38,
+          "width": 137,
+          "height": 299
+        },
+        "face": {
+          "left": 538,
+          "top": 30,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 537,
+          "top": 196,
+          "width": 129,
+          "height": 147
+        }
+      }
+    },
+    {
+      "castId": "crowd_02",
+      "index": 2,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_11PM.png",
+        "cell": {
+          "row": 0,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_02_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_02_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_02_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_02_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_02_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 715,
+          "top": 42,
+          "width": 123,
+          "height": 295
+        },
+        "diagLeft": {
+          "left": 879,
+          "top": 42,
+          "width": 131,
+          "height": 294
+        },
+        "diagRight": {
+          "left": 1059,
+          "top": 42,
+          "width": 131,
+          "height": 295
+        },
+        "face": {
+          "left": 1226,
+          "top": 25,
+          "width": 128,
+          "height": 157
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 193,
+          "width": 128,
+          "height": 150
+        }
+      }
+    },
+    {
+      "castId": "crowd_03",
+      "index": 3,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_11PM.png",
+        "cell": {
+          "row": 1,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_03_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_03_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_03_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_03_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_03_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 8,
+          "top": 417,
+          "width": 145,
+          "height": 304
+        },
+        "diagLeft": {
+          "left": 185,
+          "top": 417,
+          "width": 134,
+          "height": 310
+        },
+        "diagRight": {
+          "left": 357,
+          "top": 417,
+          "width": 134,
+          "height": 309
+        },
+        "face": {
+          "left": 538,
+          "top": 400,
+          "width": 128,
+          "height": 155
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 569,
+          "width": 128,
+          "height": 157
+        }
+      }
+    },
+    {
+      "castId": "crowd_04",
+      "index": 4,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_11PM.png",
+        "cell": {
+          "row": 1,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_04_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_04_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_04_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_04_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_04_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 699,
+          "top": 468,
+          "width": 163,
+          "height": 259
+        },
+        "diagLeft": {
+          "left": 882,
+          "top": 477,
+          "width": 143,
+          "height": 250
+        },
+        "diagRight": {
+          "left": 1051,
+          "top": 477,
+          "width": 149,
+          "height": 250
+        },
+        "face": {
+          "left": 1226,
+          "top": 397,
+          "width": 128,
+          "height": 157
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 569,
+          "width": 128,
+          "height": 157
+        }
+      }
+    },
+    {
+      "castId": "crowd_05",
+      "index": 5,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_12PM.png",
+        "cell": {
+          "row": 0,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_05_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_05_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_05_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_05_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_05_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 16,
+          "top": 36,
+          "width": 154,
+          "height": 301
+        },
+        "diagLeft": {
+          "left": 188,
+          "top": 36,
+          "width": 137,
+          "height": 301
+        },
+        "diagRight": {
+          "left": 371,
+          "top": 36,
+          "width": 137,
+          "height": 301
+        },
+        "face": {
+          "left": 538,
+          "top": 30,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 197,
+          "width": 128,
+          "height": 145
+        }
+      }
+    },
+    {
+      "castId": "crowd_06",
+      "index": 6,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_12PM.png",
+        "cell": {
+          "row": 0,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_06_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_06_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_06_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_06_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_06_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 715,
+          "top": 42,
+          "width": 143,
+          "height": 295
+        },
+        "diagLeft": {
+          "left": 893,
+          "top": 36,
+          "width": 118,
+          "height": 301
+        },
+        "diagRight": {
+          "left": 1060,
+          "top": 36,
+          "width": 117,
+          "height": 301
+        },
+        "face": {
+          "left": 1226,
+          "top": 27,
+          "width": 128,
+          "height": 155
+        },
+        "faceAlt": {
+          "left": 1224,
+          "top": 191,
+          "width": 133,
+          "height": 151
+        }
+      }
+    },
+    {
+      "castId": "crowd_07",
+      "index": 7,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_12PM.png",
+        "cell": {
+          "row": 1,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_07_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_07_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_07_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_07_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_07_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 1,
+          "top": 414,
+          "width": 167,
+          "height": 313
+        },
+        "diagLeft": {
+          "left": 185,
+          "top": 414,
+          "width": 143,
+          "height": 313
+        },
+        "diagRight": {
+          "left": 351,
+          "top": 414,
+          "width": 146,
+          "height": 313
+        },
+        "face": {
+          "left": 538,
+          "top": 400,
+          "width": 128,
+          "height": 155
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 569,
+          "width": 128,
+          "height": 158
+        }
+      }
+    },
+    {
+      "castId": "crowd_08",
+      "index": 8,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_12PM.png",
+        "cell": {
+          "row": 1,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_08_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_08_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_08_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_08_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_08_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 698,
+          "top": 477,
+          "width": 140,
+          "height": 250
+        },
+        "diagLeft": {
+          "left": 885,
+          "top": 477,
+          "width": 131,
+          "height": 250
+        },
+        "diagRight": {
+          "left": 1054,
+          "top": 477,
+          "width": 131,
+          "height": 250
+        },
+        "face": {
+          "left": 1226,
+          "top": 405,
+          "width": 128,
+          "height": 149
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 578,
+          "width": 128,
+          "height": 149
+        }
+      }
+    },
+    {
+      "castId": "crowd_09",
+      "index": 9,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_13PM.png",
+        "cell": {
+          "row": 0,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_09_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_09_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_09_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_09_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_09_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 27,
+          "top": 34,
+          "width": 140,
+          "height": 303
+        },
+        "diagLeft": {
+          "left": 194,
+          "top": 36,
+          "width": 142,
+          "height": 301
+        },
+        "diagRight": {
+          "left": 374,
+          "top": 36,
+          "width": 137,
+          "height": 301
+        },
+        "face": {
+          "left": 538,
+          "top": 27,
+          "width": 128,
+          "height": 155
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 194,
+          "width": 128,
+          "height": 148
+        }
+      }
+    },
+    {
+      "castId": "crowd_10",
+      "index": 10,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_13PM.png",
+        "cell": {
+          "row": 0,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_10_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_10_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_10_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_10_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_10_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 710,
+          "top": 47,
+          "width": 134,
+          "height": 290
+        },
+        "diagLeft": {
+          "left": 893,
+          "top": 47,
+          "width": 118,
+          "height": 290
+        },
+        "diagRight": {
+          "left": 1059,
+          "top": 47,
+          "width": 118,
+          "height": 290
+        },
+        "face": {
+          "left": 1226,
+          "top": 30,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 197,
+          "width": 128,
+          "height": 145
+        }
+      }
+    },
+    {
+      "castId": "crowd_11",
+      "index": 11,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_13PM.png",
+        "cell": {
+          "row": 1,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_11_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_11_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_11_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_11_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_11_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 13,
+          "top": 403,
+          "width": 158,
+          "height": 324
+        },
+        "diagLeft": {
+          "left": 194,
+          "top": 414,
+          "width": 134,
+          "height": 313
+        },
+        "diagRight": {
+          "left": 366,
+          "top": 403,
+          "width": 151,
+          "height": 324
+        },
+        "face": {
+          "left": 538,
+          "top": 403,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 572,
+          "width": 128,
+          "height": 155
+        }
+      }
+    },
+    {
+      "castId": "crowd_12",
+      "index": 12,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_13PM.png",
+        "cell": {
+          "row": 1,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_12_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_12_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_12_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_12_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_12_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 701,
+          "top": 477,
+          "width": 137,
+          "height": 250
+        },
+        "diagLeft": {
+          "left": 885,
+          "top": 477,
+          "width": 131,
+          "height": 250
+        },
+        "diagRight": {
+          "left": 1054,
+          "top": 477,
+          "width": 132,
+          "height": 250
+        },
+        "face": {
+          "left": 1226,
+          "top": 403,
+          "width": 128,
+          "height": 151
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 577,
+          "width": 128,
+          "height": 150
+        }
+      }
+    },
+    {
+      "castId": "crowd_13",
+      "index": 13,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_15PM.png",
+        "cell": {
+          "row": 0,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_13_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_13_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_13_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_13_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_13_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 16,
+          "top": 39,
+          "width": 140,
+          "height": 297
+        },
+        "diagLeft": {
+          "left": 205,
+          "top": 39,
+          "width": 115,
+          "height": 298
+        },
+        "diagRight": {
+          "left": 371,
+          "top": 39,
+          "width": 115,
+          "height": 298
+        },
+        "face": {
+          "left": 538,
+          "top": 30,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 197,
+          "width": 128,
+          "height": 146
+        }
+      }
+    },
+    {
+      "castId": "crowd_14",
+      "index": 14,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_15PM.png",
+        "cell": {
+          "row": 0,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_14_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_14_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_14_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_14_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_14_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 712,
+          "top": 36,
+          "width": 129,
+          "height": 301
+        },
+        "diagLeft": {
+          "left": 899,
+          "top": 36,
+          "width": 111,
+          "height": 300
+        },
+        "diagRight": {
+          "left": 1059,
+          "top": 36,
+          "width": 112,
+          "height": 301
+        },
+        "face": {
+          "left": 1226,
+          "top": 30,
+          "width": 128,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 185,
+          "width": 128,
+          "height": 158
+        }
+      }
+    },
+    {
+      "castId": "crowd_15",
+      "index": 15,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_15PM.png",
+        "cell": {
+          "row": 1,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_15_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_15_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_15_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_15_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_15_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 22,
+          "top": 412,
+          "width": 131,
+          "height": 309
+        },
+        "diagLeft": {
+          "left": 202,
+          "top": 411,
+          "width": 114,
+          "height": 316
+        },
+        "diagRight": {
+          "left": 374,
+          "top": 411,
+          "width": 115,
+          "height": 315
+        },
+        "face": {
+          "left": 538,
+          "top": 400,
+          "width": 128,
+          "height": 155
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 569,
+          "width": 128,
+          "height": 158
+        }
+      }
+    },
+    {
+      "castId": "crowd_16",
+      "index": 16,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_15PM.png",
+        "cell": {
+          "row": 1,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_16_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_16_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_16_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_16_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_16_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 704,
+          "top": 460,
+          "width": 146,
+          "height": 267
+        },
+        "diagLeft": {
+          "left": 890,
+          "top": 471,
+          "width": 123,
+          "height": 256
+        },
+        "diagRight": {
+          "left": 1062,
+          "top": 471,
+          "width": 124,
+          "height": 256
+        },
+        "face": {
+          "left": 1226,
+          "top": 409,
+          "width": 128,
+          "height": 146
+        },
+        "faceAlt": {
+          "left": 1225,
+          "top": 580,
+          "width": 129,
+          "height": 147
+        }
+      }
+    },
+    {
+      "castId": "crowd_17",
+      "index": 17,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_24PM.png",
+        "cell": {
+          "row": 0,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_17_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_17_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_17_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_17_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_17_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 16,
+          "top": 36,
+          "width": 140,
+          "height": 301
+        },
+        "diagLeft": {
+          "left": 205,
+          "top": 36,
+          "width": 114,
+          "height": 301
+        },
+        "diagRight": {
+          "left": 371,
+          "top": 36,
+          "width": 115,
+          "height": 301
+        },
+        "face": {
+          "left": 537,
+          "top": 30,
+          "width": 129,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 537,
+          "top": 196,
+          "width": 129,
+          "height": 147
+        }
+      }
+    },
+    {
+      "castId": "crowd_18",
+      "index": 18,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_24PM.png",
+        "cell": {
+          "row": 0,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_18_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_18_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_18_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_18_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_18_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 712,
+          "top": 39,
+          "width": 129,
+          "height": 298
+        },
+        "diagLeft": {
+          "left": 899,
+          "top": 39,
+          "width": 112,
+          "height": 298
+        },
+        "diagRight": {
+          "left": 1059,
+          "top": 38,
+          "width": 112,
+          "height": 299
+        },
+        "face": {
+          "left": 1226,
+          "top": 33,
+          "width": 128,
+          "height": 149
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 197,
+          "width": 128,
+          "height": 146
+        }
+      }
+    },
+    {
+      "castId": "crowd_19",
+      "index": 19,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_24PM.png",
+        "cell": {
+          "row": 1,
+          "col": 0
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_19_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_19_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_19_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_19_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_19_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 21,
+          "top": 414,
+          "width": 132,
+          "height": 313
+        },
+        "diagLeft": {
+          "left": 199,
+          "top": 414,
+          "width": 115,
+          "height": 313
+        },
+        "diagRight": {
+          "left": 371,
+          "top": 414,
+          "width": 118,
+          "height": 313
+        },
+        "face": {
+          "left": 537,
+          "top": 403,
+          "width": 129,
+          "height": 152
+        },
+        "faceAlt": {
+          "left": 538,
+          "top": 572,
+          "width": 128,
+          "height": 155
+        }
+      }
+    },
+    {
+      "castId": "crowd_20",
+      "index": 20,
+      "source": {
+        "file": "public/assets/characters/sprites/street-crowd/Generated Image February 27, 2026 - 8_24PM.png",
+        "cell": {
+          "row": 1,
+          "col": 1
+        }
+      },
+      "outputs": {
+        "sprites": {
+          "front": "public/assets/characters/sprites/street-crowd-v2/crowd_20_front_64x96.png",
+          "diagLeft": "public/assets/characters/sprites/street-crowd-v2/crowd_20_diag_left_64x96.png",
+          "diagRight": "public/assets/characters/sprites/street-crowd-v2/crowd_20_diag_right_64x96.png"
+        },
+        "portraits": {
+          "face": "public/assets/characters/portraits/street-crowd-v2/por_crowd_20_face_160.png",
+          "faceAlt": "public/assets/characters/portraits/street-crowd-v2/por_crowd_20_face_alt_160.png"
+        }
+      },
+      "sourceBboxes": {
+        "front": {
+          "left": 715,
+          "top": 425,
+          "width": 126,
+          "height": 302
+        },
+        "diagLeft": {
+          "left": 901,
+          "top": 425,
+          "width": 107,
+          "height": 302
+        },
+        "diagRight": {
+          "left": 1074,
+          "top": 425,
+          "width": 106,
+          "height": 302
+        },
+        "face": {
+          "left": 1226,
+          "top": 409,
+          "width": 128,
+          "height": 146
+        },
+        "faceAlt": {
+          "left": 1226,
+          "top": 577,
+          "width": 128,
+          "height": 150
+        }
+      }
+    }
+  ],
+  "totalCasts": 20,
+  "totalSpriteFiles": 60,
+  "totalPortraitFiles": 40
+}

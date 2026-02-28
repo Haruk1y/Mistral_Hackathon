@@ -5,7 +5,7 @@
 ## 1. 目的
 
 - ゲーム体験の向上のため、推論は高速な小型モデルで行う
-- 入力: `request_text`（自然言語）
+- 入力: `request_text`（自然言語）と `rule_prompt`（Kotone組み合わせ由来のルール文）
 - 出力: 6軸の隠しパラメータJSON
 - 主評価: `mse_norm` / `vector_mae` / `json_valid_rate`
 
@@ -41,6 +41,9 @@
 
 ### 3.3 分割
 - train/valid/test = 80/10/10
+- 各source rowから2件に展開して混合学習データ化
+  - `source_type=request_text`
+  - `source_type=rule_prompt`
 - 生成統計を保存（`data/ft/ft_split_stats.json`）
 
 ## 4. 学習タスク定義
@@ -64,12 +67,18 @@
   - `scripts/ft/build_train_valid_test.mjs`
 - Eval:
   - `scripts/eval/generate_frozen_eval_set.mjs`
-  - `scripts/eval/run_eval.mjs`
+  - `scripts/eval/run_eval.mjs` (wrapper)
+  - `scripts/wandb/weave_eval_runner.py` (measured eval + W&B + Weave)
   - `scripts/eval/aggregate_metrics.mjs`
 - HF実行:
   - `scripts/hf/train_sft_request_to_hidden.py`
   - `scripts/hf/publish_ft_dataset.mjs`
   - `scripts/hf/submit_sft_job.mjs`
+  - `scripts/hf/run_balanced_campaign.mjs`
+- Loop/MCP:
+  - `scripts/wandb/fetch_mcp_eval_context.mjs`
+  - `scripts/wandb/fallback_wandb_api_fetch.py`
+  - `scripts/loop/run_self_improvement_cycle.mjs`
 
 ## 6. W&B記録設計
 

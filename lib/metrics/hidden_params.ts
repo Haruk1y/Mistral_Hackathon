@@ -20,6 +20,29 @@ const mean = (values: number[]): number => {
   return values.reduce((acc, value) => acc + value, 0) / values.length;
 };
 
+export const computePerDimensionErrorStats = (samples: Sample[]) => {
+  const result = Object.fromEntries(
+    KEYS.map((key) => [key, { mae_raw: 0, mse_raw: 0, count: 0 }]),
+  ) as Record<string, { mae_raw: number; mse_raw: number; count: number }>;
+
+  for (const sample of samples) {
+    if (!sample.predicted) continue;
+    for (const key of KEYS) {
+      const diff = sample.predicted.vector[key] - sample.target.vector[key];
+      result[key].mae_raw += Math.abs(diff);
+      result[key].mse_raw += diff * diff;
+      result[key].count += 1;
+    }
+  }
+
+  for (const key of KEYS) {
+    const count = result[key].count || 1;
+    result[key].mae_raw /= count;
+    result[key].mse_raw /= count;
+  }
+  return result;
+};
+
 export const computeHiddenParamsMetrics = (samples: Sample[]): HiddenParamsEvalMetrics => {
   if (samples.length === 0) {
     return {

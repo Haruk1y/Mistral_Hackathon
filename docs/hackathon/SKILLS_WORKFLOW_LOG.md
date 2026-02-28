@@ -10,8 +10,8 @@
 | Cycle | Goal | Inputs (MCP/Skill) | Automated Action | Output Artifact | Evidence URL | Metric Delta |
 |---|---|---|---|---|---|---|
 | 0 | Baseline確立 | Weave eval summary | baseline run集計 | `artifacts/eval/runs/*` | TODO | `json_valid_rate`, `vector_mae` baseline |
-| 1 | ハイパラ調整 | Weave failure traces | `next_hparams.yaml` 自動生成 | `artifacts/loop/cycle_1/` | TODO | `auto_improvement_delta` |
-| 2 | 苦手軸データ増強 | weak-dim profile | `augmentation_spec.json` + dataset拡張 | `artifacts/loop/cycle_2/` | TODO | `loop_completion_rate` |
+| 1 | ハイパラ調整 | Weave/eval summary | `next_hparams.yaml` 自動生成 | `artifacts/loop/cycle_1/` | TODO | `auto_improvement_delta` |
+| 2 | 苦手軸データ増強 | per-sample weak-dim profile | `augmentation_spec.json` + `generated_augmented_pairs.jsonl` + merged dataset | `artifacts/loop/cycle_2/`, `data/ft/teacher_pairs.cycle_2.jsonl` | TODO | `loop_completion_rate` |
 
 ## 2. Skills / MCP Usage Log
 
@@ -21,6 +21,10 @@
 | 2026-02-28 | Codex | `firebase-*` skills | callable migration方針 | firebase config + callable stubs |
 | 2026-02-28 | Codex | `hugging-face-model-trainer` skill | TRL SFT script for Ministral 3B | `scripts/hf/train_sft_request_to_hidden.py` |
 | 2026-02-28 | Codex | `hugging-face-jobs` skill | HF Jobs submit/publish automation | `scripts/hf/submit_sft_job.mjs`, `scripts/hf/publish_ft_dataset.mjs` |
+| 2026-02-28 | Codex | `weights-and-biases` + `hugging-face-jobs` skills | Fine-grained iterative logging + HF job submission record | `outputs/*/iter_eval_metrics.jsonl`, `artifacts/hf_jobs/submissions.jsonl` |
+| 2026-02-28 | Codex | `weights-and-biases` + `hf-mcp` skills | MCP context fetch + fallback API decision input for loop | `artifacts/loop/cycle_*/mcp_eval_snapshot.json`, `artifacts/loop/cycle_*/mcp_decision_input.json` |
+| 2026-02-28 | Codex | `weights-and-biases` skill | Weave trace attached measured eval runner | `artifacts/eval/samples/*.json` (`trace_id`,`trace_url`) |
+| 2026-02-28 | Codex | `hugging-face-jobs` skill | 6-run balanced campaign manifest and submission automation | `artifacts/hf_jobs/balanced_6run.manifest.json`, `scripts/hf/run_balanced_campaign.mjs` |
 
 ## 3. Generated Assets for Submission
 
@@ -40,6 +44,7 @@ npm run eval:run
 EVAL_MODE=fine_tuned npm run eval:run
 npm run eval:aggregate
 
+npm run wandb:mcp:fetch
 npm run ft:generate
 npm run ft:filter
 npm run ft:split

@@ -1,0 +1,51 @@
+{
+  "id": "character_master_all_cast",
+  "startedAt": "2026-02-27T07:27:43.727Z",
+  "spec": {
+    "kind": "character_master",
+    "qaProfile": "strict",
+    "alphaRequired": true,
+    "targetSize": "4096x4096"
+  },
+  "model": {
+    "text": "gemini-2.5-flash",
+    "image": "nano-banana-pro-preview"
+  },
+  "imageConfig": {
+    "imageSize": "4K",
+    "aspectRatio": "1:1"
+  },
+  "referenceImages": {
+    "configured": [],
+    "used": [],
+    "missing": []
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "failed_error",
+      "generatedAt": "2026-02-27T07:27:52.568Z",
+      "error": "Gemini request timeout after 30000ms"
+    },
+    {
+      "attempt": 2,
+      "status": "failed_error",
+      "generatedAt": "2026-02-27T07:28:23.029Z",
+      "error": "Gemini request timeout after 30000ms"
+    },
+    {
+      "attempt": 3,
+      "status": "failed_error",
+      "generatedAt": "2026-02-27T07:28:53.487Z",
+      "error": "Gemini request timeout after 30000ms"
+    }
+  ],
+  "promptOriginal": "Single ultra-packed character master sheet for the whole playable cast in nostalgic retro pixel art. Include player, one town passerby mob, and four customers (Anna, Ben, Cara, Dan) in one canvas. For each character include: waist-up portrait, orthographic turnaround set (front, side, back full body), idle frame, 2-frame right-facing walk strip, five expression portraits (neutral, smile, surprised, troubled, success), and two lip-sync mouth tiles (A, B). Keep strict identity consistency and shared palette language across all characters. One packed sheet only, no text.",
+  "promptRewritten": "Generate a comprehensive, ultra-packed pixel art character master sheet for game production. The art style must strictly adhere to a 'soft nostalgic town' aesthetic, reminiscent of classic retro 16-bit era pixel art, utilizing a shared, limited palette for visual cohesion. The sheet must be a single, unified 4K (4096x4096) canvas with a 1:1 aspect ratio.\n\nThe sheet must feature the complete playable cast:\n1.  **Player Character** (main protagonist)\n2.  **Town Passerby Mob** (generic NPC)\n3.  **Customer: Anna**\n4.  **Customer: Ben**\n5.  **Customer: Cara**\n6.  **Customer: Dan**\n\nFor *each* of these six characters, the following elements must be meticulously rendered on the single sheet, maintaining strict identity consistency and shared pixel density:\n*   **Waist-up Portrait:** A detailed, expressive portrait.\n*   **Orthographic Turnaround Set:** Full-body views from the front, side (right-facing), and back.\n*   **Idle Animation Frame:** A single, static frame representing the character's default idle pose.\n*   **2-Frame Walk Strip:** A right-facing, two-frame animation strip for walking.\n*   **Five Expression Portraits:** Distinct waist-up portraits depicting: Neutral, Smile, Surprised, Troubled, and Success.\n*   **Two Lip-Sync Mouth Tiles:** Small, isolated mouth tiles labeled 'A' and 'B' for basic speech animation.\n\nThe entire sheet must be a single material, free of any text, logos, watermarks, or signatures. All elements must be tightly packed onto the canvas without overlapping, optimizing space while maintaining clear separation. Adherence to all specifications is critical for QA.",
+  "completedAt": "2026-02-27T07:29:23.948Z",
+  "result": {
+    "qualityPassed": false,
+    "selectedAttempt": null,
+    "reason": "all attempts failed before producing final image"
+  }
+}

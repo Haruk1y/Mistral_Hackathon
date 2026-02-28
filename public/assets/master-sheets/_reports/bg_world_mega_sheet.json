@@ -1,0 +1,39 @@
+{
+  "id": "bg_world_mega_sheet",
+  "mode": "report-only",
+  "spec": {
+    "targetSize": "4096x4096",
+    "kind": "bg_sheet",
+    "qaProfile": "light",
+    "alphaRequired": true
+  },
+  "quality": {
+    "qualityScore": 58,
+    "qualityPassed": false,
+    "gates": {
+      "decodeOk": true,
+      "sizeMatch": true,
+      "noTextOrWatermark": true,
+      "singleSheetCompliance": false,
+      "characterConsistency": true,
+      "elementSeparation": true,
+      "alpha": true
+    },
+    "metrics": {
+      "textOrWatermarkDetected": false,
+      "singleSheetCompliance": 0.5,
+      "characterConsistency": null,
+      "elementSeparation": null,
+      "transparentPixelRatio": 0
+    }
+  },
+  "vision": {
+    "textOrWatermarkDetected": false,
+    "singleSheetCompliance": 0.5,
+    "characterConsistency": null,
+    "elementSeparation": null,
+    "notes": "Vision QA fallback: Gemini API error (503): Deadline expired before operation could complete."
+  },
+  "finalPath": "public/assets/master-sheets/bg_world_mega_sheet_4096x4096.png",
+  "checkedAt": "2026-02-27T08:59:50.562Z"
+}

@@ -96,8 +96,9 @@ export const StreetCommissionLayer = ({
         castId: character.id,
         pose,
         castName: character.name,
+        castProfile: character.profile,
         commission,
-        src: spriteFile,
+        src: `/assets/characters/sprites/street-crowd-v2/${spriteFile}`,
         left,
         top,
         opacity: 0.84 + random() * 0.16
@@ -129,7 +130,7 @@ export const StreetCommissionLayer = ({
           title={`${actor.castName || getCustomerName(actor.commission.customerId)} - ${commissionStatusLabel(
             locale,
             actor.commission.status
-          )}`}
+          )}${actor.castProfile ? ` | ${actor.castProfile}` : ""}`}
           onClick={() => onSelect?.(actor.commission.id)}
         >
           <img src={actor.src} alt="" className="street-commission-sprite" />

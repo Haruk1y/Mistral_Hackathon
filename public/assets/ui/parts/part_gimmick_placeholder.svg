@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Gimmick placeholder">
-  <rect width="160" height="160" fill="#dae8c6"/>
-  <rect x="8" y="8" width="144" height="144" fill="none" stroke="#5e7550" stroke-width="4" stroke-dasharray="8 6"/>
-  <text x="80" y="84" text-anchor="middle" fill="#3f5b34" font-size="16" font-family="sans-serif">GIMMICK</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#3f5b25"/>
+  <rect x="4" y="4" width="56" height="56" fill="#dce9c9"/>
+  <rect x="8" y="8" width="12" height="12" fill="#6f9d43"/>
+  <rect x="24" y="8" width="12" height="12" fill="#51772f"/>
+  <rect x="40" y="8" width="12" height="12" fill="#6f9d43"/>
+  <rect x="8" y="24" width="44" height="8" fill="#51772f"/>
+  <rect x="8" y="36" width="12" height="12" fill="#6f9d43"/>
+  <rect x="24" y="36" width="12" height="12" fill="#51772f"/>
+  <rect x="40" y="36" width="12" height="12" fill="#6f9d43"/>
 </svg>

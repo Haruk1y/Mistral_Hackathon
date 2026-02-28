@@ -11,6 +11,7 @@ import { weatherLabel } from "@/lib/i18n";
 const NAV_ITEMS = [
   { href: "/game/street", key: "navStreet" as const },
   { href: "/game/shop", key: "navShop" as const },
+  { href: "/game/kotone", key: "navKotone" as const },
   { href: "/game/gallery", key: "navGallery" as const }
 ];
 

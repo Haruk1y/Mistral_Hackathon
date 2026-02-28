@@ -1,0 +1,368 @@
+{
+  "generatedAt": "2026-02-27T10:06:31.506Z",
+  "source": "public/assets/master-sheets/character_master_all_cast_4096x4096.png",
+  "count": 36,
+  "targetSize": "32x48",
+  "items": [
+    {
+      "id": "crowd_01",
+      "file": "crowd_01_32x48.png",
+      "sourceBbox": {
+        "left": 791,
+        "top": 30,
+        "width": 401,
+        "height": 724
+      }
+    },
+    {
+      "id": "crowd_02",
+      "file": "crowd_02_32x48.png",
+      "sourceBbox": {
+        "left": 1635,
+        "top": 30,
+        "width": 400,
+        "height": 724
+      }
+    },
+    {
+      "id": "crowd_03",
+      "file": "crowd_03_32x48.png",
+      "sourceBbox": {
+        "left": 2158,
+        "top": 30,
+        "width": 389,
+        "height": 723
+      }
+    },
+    {
+      "id": "crowd_04",
+      "file": "crowd_04_32x48.png",
+      "sourceBbox": {
+        "left": 1248,
+        "top": 41,
+        "width": 338,
+        "height": 712
+      }
+    },
+    {
+      "id": "crowd_05",
+      "file": "crowd_05_32x48.png",
+      "sourceBbox": {
+        "left": 2677,
+        "top": 47,
+        "width": 335,
+        "height": 706
+      }
+    },
+    {
+      "id": "crowd_06",
+      "file": "crowd_06_32x48.png",
+      "sourceBbox": {
+        "left": 788,
+        "top": 766,
+        "width": 406,
+        "height": 725
+      }
+    },
+    {
+      "id": "crowd_07",
+      "file": "crowd_07_32x48.png",
+      "sourceBbox": {
+        "left": 1647,
+        "top": 766,
+        "width": 402,
+        "height": 725
+      }
+    },
+    {
+      "id": "crowd_08",
+      "file": "crowd_08_32x48.png",
+      "sourceBbox": {
+        "left": 1249,
+        "top": 782,
+        "width": 334,
+        "height": 708
+      }
+    },
+    {
+      "id": "crowd_09",
+      "file": "crowd_09_32x48.png",
+      "sourceBbox": {
+        "left": 2160,
+        "top": 782,
+        "width": 383,
+        "height": 708
+      }
+    },
+    {
+      "id": "crowd_10",
+      "file": "crowd_10_32x48.png",
+      "sourceBbox": {
+        "left": 2701,
+        "top": 798,
+        "width": 321,
+        "height": 692
+      }
+    },
+    {
+      "id": "crowd_11",
+      "file": "crowd_11_32x48.png",
+      "sourceBbox": {
+        "left": 3103,
+        "top": 798,
+        "width": 307,
+        "height": 692
+      }
+    },
+    {
+      "id": "crowd_12",
+      "file": "crowd_12_32x48.png",
+      "sourceBbox": {
+        "left": 782,
+        "top": 1534,
+        "width": 359,
+        "height": 628
+      }
+    },
+    {
+      "id": "crowd_13",
+      "file": "crowd_13_32x48.png",
+      "sourceBbox": {
+        "left": 1265,
+        "top": 1534,
+        "width": 320,
+        "height": 628
+      }
+    },
+    {
+      "id": "crowd_14",
+      "file": "crowd_14_32x48.png",
+      "sourceBbox": {
+        "left": 1682,
+        "top": 1534,
+        "width": 363,
+        "height": 628
+      }
+    },
+    {
+      "id": "crowd_15",
+      "file": "crowd_15_32x48.png",
+      "sourceBbox": {
+        "left": 2641,
+        "top": 1534,
+        "width": 317,
+        "height": 627
+      }
+    },
+    {
+      "id": "crowd_16",
+      "file": "crowd_16_32x48.png",
+      "sourceBbox": {
+        "left": 2161,
+        "top": 1535,
+        "width": 361,
+        "height": 625
+      }
+    },
+    {
+      "id": "crowd_17",
+      "file": "crowd_17_32x48.png",
+      "sourceBbox": {
+        "left": 3439,
+        "top": 1550,
+        "width": 324,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_18",
+      "file": "crowd_18_32x48.png",
+      "sourceBbox": {
+        "left": 1247,
+        "top": 2188,
+        "width": 323,
+        "height": 613
+      }
+    },
+    {
+      "id": "crowd_19",
+      "file": "crowd_19_32x48.png",
+      "sourceBbox": {
+        "left": 749,
+        "top": 2189,
+        "width": 372,
+        "height": 613
+      }
+    },
+    {
+      "id": "crowd_20",
+      "file": "crowd_20_32x48.png",
+      "sourceBbox": {
+        "left": 1657,
+        "top": 2189,
+        "width": 372,
+        "height": 611
+      }
+    },
+    {
+      "id": "crowd_21",
+      "file": "crowd_21_32x48.png",
+      "sourceBbox": {
+        "left": 2126,
+        "top": 2189,
+        "width": 310,
+        "height": 611
+      }
+    },
+    {
+      "id": "crowd_22",
+      "file": "crowd_22_32x48.png",
+      "sourceBbox": {
+        "left": 2558,
+        "top": 2190,
+        "width": 322,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_23",
+      "file": "crowd_23_32x48.png",
+      "sourceBbox": {
+        "left": 3454,
+        "top": 2205,
+        "width": 320,
+        "height": 597
+      }
+    },
+    {
+      "id": "crowd_24",
+      "file": "crowd_24_32x48.png",
+      "sourceBbox": {
+        "left": 3023,
+        "top": 2207,
+        "width": 328,
+        "height": 611
+      }
+    },
+    {
+      "id": "crowd_25",
+      "file": "crowd_25_32x48.png",
+      "sourceBbox": {
+        "left": 750,
+        "top": 2846,
+        "width": 372,
+        "height": 613
+      }
+    },
+    {
+      "id": "crowd_26",
+      "file": "crowd_26_32x48.png",
+      "sourceBbox": {
+        "left": 1247,
+        "top": 2846,
+        "width": 339,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_27",
+      "file": "crowd_27_32x48.png",
+      "sourceBbox": {
+        "left": 1651,
+        "top": 2846,
+        "width": 382,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_28",
+      "file": "crowd_28_32x48.png",
+      "sourceBbox": {
+        "left": 2102,
+        "top": 2846,
+        "width": 315,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_29",
+      "file": "crowd_29_32x48.png",
+      "sourceBbox": {
+        "left": 2526,
+        "top": 2846,
+        "width": 336,
+        "height": 611
+      }
+    },
+    {
+      "id": "crowd_30",
+      "file": "crowd_30_32x48.png",
+      "sourceBbox": {
+        "left": 2990,
+        "top": 2846,
+        "width": 356,
+        "height": 612
+      }
+    },
+    {
+      "id": "crowd_31",
+      "file": "crowd_31_32x48.png",
+      "sourceBbox": {
+        "left": 3408,
+        "top": 2846,
+        "width": 381,
+        "height": 597
+      }
+    },
+    {
+      "id": "crowd_32",
+      "file": "crowd_32_32x48.png",
+      "sourceBbox": {
+        "left": 2098,
+        "top": 3470,
+        "width": 346,
+        "height": 626
+      }
+    },
+    {
+      "id": "crowd_33",
+      "file": "crowd_33_32x48.png",
+      "sourceBbox": {
+        "left": 735,
+        "top": 3486,
+        "width": 400,
+        "height": 610
+      }
+    },
+    {
+      "id": "crowd_34",
+      "file": "crowd_34_32x48.png",
+      "sourceBbox": {
+        "left": 1262,
+        "top": 3486,
+        "width": 309,
+        "height": 610
+      }
+    },
+    {
+      "id": "crowd_35",
+      "file": "crowd_35_32x48.png",
+      "sourceBbox": {
+        "left": 1649,
+        "top": 3486,
+        "width": 386,
+        "height": 610
+      }
+    },
+    {
+      "id": "crowd_36",
+      "file": "crowd_36_32x48.png",
+      "sourceBbox": {
+        "left": 2525,
+        "top": 3486,
+        "width": 309,
+        "height": 610
+      }
+    }
+  ]
+}

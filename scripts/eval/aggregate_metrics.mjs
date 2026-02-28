@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(new URL("../../", import.meta.url).pathname);
 const runsDir = resolve(root, "artifacts/eval/runs");
+const samplesDir = resolve(root, "artifacts/eval/samples");
 const summaryDir = resolve(root, "artifacts/eval/summary");
 const loopDir = resolve(root, "artifacts/loop");
 
@@ -22,7 +23,7 @@ const byModeLatest = (rows) => {
 const computeLoopCompletionRate = async () => {
   try {
     const dirs = await readdir(loopDir, { withFileTypes: true });
-    const cycleDirs = dirs.filter((entry) => entry.isDirectory() && entry.name.startsWith("cycle_"));
+    const cycleDirs = dirs.filter((entry) => entry.isDirectory() && /^cycle_\d+$/u.test(entry.name));
     if (cycleDirs.length === 0) {
       return {
         completed: 0,
@@ -59,6 +60,35 @@ const computeLoopCompletionRate = async () => {
   }
 };
 
+const latestSamplesByMode = async (latestByMode) => {
+  const out = {};
+  for (const [mode, row] of Object.entries(latestByMode)) {
+    const runFile = row?.file;
+    if (!runFile) continue;
+    const runId = runFile.replace(/\.json$/u, "");
+    const samplePath = resolve(samplesDir, `${runId}.json`);
+    try {
+      const payload = await readJson(samplePath);
+      const failures = Array.isArray(payload.failures_top_k) ? payload.failures_top_k : [];
+      out[mode] = {
+        sample_file: `${runId}.json`,
+        failure_count: failures.length,
+        top_trace_urls: failures
+          .map((item) => item?.trace_url)
+          .filter((value) => typeof value === "string" && value.length > 0)
+          .slice(0, 5)
+      };
+    } catch {
+      out[mode] = {
+        sample_file: `${runId}.json`,
+        failure_count: 0,
+        top_trace_urls: []
+      };
+    }
+  }
+  return out;
+};
+
 const main = async () => {
   const files = await readdir(runsDir).catch(() => []);
   const runFiles = files.filter((name) => name.endsWith(".json")).sort();
@@ -91,11 +121,13 @@ const main = async () => {
         };
 
   const loop = await computeLoopCompletionRate();
+  const sampleIndex = await latestSamplesByMode(latestByMode);
 
   const summary = {
     generated_at: new Date().toISOString(),
     runs_count: rows.length,
     latest_by_mode: latestByMode,
+    latest_samples_by_mode: sampleIndex,
     auto_improvement_delta: autoImprovementDelta,
     loop_completion_rate: loop.rate,
     loop_detail: loop

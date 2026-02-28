@@ -69,8 +69,8 @@
   - cycle 1 delta
   - cycle 2 delta
 - Evidence:
-  - MCP query logs
-  - generated configs / artifacts
+  - MCP query logs (`mcp_eval_snapshot.json`, `mcp_decision_input.json`)
+  - generated configs / artifacts (`hparam_patch.yaml`, `augmentation_spec.json`, `before_after_metrics.csv`)
 
 ## 7. Skills 활용 / Best Skills Award Section
 

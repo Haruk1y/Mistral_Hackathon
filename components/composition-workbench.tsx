@@ -14,6 +14,9 @@ import { SLOT_KEYS } from "@/lib/types";
 const initialSlotState = (): Record<SlotKey, string> =>
   Object.fromEntries(SLOT_KEYS.map((slot) => [slot, ""])) as Record<SlotKey, string>;
 
+const PART_CARD_BASE_ASSET =
+  "/assets/parts/sprites_trimmed/generated_image_february_28_2026_11_39am/generated_image_february_28_2026_11_39am_r01_c01.png";
+
 export const CompositionWorkbench = ({
   commissionId,
   streetCastId
@@ -73,6 +76,12 @@ export const CompositionWorkbench = ({
 
   const activeOptions = bySlot[activeSlot];
   const activeRecommended = commission?.interpreterOutput?.recommended[activeSlot] ?? [];
+  const selectedActivePart = useMemo(() => {
+    if (!activeOptions.length) return undefined;
+    const selectedPartId = selectedPartsBySlot[activeSlot];
+    if (!selectedPartId) return undefined;
+    return activeOptions.find((part) => part.id === selectedPartId);
+  }, [activeOptions, selectedPartsBySlot, activeSlot]);
 
   const customer = useMemo(() => {
     if (!commission) return undefined;
@@ -88,6 +97,7 @@ export const CompositionWorkbench = ({
   }, [commission, streetCastId]);
 
   const displayName = streetCast?.name ?? (commission ? getCustomerName(commission.customerId) : "Unknown");
+  const displayProfile = streetCast?.profile ?? customer?.personality;
   const displayPortraitAsset = streetCast?.portraitAsset ?? customer?.portraitAsset;
 
   const allSlotsSelected = SLOT_KEYS.every((slot) => selectedPartsBySlot[slot]);
@@ -145,7 +155,7 @@ export const CompositionWorkbench = ({
             <p>
               <strong>{displayName}</strong>
             </p>
-            {customer?.personality ? <p className="muted">{customer.personality}</p> : null}
+            {displayProfile ? <p className="muted">{displayProfile}</p> : null}
           </div>
         </div>
         <p className="compose-request">{commission.requestText}</p>
@@ -226,56 +236,70 @@ export const CompositionWorkbench = ({
       </PixelPanel>
 
       <PixelPanel title={text("composePartsPanelTitle")} className="compose-parts-panel">
-        <div className="compose-parts-header">
-          <p className="slot-picker-title">
-            {text("composePartsSlotPrefix")}: {slotLabel(locale, activeSlot)}
-          </p>
-          <p className="muted">{text("composePartsHint")}</p>
-        </div>
-
         {activeOptions.length ? (
-          <div className="slot-part-tabs">
-            {activeOptions.map((part) => {
-              const selected = selectedPartsBySlot[activeSlot] === part.id;
-              const isRecommended = activeRecommended.includes(part.id);
+          <div className="slot-part-picker-layout">
+            <aside className="slot-part-inspector" aria-live="polite">
+              {selectedActivePart ? (
+                <>
+                  <h4 className="slot-part-inspector-name">
+                    {selectedActivePart.name}
+                    {activeRecommended.includes(selectedActivePart.id) ? " ★" : ""}
+                  </h4>
+                  <p className="slot-part-inspector-description">{selectedActivePart.description}</p>
+                  <p className="slot-part-inspector-meta">
+                    {slotLabel(locale, selectedActivePart.slot)} / {selectedActivePart.price}G
+                  </p>
+                  <p className="slot-part-inspector-tags">{selectedActivePart.tags.join(" / ")}</p>
+                </>
+              ) : (
+                <p className="muted">{text("composeSelectPlaceholder")}</p>
+              )}
+            </aside>
+            <div className="slot-part-carousel" role="listbox" aria-label={slotLabel(locale, activeSlot)}>
+              {activeOptions.map((part) => {
+                const selected = selectedPartsBySlot[activeSlot] === part.id;
+                const isRecommended = activeRecommended.includes(part.id);
 
-              return (
-                <button
-                  key={part.id}
-                  type="button"
-                  className={`slot-part-tab ${selected ? "is-selected" : ""} ${isRecommended ? "is-recommended" : ""}`}
-                  onClick={() =>
-                    setSelectedPartsBySlot((prev) => ({
-                      ...prev,
-                      [activeSlot]: part.id
-                    }))
-                  }
-                  aria-pressed={selected}
-                >
-                  <span className="slot-part-thumb">
-                    {part.iconAsset ? (
+                return (
+                  <button
+                    key={part.id}
+                    type="button"
+                    className={`slot-part-card ${selected ? "is-selected" : ""} ${isRecommended ? "is-recommended" : ""}`}
+                    onClick={() =>
+                      setSelectedPartsBySlot((prev) => ({
+                        ...prev,
+                        [activeSlot]: part.id
+                      }))
+                    }
+                    aria-pressed={selected}
+                    title={part.name}
+                  >
+                    <span className="slot-part-thumb">
                       <img
-                        src={part.iconAsset}
-                        alt={part.name}
-                        className="slot-part-thumb-image"
+                        src={PART_CARD_BASE_ASSET}
+                        alt=""
+                        aria-hidden
+                        className="slot-part-card-base"
                         loading="lazy"
                       />
-                    ) : (
-                      <span className={`slot-part-thumb-fallback slot-${part.slot}`} aria-hidden>
-                        {slotLabel(locale, part.slot).slice(0, 2)}
-                      </span>
-                    )}
-                  </span>
-                  <span className="slot-part-content">
-                    <span className="slot-part-name">
-                      {part.name}
-                      {isRecommended ? " ★" : ""}
+                      {part.iconAsset ? (
+                        <img
+                          src={part.iconAsset}
+                          alt={part.name}
+                          className="slot-part-thumb-image"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className={`slot-part-thumb-fallback slot-${part.slot}`} aria-hidden>
+                          {slotLabel(locale, part.slot).slice(0, 2)}
+                        </span>
+                      )}
                     </span>
-                    <span className="slot-part-description">{part.description}</span>
-                  </span>
-                </button>
-              );
-            })}
+                    {isRecommended ? <span className="slot-part-badge">★</span> : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         ) : (
           <p className="muted">{text("composeNoPartsInSlot")}</p>

@@ -1,0 +1,39 @@
+{
+  "id": "ui_world_mega_sheet",
+  "mode": "report-only",
+  "spec": {
+    "targetSize": "4096x4096",
+    "kind": "ui_sheet",
+    "qaProfile": "standard",
+    "alphaRequired": true
+  },
+  "quality": {
+    "qualityScore": 17,
+    "qualityPassed": false,
+    "gates": {
+      "decodeOk": true,
+      "sizeMatch": true,
+      "noTextOrWatermark": false,
+      "singleSheetCompliance": false,
+      "characterConsistency": true,
+      "elementSeparation": false,
+      "alpha": false
+    },
+    "metrics": {
+      "textOrWatermarkDetected": true,
+      "singleSheetCompliance": 0.6,
+      "characterConsistency": null,
+      "elementSeparation": 0.6,
+      "transparentPixelRatio": 0
+    }
+  },
+  "vision": {
+    "textOrWatermarkDetected": true,
+    "singleSheetCompliance": 0.6,
+    "characterConsistency": null,
+    "elementSeparation": 0.6,
+    "notes": "Text labels are present on the sheet. Inconsistent backgrounds for some elements and tight spacing in the FX and badge sections may complicate automated slicing."
+  },
+  "finalPath": "public/assets/master-sheets/ui_world_mega_sheet_4096x4096.png",
+  "checkedAt": "2026-02-27T08:59:17.786Z"
+}

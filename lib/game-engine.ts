@@ -23,6 +23,40 @@ export const GAME_SCHEMA_VERSION = 2;
 
 const now = () => new Date().toISOString();
 
+const normalizeWeather = (weather: Weather): Weather => (weather === "rainy" ? "cloudy" : weather);
+
+const normalizeStateWeather = (state: GameState): GameState => {
+  const normalizedWeather = normalizeWeather(state.weather);
+  let commissionWeatherChanged = false;
+
+  const normalizedCommissions = Object.fromEntries(
+    Object.entries(state.commissions).map(([commissionId, commission]) => {
+      const normalizedCommissionWeather = normalizeWeather(commission.weather);
+      if (normalizedCommissionWeather !== commission.weather) {
+        commissionWeatherChanged = true;
+      }
+      return [
+        commissionId,
+        {
+          ...commission,
+          weather: normalizedCommissionWeather
+        }
+      ] as const;
+    })
+  );
+
+  if (!commissionWeatherChanged && normalizedWeather === state.weather) {
+    return state;
+  }
+
+  return {
+    ...state,
+    weather: normalizedWeather,
+    commissions: normalizedCommissions,
+    updatedAt: now()
+  };
+};
+
 const randomWeather = (): Weather => WEATHER_OPTIONS[Math.floor(Math.random() * WEATHER_OPTIONS.length)];
 
 const weightedRequests = (weather: Weather) => {
@@ -135,7 +169,7 @@ export const startNextDay = (state: GameState): GameState => {
 
 export const migrateState = (state: GameState): GameState => {
   if (state.schemaVersion === GAME_SCHEMA_VERSION) {
-    return ensureCommissionVariety(state);
+    return ensureCommissionVariety(normalizeStateWeather(state));
   }
 
   const fresh = ensureCommissionVariety(createInitialState());
@@ -149,14 +183,16 @@ export const migrateState = (state: GameState): GameState => {
   );
   const hasAllSlots = SLOT_KEYS.every((slot) => slotCoverage.has(slot));
 
-  return ensureCommissionVariety({
+  return ensureCommissionVariety(
+    normalizeStateWeather({
     ...fresh,
     money: typeof state.money === "number" ? state.money : fresh.money,
     day: typeof state.day === "number" && state.day > 0 ? state.day : fresh.day,
     inventoryPartIds: hasAllSlots && validInventory.length ? [...new Set(validInventory)] : fresh.inventoryPartIds,
     schemaVersion: GAME_SCHEMA_VERSION,
     updatedAt: now()
-  });
+    })
+  );
 };
 
 export const getPartById = (partId: string) => CATALOG_PARTS.find((part) => part.id === partId);
