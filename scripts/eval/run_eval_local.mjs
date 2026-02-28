@@ -9,10 +9,35 @@ const samplesDir = resolve(root, "artifacts/eval/samples");
 
 const KEYS = ["energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia"];
 const SLOTS = ["style", "instrument", "mood", "gimmick"];
+const evalScaleEnv = Number(process.env.EVAL_TARGET_SCALE || process.env.HF_FT_TARGET_SCALE || process.env.FT_TARGET_SCALE || "10");
+if (evalScaleEnv !== 10) {
+  throw new Error(`EVAL_TARGET_SCALE must be 10 for this pipeline. got=${evalScaleEnv}`);
+}
+const EVAL_TARGET_SCALE = 10;
+const THRESHOLD_SCALE = 100 / EVAL_TARGET_SCALE;
 
 const asNumber = (value, fallback = 0) => (typeof value === "number" && Number.isFinite(value) ? value : fallback);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const mean = (values) => (values.length ? values.reduce((acc, value) => acc + value, 0) / values.length : 0);
+const scaleFrom100 = (value) => Math.round(clamp((Number(value) / 100) * EVAL_TARGET_SCALE, 0, EVAL_TARGET_SCALE));
+const threshold = (value100) => (Number(value100) / 100) * EVAL_TARGET_SCALE;
+const inferScale = (vector) => {
+  const values = KEYS.map((key) => Number(vector?.[key])).filter((value) => Number.isFinite(value));
+  const maxValue = values.length ? Math.max(...values) : EVAL_TARGET_SCALE;
+  if (maxValue <= 10) return 10;
+  if (maxValue <= 100) return 100;
+  return EVAL_TARGET_SCALE;
+};
+const normalizeToEvalScale = (vector, sourceScale) => {
+  const src = Math.max(1, Number(sourceScale) || EVAL_TARGET_SCALE);
+  const out = {};
+  for (const key of KEYS) {
+    const value = Number(vector?.[key]);
+    const bounded = Number.isFinite(value) ? clamp(value, 0, src) : 0;
+    out[key] = Math.round(clamp((bounded / src) * EVAL_TARGET_SCALE, 0, EVAL_TARGET_SCALE));
+  }
+  return out;
+};
 const percentile = (values, p) => {
   if (!values.length) return 0;
   const sorted = [...values].sort((a, b) => a - b);
@@ -60,43 +85,114 @@ const extractJsonBlock = (text) => {
   return null;
 };
 
+const extractVectorPayload = (payload) => {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("parsed_payload_not_object");
+  }
+
+  const candidates = [
+    payload,
+    payload.hidden_params,
+    payload.target_hidden_params,
+    payload.targetHiddenParams,
+    payload.target_vector,
+    payload.vector,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+      if (KEYS.every((key) => key in candidate)) return candidate;
+      if (candidate.vector && typeof candidate.vector === "object" && KEYS.every((key) => key in candidate.vector)) {
+        return candidate.vector;
+      }
+    }
+  }
+
+  throw new Error("vector_payload_not_found");
+};
+
 const sanitizeVector = (payload) => {
+  const vectorPayload = extractVectorPayload(payload);
   const out = {};
   for (const key of KEYS) {
-    if (!(key in payload)) throw new Error(`missing_key:${key}`);
-    out[key] = Math.round(clamp(Number(payload[key]), 0, 100));
+    out[key] = Math.round(clamp(Number(vectorPayload[key]), 0, EVAL_TARGET_SCALE));
   }
   return out;
 };
 
 const deriveConstraints = (vector) => ({
-  preferredStyleTags: vector.nostalgia > 60 ? ["citypop_80s"] : vector.brightness > 65 ? ["pop_2000s"] : ["hiphop_90s"],
-  preferredGimmickTags: vector.energy > 60 ? ["filter_rise"] : ["beat_mute"],
-  avoidPartIds: vector.brightness < 22 ? ["style_2000s_pop"] : [],
+  preferredStyleTags: vector.nostalgia > threshold(60) ? ["citypop_80s"] : vector.brightness > threshold(65) ? ["pop_2000s"] : ["hiphop_90s"],
+  preferredGimmickTags: vector.energy > threshold(60) ? ["filter_rise"] : ["beat_mute"],
+  avoidPartIds: vector.brightness < threshold(22) ? ["style_2000s_pop"] : [],
 });
 
 const deriveTop1 = (vector) => ({
-  style: vector.brightness > 68 ? "style_2000s_pop" : vector.nostalgia > 65 ? "style_80s_citypop" : "style_90s_hiphop",
-  instrument: vector.acousticness > 70 ? "inst_piano_upright" : vector.warmth > 64 ? "inst_soft_strings" : "inst_analog_synth",
-  mood: vector.brightness < 35 ? "mood_rain_ambience" : vector.energy > 62 ? "mood_sun_glow" : "mood_night_drive",
-  gimmick: vector.complexity > 55 ? "gimmick_harmony_stack" : vector.energy > 62 ? "gimmick_filter_rise" : "gimmick_beat_mute",
+  style: vector.brightness > threshold(68) ? "style_2000s_pop" : vector.nostalgia > threshold(65) ? "style_80s_citypop" : "style_90s_hiphop",
+  instrument:
+    vector.acousticness > threshold(70)
+      ? "inst_piano_upright"
+      : vector.warmth > threshold(64)
+        ? "inst_soft_strings"
+        : "inst_analog_synth",
+  mood: vector.brightness < threshold(35) ? "mood_rain_ambience" : vector.energy > threshold(62) ? "mood_sun_glow" : "mood_night_drive",
+  gimmick:
+    vector.complexity > threshold(55)
+      ? "gimmick_harmony_stack"
+      : vector.energy > threshold(62)
+        ? "gimmick_filter_rise"
+        : "gimmick_beat_mute",
 });
 
 const rulePredict = (requestText) => {
   const lower = requestText.toLowerCase();
   if (/(rain|quiet|evening|night)/.test(lower)) {
-    return { energy: 22, warmth: 60, brightness: 24, acousticness: 72, complexity: 32, nostalgia: 72 };
+    return {
+      energy: scaleFrom100(22),
+      warmth: scaleFrom100(60),
+      brightness: scaleFrom100(24),
+      acousticness: scaleFrom100(72),
+      complexity: scaleFrom100(32),
+      nostalgia: scaleFrom100(72),
+    };
   }
   if (/(smile|bright|market|sun)/.test(lower)) {
-    return { energy: 75, warmth: 58, brightness: 82, acousticness: 38, complexity: 48, nostalgia: 42 };
+    return {
+      energy: scaleFrom100(75),
+      warmth: scaleFrom100(58),
+      brightness: scaleFrom100(82),
+      acousticness: scaleFrom100(38),
+      complexity: scaleFrom100(48),
+      nostalgia: scaleFrom100(42),
+    };
   }
   if (/(focus|study|reading|cafe)/.test(lower)) {
-    return { energy: 34, warmth: 54, brightness: 44, acousticness: 68, complexity: 28, nostalgia: 58 };
+    return {
+      energy: scaleFrom100(34),
+      warmth: scaleFrom100(54),
+      brightness: scaleFrom100(44),
+      acousticness: scaleFrom100(68),
+      complexity: scaleFrom100(28),
+      nostalgia: scaleFrom100(58),
+    };
   }
   if (/(memory|old|nostalgia|retro)/.test(lower)) {
-    return { energy: 40, warmth: 74, brightness: 50, acousticness: 76, complexity: 40, nostalgia: 88 };
+    return {
+      energy: scaleFrom100(40),
+      warmth: scaleFrom100(74),
+      brightness: scaleFrom100(50),
+      acousticness: scaleFrom100(76),
+      complexity: scaleFrom100(40),
+      nostalgia: scaleFrom100(88),
+    };
   }
-  return { energy: 45, warmth: 55, brightness: 50, acousticness: 65, complexity: 38, nostalgia: 60 };
+  return {
+    energy: scaleFrom100(45),
+    warmth: scaleFrom100(55),
+    brightness: scaleFrom100(50),
+    acousticness: scaleFrom100(65),
+    complexity: scaleFrom100(38),
+    nostalgia: scaleFrom100(60),
+  };
 };
 
 const hfPredict = async (requestText, weather) => {
@@ -104,8 +200,10 @@ const hfPredict = async (requestText, weather) => {
   try {
     const prompt = [
       "You estimate 6 hidden music parameters.",
-      "Return strict JSON only with keys energy,warmth,brightness,acousticness,complexity,nostalgia.",
-      "Each value must be integer between 0 and 100.",
+      "Return strict JSON only with schema:",
+      '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+      "Copy request_text exactly from input.",
+      `Each hidden_params value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
       `weather=${weather}`,
       `request_text=${requestText}`,
     ].join("\n");
@@ -158,8 +256,10 @@ const mistralPredict = async (requestText, weather, mistralModelId) => {
   try {
     const prompt = [
       "You estimate 6 hidden music parameters.",
-      "Return strict JSON only with keys energy,warmth,brightness,acousticness,complexity,nostalgia.",
-      "Each value must be integer between 0 and 100.",
+      "Return strict JSON only with schema:",
+      '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+      "Copy request_text exactly from input.",
+      `Each hidden_params value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
       `weather=${weather}`,
       `request_text=${requestText}`,
     ].join("\n");
@@ -214,7 +314,8 @@ const mistralPredict = async (requestText, weather, mistralModelId) => {
 const computeSanity = (jsonValid, vector) => {
   if (!jsonValid) return 12;
   const spread = Math.max(...KEYS.map((key) => vector[key])) - Math.min(...KEYS.map((key) => vector[key]));
-  return Math.round(clamp(70 + spread * 0.3, 0, 100));
+  const spread100 = spread * THRESHOLD_SCALE;
+  return Math.round(clamp(70 + spread100 * 0.3, 0, 100));
 };
 
 const traceUrl = (traceId) => {
@@ -270,12 +371,15 @@ const run = async () => {
     jsonFlags.push(jsonValid ? 1 : 0);
     latencies.push(latencyMs);
     costList.push(costs[mode]);
+    const rawTargetVector = item.target_hidden_params?.vector || {};
+    const sourceScale = Number(item.target_scale || item.target_hidden_params?.target_scale || inferScale(rawTargetVector));
+    const targetVector = normalizeToEvalScale(rawTargetVector, sourceScale);
 
     const row = {
       id: item.id,
       mode,
       scenario: item.scenario,
-      source_type: item.scenario || "unknown",
+      source_type: item.source_type || item.scenario || "unknown",
       request_text: item.request_text,
       weather: item.weather,
       model_source: mode,
@@ -289,7 +393,7 @@ const run = async () => {
       latency_ms: Math.round(latencyMs),
       cost_usd: costs[mode],
       output_sanity_score: 0,
-      target_vector: item.target_hidden_params?.vector || {},
+      target_vector: targetVector,
     };
 
     if (!jsonValid) {
@@ -301,7 +405,7 @@ const run = async () => {
 
     const absErrorByDim = {};
     for (const key of KEYS) {
-      const target = asNumber(item.target_hidden_params?.vector?.[key], 0);
+      const target = asNumber(targetVector[key], 0);
       const pred = asNumber(vector[key], 0);
       const diff = pred - target;
       absErrors.push(Math.abs(diff));
@@ -311,20 +415,21 @@ const run = async () => {
     }
 
     const predictedConstraints = deriveConstraints(vector);
-    const targetConstraints = item.target_hidden_params?.constraints || {};
+    const targetConstraints = deriveConstraints(targetVector);
     const constraintMatch = JSON.stringify(predictedConstraints) === JSON.stringify(targetConstraints);
     constraintFlags.push(constraintMatch ? 1 : 0);
 
     const predictedTop1 = deriveTop1(vector);
+    const expectedTop1 = deriveTop1(targetVector);
     let slotMatches = 0;
     for (const slot of SLOTS) {
-      const hit = predictedTop1[slot] === item.expected_top1_by_slot?.[slot];
+      const hit = predictedTop1[slot] === expectedTop1[slot];
       slotFlags.push(hit ? 1 : 0);
       if (hit) slotMatches += 1;
     }
 
     const mae = mean(Object.values(absErrorByDim));
-    const intent = clamp(100 - mae * 2.1, 0, 100);
+    const intent = clamp(100 - mae * THRESHOLD_SCALE * 2.1, 0, 100);
     const sanity = computeSanity(true, vector);
     intentScores.push(intent);
     sanityScores.push(sanity);
@@ -345,10 +450,11 @@ const run = async () => {
   const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot;
 
   const metrics = {
+    target_scale: EVAL_TARGET_SCALE,
     json_valid_rate: mean(jsonFlags),
     vector_mae: mean(absErrors),
     mse_raw: mean(sqErrors),
-    mse_norm: mean(sqErrors) / (100 * 100),
+    mse_norm: mean(sqErrors) / (EVAL_TARGET_SCALE * EVAL_TARGET_SCALE),
     r2_score: r2,
     constraint_match_rate: mean(constraintFlags),
     slot_exact_match: mean(slotFlags),
@@ -372,6 +478,7 @@ const run = async () => {
 
   const runPayload = {
     dataset_version: dataset.dataset_version || "unknown",
+    target_scale: EVAL_TARGET_SCALE,
     mode,
     model_source: mode,
     model_id: modelId,
@@ -382,6 +489,7 @@ const run = async () => {
   const samplePayload = {
     run_id: runId,
     mode,
+    target_scale: EVAL_TARGET_SCALE,
     dataset_version: dataset.dataset_version || "unknown",
     model_source: mode,
     model_id: modelId,

@@ -1,48 +1,66 @@
 {
-  "generated_at": "2026-02-28T09:43:45.554Z",
+  "generated_at": "2026-02-28T17:08:36.089Z",
   "split": {
-    "train": 984,
-    "valid": 122,
-    "test": 124,
-    "total": 1230,
-    "source_rows_total": 615
+    "train": 800,
+    "valid": 100,
+    "test": 100,
+    "total": 1000,
+    "source_rows_total": 500
   },
-  "source_path": "/Users/yajima/Desktop/dev/Mistral_Hackathon/data/ft/teacher_pairs.cycle_2.jsonl",
+  "source_path": "merged_hub_request_text_plus_local_rule_prompt",
   "output_prefix": "ft_request_param",
   "expansion": {
     "request_text_rows_per_source": 1,
     "rule_prompt_rows_per_source": 1
   },
+  "source_type_counts": {
+    "train": {
+      "request_text": 400,
+      "rule_prompt": 400
+    },
+    "valid": {
+      "request_text": 50,
+      "rule_prompt": 50
+    },
+    "test": {
+      "request_text": 50,
+      "rule_prompt": 50
+    },
+    "total": {
+      "request_text": 500,
+      "rule_prompt": 500
+    }
+  },
   "source_vector_stats": {
     "energy": {
-      "mean": 49.426016260162605,
+      "mean": 4.963,
       "min": 0,
-      "max": 100
+      "max": 10
     },
     "warmth": {
-      "mean": 50.00813008130081,
+      "mean": 6.602,
       "min": 0,
-      "max": 100
+      "max": 10
     },
     "brightness": {
-      "mean": 49.93658536585366,
+      "mean": 5.358,
       "min": 0,
-      "max": 100
+      "max": 10
     },
     "acousticness": {
-      "mean": 51.144715447154475,
+      "mean": 5.684,
       "min": 0,
-      "max": 100
+      "max": 10
     },
     "complexity": {
-      "mean": 51.357723577235774,
+      "mean": 4.869,
       "min": 0,
-      "max": 100
+      "max": 10
     },
     "nostalgia": {
-      "mean": 50.05853658536585,
+      "mean": 6.856,
       "min": 0,
-      "max": 100
+      "max": 10
     }
   }
 }

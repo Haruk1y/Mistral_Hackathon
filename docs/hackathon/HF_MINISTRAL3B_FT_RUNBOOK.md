@@ -97,6 +97,7 @@ cycle_2再学習:
 
 ```bash
 HF_JOB_SUBMIT=true \
+HF_FT_OBJECTIVE=next_token_json_sft \
 HF_FT_RUN_NAME=balanced-run6-cycle2-retrain-harddims \
 HF_FT_DATASET_REPO_ID=Haruk1y/atelier-kotone-ft-request-hidden \
 HF_FT_LR=0.000009 \
@@ -170,6 +171,7 @@ FT_SOURCE_PATH=data/ft/teacher_pairs.cycle_n.jsonl npm run ft:split
 4. Model再学習（HF Jobs）
 ```bash
 HF_JOB_SUBMIT=true \
+HF_FT_OBJECTIVE=next_token_json_sft \
 HF_FT_RUN_NAME=balanced-run-cycle_n-mcp-weave-retrain \
 LOOP_CYCLE_ID=cycle_n \
 WANDB_RUN_GROUP=balanced_6run-cycle_n-retrain \
@@ -251,3 +253,86 @@ npm run loop:cycle
 - HF Model: https://huggingface.co/Haruk1y/atelier-kotone-ministral3b-ft
 - HF Dataset: https://huggingface.co/datasets/Haruk1y/atelier-kotone-ft-request-hidden
 - HF Jobs: https://huggingface.co/jobs/Haruk1y/69a2b901dfb316ac3f7bfd33
+
+## 13. Run2 Plan (MCP-Based) and Submission Status
+
+目的:
+- run1 (`prod-cycle1-run1-base-20260228`) の失敗分布をMCP経由で再利用し、run2を保守的設定で再学習する
+
+入力エビデンス:
+- `artifacts/loop/cycle_1/mcp_eval_snapshot.json`
+- `artifacts/loop/cycle_1/mcp_decision_input.json`
+- `artifacts/loop/cycle_1/decision_log.md`
+- `artifacts/wandb/weave_failure_playbook.md`
+
+MCP起点の重点次元:
+- primary: `nostalgia`, `acousticness` (`mcp_decision_input` の `focus_dims`)
+- secondary check: `warmth` (top failure tracesで頻出)
+
+run2方針（cycle_2）:
+- 増強は強すぎるシフトを避ける
+- `LOOP_ADD_RATIO=0.12`（前回0.2より縮小）
+- `LOOP_HARD_CASE_REPLAY_RATIO=0.25`（失敗再現の比率を増やす）
+- 学習率/epochはcycle_1提案値を採用
+- `HF_FT_LR=0.000012`
+- `HF_FT_EPOCHS=3`
+
+実行コマンド（run2投入時の実績）:
+
+```bash
+WANDB_PROJECT=atelier-kotone-ft-prod \
+WANDB_ENTITY=haruk1y_ \
+WEAVE_PROJECT=atelier-kotone-ft-prod \
+TRACKIO_PROJECT=atelier-kotone-ft-prod \
+WANDB_MCP_ENABLED=true \
+WANDB_MCP_ALLOW_STALE_SNAPSHOT=true \
+LOOP_CYCLE_ID=cycle_1 \
+LOOP_FORCE_WEAK_DIMS=nostalgia,acousticness \
+LOOP_ADD_RATIO=0.12 \
+LOOP_HARD_CASE_REPLAY_RATIO=0.25 \
+npm run loop:cycle
+```
+
+```bash
+FT_SOURCE_PATH=data/ft/teacher_pairs.cycle_2.jsonl npm run ft:split
+```
+
+```bash
+HF_JOB_SUBMIT=true \
+HF_FT_RUN_NAME=prod-cycle2-run2-mcp-conservative-20260228 \
+HF_FT_DATASET_REPO_ID=Haruk1y/atelier-kotone-ft-request-hidden \
+HF_FT_LR=0.000012 \
+HF_FT_EPOCHS=3 \
+HF_FT_EVAL_STEPS=25 \
+HF_FT_DETAILED_EVAL_STEPS=1 \
+HF_FT_HARD_CASE_TOP_K=80 \
+LOOP_CYCLE_ID=cycle_2 \
+WANDB_PROJECT=atelier-kotone-ft-prod \
+WANDB_ENTITY=haruk1y_ \
+WEAVE_PROJECT=atelier-kotone-ft-prod \
+TRACKIO_PROJECT=atelier-kotone-ft-prod \
+WANDB_RUN_GROUP=prod_cycle2 \
+FT_DATASET_VERSION=cycle_2_mcp_conservative \
+FT_SOURCE_TYPE_MIX=request_text+rule_prompt+harddim_aug \
+ENABLE_WEAVE_TRACE=true \
+npm run hf:job:submit
+```
+
+run2投入結果:
+- first submit: https://huggingface.co/jobs/Haruk1y/69a301bd5672f7593677022d
+  - status: failed (dataset schema cast error: float -> int64)
+- resubmitted run2b: https://huggingface.co/jobs/Haruk1y/69a3033adfb316ac3f7c0055
+  - status: running
+- submitted_at: 2026-02-28 14:54 / 15:01 (local)
+- note: hosted MCP DNSが一時失敗したため、`cycle_1` のMCP artifactsを stale-snapshot モードで再利用して増強データを生成
+
+run2完了後の必須更新:
+- `npm run hf:campaign:collect`
+- `WANDB_MCP_ENABLED=true LOOP_CYCLE_ID=cycle_2 npm run wandb:mcp:fetch`
+- `npm run wandb:failures:analyze`
+- `npm run wandb:report:assets`
+
+判定ゲート:
+- `eval/mae_raw` が run1 (`25.9905`) を下回る
+- `mae_raw_nostalgia`, `mae_raw_acousticness` が run1 比で改善
+- `json_valid_rate >= 0.98` を維持

@@ -7,131 +7,179 @@ const inputPath = process.env.FT_SOURCE_PATH
   : resolve(root, "data/ft/teacher_pairs.filtered.jsonl");
 const outputDir = resolve(root, "data/ft");
 const outputPrefix = process.env.FT_OUTPUT_PREFIX || "ft_request_param";
+const VECTOR_KEYS = ["energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia"];
+const SLOT_KEYS = ["style", "instrument", "mood", "gimmick"];
+const PART_NAME_BY_ID = {
+  style_80s_citypop: "80s City Pop",
+  style_90s_hiphop: "90s Hip-Hop",
+  style_2000s_pop: "2000s Pop",
+  inst_piano_upright: "Upright Piano",
+  inst_soft_strings: "Fairy Harp",
+  inst_analog_synth: "Snake Music Box",
+  mood_rain_ambience: "Rain Ambience",
+  mood_sun_glow: "Sun Glow",
+  mood_night_drive: "Night Drive",
+  gimmick_beat_mute: "Beat Mute",
+  gimmick_filter_rise: "Filter Rise",
+  gimmick_harmony_stack: "Harmony Stack"
+};
+const STYLE_ID_BY_TAG = {
+  citypop_80s: "style_80s_citypop",
+  hiphop_90s: "style_90s_hiphop",
+  pop_2000s: "style_2000s_pop"
+};
+const GIMMICK_ID_BY_TAG = {
+  beat_mute: "gimmick_beat_mute",
+  filter_rise: "gimmick_filter_rise",
+  harmony_stack: "gimmick_harmony_stack"
+};
+const targetScaleEnv = Number(process.env.FT_TARGET_SCALE || process.env.HF_FT_TARGET_SCALE || "10");
+if (targetScaleEnv !== 10) {
+  throw new Error(`FT_TARGET_SCALE must be 10 for this pipeline. got=${targetScaleEnv}`);
+}
+const TARGET_SCALE = 10;
+const INCLUDE_REQUEST_TEXT_ROWS = process.env.FT_INCLUDE_REQUEST_TEXT_ROWS === "true";
 
 const SYSTEM_PROMPT =
   "You are a request interpreter for Atelier kotone. Return strict JSON only with keys: energy, warmth, brightness, acousticness, complexity, nostalgia.";
 
-const hashString = (value) => {
-  let hash = 2166136261;
-  const text = String(value || "");
-  for (let i = 0; i < text.length; i += 1) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
+const toBoundedInt = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(100, Math.round(numeric)));
+};
+
+const toTargetScaleInt = (value) => {
+  const bounded100 = toBoundedInt(value);
+  return Math.max(0, Math.min(TARGET_SCALE, Math.round((bounded100 / 100) * TARGET_SCALE)));
+};
+
+const normalizeHiddenParams = (hiddenParams) => {
+  const source = hiddenParams || {};
+  const vector = source.vector || {};
+  const normalizedVector = Object.fromEntries(VECTOR_KEYS.map((key) => [key, toTargetScaleInt(vector[key])]));
+
+  return {
+    vector: normalizedVector
+  };
+};
+
+const getPartName = (partId) => PART_NAME_BY_ID[partId] || String(partId);
+
+const readKotoneSelection = (row) => {
+  const selectedPartsBySlot = row.selected_parts_by_slot;
+  if (selectedPartsBySlot && typeof selectedPartsBySlot === "object") {
+    const style = String(selectedPartsBySlot.style || "");
+    const instrument = String(selectedPartsBySlot.instrument || "");
+    const mood = String(selectedPartsBySlot.mood || "");
+    const gimmick = String(selectedPartsBySlot.gimmick || "");
+    if (style && instrument && mood && gimmick) {
+      return {
+        selectedPartsBySlot: {
+          style,
+          instrument,
+          mood,
+          gimmick
+        }
+      };
+    }
   }
-  return Math.abs(hash >>> 0);
-};
 
-const pickByHash = (array, hash, offset = 0) => array[(hash + offset) % array.length];
+  const vector = row.target_hidden_params?.vector || {};
+  const constraints = row.target_hidden_params?.constraints || {};
+  const styleTag = Array.isArray(constraints.preferredStyleTags) ? String(constraints.preferredStyleTags[0] || "") : "";
+  const gimmickTag = Array.isArray(constraints.preferredGimmickTags) ? String(constraints.preferredGimmickTags[0] || "") : "";
 
-const pickStyleHint = (row) => {
-  const preferred = row.target_hidden_params?.constraints?.preferredStyleTags?.[0];
-  if (preferred === "citypop_80s") return "80s City Pop";
-  if (preferred === "hiphop_90s") return "90s Hip-Hop";
-  if (preferred === "pop_2000s") return "2000s Pop";
-  return "70s Folk";
-};
+  const style =
+    STYLE_ID_BY_TAG[styleTag] || (toBoundedInt(vector.brightness) > 68 ? "style_2000s_pop" : toBoundedInt(vector.nostalgia) > 65 ? "style_80s_citypop" : "style_90s_hiphop");
+  const instrument =
+    toBoundedInt(vector.acousticness) > 70
+      ? "inst_piano_upright"
+      : toBoundedInt(vector.warmth) > 64
+        ? "inst_soft_strings"
+        : "inst_analog_synth";
+  const mood =
+    toBoundedInt(vector.brightness) < 35
+      ? "mood_rain_ambience"
+      : toBoundedInt(vector.energy) > 62
+        ? "mood_sun_glow"
+        : "mood_night_drive";
+  const gimmick =
+    GIMMICK_ID_BY_TAG[gimmickTag] || (toBoundedInt(vector.complexity) > 55 ? "gimmick_harmony_stack" : toBoundedInt(vector.energy) > 62 ? "gimmick_filter_rise" : "gimmick_beat_mute");
 
-const pickGimmickHint = (row) => {
-  const preferred = row.target_hidden_params?.constraints?.preferredGimmickTags?.[0];
-  if (preferred === "beat_mute") return "Beat Mute";
-  if (preferred === "filter_rise") return "Filter Rise";
-  if (preferred === "harmony_stack") return "Harmony Stack";
-  return "Temple Bell";
-};
-
-const pickInstrumentHint = (row) => {
-  const tags = row.target_hidden_params?.tags || [];
-  if (tags.includes("acoustic")) return "Upright Piano";
-  if (tags.includes("nostalgic")) return "Vintage Violin";
-  if (tags.includes("upbeat")) return "Travel Accordion";
-  if (tags.includes("night")) return "Snake Music Box";
-  return "Street Guitar";
-};
-
-const pickMoodHint = (row) => {
-  const tags = row.target_hidden_params?.tags || [];
-  if (tags.includes("rain")) return "Rain Ambience";
-  if (tags.includes("night")) return "Night Drive";
-  if (tags.includes("cozy")) return "Cozy Hearth";
-  if (tags.includes("nostalgic")) return "Pocket Memory";
-  if (tags.includes("upbeat")) return "Sun Laugh";
-  return "Sun Glow";
-};
-
-const pickEnergyMoodLine = (row) => {
-  const vec = row.target_hidden_params?.vector || {};
-  const energy = Number(vec.energy || 0);
-  const nostalgia = Number(vec.nostalgia || 0);
-  const complexity = Number(vec.complexity || 0);
-
-  if (energy >= 70 && complexity >= 60) return "Keep the momentum lively with layered motion.";
-  if (energy <= 30 && nostalgia >= 60) return "Let it stay soft, reflective, and memory-like.";
-  if (energy <= 35) return "Keep the pace gentle and uncluttered.";
-  if (nostalgia >= 70) return "Leave a warm nostalgic tail after each phrase.";
-  return "Balance groove and calm in a compact arrangement.";
+  return {
+    selectedPartsBySlot: {
+      style,
+      instrument,
+      mood,
+      gimmick
+    }
+  };
 };
 
 const buildRulePrompt = (row) => {
-  const tags = row.target_hidden_params?.tags || [];
-  const style = pickStyleHint(row);
-  const instrument = pickInstrumentHint(row);
-  const mood = pickMoodHint(row);
-  const gimmick = pickGimmickHint(row);
-  const flavor = tags.slice(0, 3).join(", ") || "balanced, cozy";
-  const hash = hashString(row.id || JSON.stringify(row.target_hidden_params || {}));
+  const existingRulePrompt = String(row.rule_prompt || "").trim();
+  if (existingRulePrompt) {
+    const originalLines = existingRulePrompt
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const selectedHeaderIndex = originalLines.findIndex((line) => line === "Selected Kotone combination:");
+    if (selectedHeaderIndex >= 0) {
+      const selectedSection = originalLines.slice(selectedHeaderIndex);
+      const hasStyleTail = selectedSection.some((line) =>
+        line.startsWith("Style: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.")
+      );
+      const lines = [
+        "Compose nostalgic retro pixel-town background music.",
+        "Return instrumental music suitable for a game scene.",
+        "This is a rule-based prompt generated from selected Kotone parts.",
+        ...selectedSection
+      ];
+      if (!hasStyleTail) {
+        lines.push("Style: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.");
+      }
+      return lines.join("\n");
+    }
+  }
 
-  const opener = pickByHash(
-    [
-      "Create a short instrumental cue for a retro town moment.",
-      "I want a compact instrumental piece for a small city scene.",
-      "Could you craft an instrumental snippet with a nostalgic street vibe?",
-      "Please compose a concise instrumental track for game play."
-    ],
-    hash,
-    0
-  );
-  const tail = pickByHash(
-    [
-      "No vocals. Keep it concise and game-friendly.",
-      "Instrumental only. Keep it brief and loop-friendly.",
-      "No singing. Keep the structure tight and playable in-game.",
-      "Instrumental only. Short, clear, and suitable for gameplay."
-    ],
-    hash,
-    3
-  );
-
-  return [
-    opener,
-    `Style: ${style}.`,
-    `Instrument: ${instrument}.`,
-    `Mood: ${mood}.`,
-    `Gimmick: ${gimmick}.`,
-    `Flavor tags: ${flavor}.`,
-    pickEnergyMoodLine(row),
-    tail
-  ].join(" ");
+  const selected = readKotoneSelection(row);
+  const lines = [
+    "Compose nostalgic retro pixel-town background music.",
+    "Return instrumental music suitable for a game scene.",
+    "This is a rule-based prompt generated from selected Kotone parts.",
+    "Selected Kotone combination:",
+    ...SLOT_KEYS.map((slot) => {
+      const partId = selected.selectedPartsBySlot[slot];
+      return `- ${slot}: ${getPartName(partId)} (${partId})`;
+    }),
+    "Style: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple."
+  ];
+  return lines.join("\n");
 };
 
-const toMessagesRow = (row, sourceType, inputText) => ({
-  source_type: sourceType,
-  request_text: inputText,
-  target_hidden_params: row.target_hidden_params,
-  messages: [
-    {
-      role: "system",
-      content: SYSTEM_PROMPT
-    },
-    {
-      role: "user",
-      content: `request_text=${inputText}`
-    },
-    {
-      role: "assistant",
-      content: JSON.stringify(row.target_hidden_params.vector)
-    }
-  ]
-});
+const toMessagesRow = (row, sourceType, inputText) => {
+  const targetHiddenParams = normalizeHiddenParams(row.target_hidden_params);
+  return {
+    source_type: sourceType,
+    request_text: inputText,
+    target_hidden_params: targetHiddenParams,
+    messages: [
+      {
+        role: "system",
+        content: SYSTEM_PROMPT
+      },
+      {
+        role: "user",
+        content: inputText
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify(targetHiddenParams.vector)
+      }
+    ]
+  };
+};
 
 const parseJsonl = (raw) =>
   raw
@@ -155,9 +203,10 @@ const splitRows = (rows) => {
 
 const expandRows = (rows) =>
   rows.flatMap((row) => {
-    const requestRow = toMessagesRow(row, "request_text", row.request_text);
     const rulePrompt = buildRulePrompt(row);
     const promptRow = toMessagesRow(row, "rule_prompt", rulePrompt);
+    if (!INCLUDE_REQUEST_TEXT_ROWS) return [promptRow];
+    const requestRow = toMessagesRow(row, "request_text", row.request_text);
     return [requestRow, promptRow];
   });
 
@@ -166,11 +215,10 @@ const writeJsonl = async (path, rows) => {
 };
 
 const statsFor = (rows) => {
-  const vecKeys = ["energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia"];
   const stats = {};
 
-  for (const key of vecKeys) {
-    const values = rows.map((row) => row.target_hidden_params.vector[key]);
+  for (const key of VECTOR_KEYS) {
+    const values = rows.map((row) => toBoundedInt(row?.target_hidden_params?.vector?.[key]));
     const mean = values.reduce((acc, v) => acc + v, 0) / Math.max(1, values.length);
     const min = values.length ? Math.min(...values) : 0;
     const max = values.length ? Math.max(...values) : 0;
@@ -211,7 +259,7 @@ const main = async () => {
     source_path: inputPath,
     output_prefix: outputPrefix,
     expansion: {
-      request_text_rows_per_source: 1,
+      request_text_rows_per_source: INCLUDE_REQUEST_TEXT_ROWS ? 1 : 0,
       rule_prompt_rows_per_source: 1
     },
     source_vector_stats: statsFor(sourceRows)

@@ -14,17 +14,24 @@
 # ]
 # ///
 
-"""Regression FT for request_text -> hidden_params (MSE objective).
+"""Headless next-token SFT for request_text + hidden_params pair JSON generation.
 
-This script optimizes numeric prediction error directly, not next-token loss.
-Target order:
-  [energy, warmth, brightness, acousticness, complexity, nostalgia]
+This script trains a causal LM objective (no regression head) so inference can
+directly return strict JSON pair:
+{
+  "request_text": str,
+  "hidden_params": {
+    "energy": int, "warmth": int, "brightness": int,
+    "acousticness": int, "complexity": int, "nostalgia": int
+  }
+}
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import uuid
 from datetime import datetime, timezone
@@ -32,7 +39,6 @@ from pathlib import Path
 from typing import Any
 
 import torch
-import torch.nn.functional as F
 from datasets import Dataset, load_dataset
 from huggingface_hub import HfApi
 from peft import LoraConfig, get_peft_model
@@ -40,12 +46,13 @@ from torch.utils.data import DataLoader
 from transformers import (
     Mistral3ForConditionalGeneration,
     MistralCommonBackend,
-    TrainerCallback,
     Trainer,
+    TrainerCallback,
     TrainingArguments,
 )
 
 KEYS = ("energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia")
+WEATHER_VALUES = {"sunny", "cloudy", "rainy"}
 
 
 def env_str(name: str, default: str) -> str:
@@ -74,6 +81,23 @@ def env_bool(name: str, default: bool) -> bool:
     return value.lower() in {"1", "true", "yes", "on"}
 
 
+def clamp_int(value: float, lo: int = 0, hi: int = 100) -> int:
+    return max(lo, min(hi, int(round(float(value)))))
+
+
+def convert_scale_int(value: float, source_scale: int, target_scale: int) -> int:
+    src = max(1, int(source_scale))
+    dst = max(1, int(target_scale))
+    bounded = clamp_int(value, lo=0, hi=src)
+    return clamp_int((bounded / src) * dst, lo=0, hi=dst)
+
+
+def default_vector_for_scale(target_scale: int) -> dict[str, int]:
+    hi = max(1, int(target_scale))
+    midpoint = clamp_int(target_scale / 2.0, lo=0, hi=hi)
+    return {key: midpoint for key in KEYS}
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-model", default=env_str("HF_BASE_MODEL_ID", "mistralai/Ministral-3-3B-Instruct-2512"))
@@ -100,12 +124,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--detailed-eval-steps", type=int, default=env_int("HF_FT_DETAILED_EVAL_STEPS", 1))
     parser.add_argument("--max-steps", type=int, default=env_int("HF_FT_MAX_STEPS", -1))
     parser.add_argument("--hard-cases-top-k", type=int, default=env_int("HF_FT_HARD_CASE_TOP_K", 80))
+    parser.add_argument(
+        "--generation-max-new-tokens",
+        type=int,
+        default=env_int("HF_FT_GENERATION_MAX_NEW_TOKENS", 96),
+    )
+    parser.add_argument("--target-scale", type=int, default=env_int("HF_FT_TARGET_SCALE", env_int("FT_TARGET_SCALE", 10)))
 
     parser.add_argument("--lora-r", type=int, default=env_int("HF_FT_LORA_R", 16))
     parser.add_argument("--lora-alpha", type=int, default=env_int("HF_FT_LORA_ALPHA", 32))
     parser.add_argument("--lora-dropout", type=float, default=env_float("HF_FT_LORA_DROPOUT", 0.05))
 
-    parser.add_argument("--run-name", default=env_str("HF_FT_RUN_NAME", "ministral3b-request-hidden-regression"))
+    parser.add_argument("--run-name", default=env_str("HF_FT_RUN_NAME", "ministral3b-request-hidden-nexttoken"))
     parser.add_argument("--wandb-project", default=env_str("WANDB_PROJECT", "atelier-kotone-ft"))
     parser.add_argument("--wandb-entity", default=os.getenv("WANDB_ENTITY"))
     parser.add_argument("--wandb-run-group", default=os.getenv("WANDB_RUN_GROUP"))
@@ -119,7 +149,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--enable-weave-trace", action="store_true", default=env_bool("ENABLE_WEAVE_TRACE", True))
     parser.add_argument("--push-to-hub", action="store_true", default=env_bool("HF_FT_PUSH_TO_HUB", True))
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.target_scale != 10:
+        raise ValueError(f"HF_FT_TARGET_SCALE/--target-scale must be 10 for this pipeline, got: {args.target_scale}")
+    return args
 
 
 def load_splits(args: argparse.Namespace) -> tuple[Dataset, Dataset]:
@@ -152,6 +185,14 @@ def load_splits(args: argparse.Namespace) -> tuple[Dataset, Dataset]:
     raise ValueError("Specify --dataset-repo or --local-train")
 
 
+def _unwrap_token_field(field: Any) -> list[int]:
+    if isinstance(field, list) and field and isinstance(field[0], list):
+        return [int(v) for v in field[0]]
+    if isinstance(field, list):
+        return [int(v) for v in field]
+    return []
+
+
 def _extract_request_text(row: dict[str, Any]) -> str:
     direct = str(row.get("request_text", "")).strip()
     if direct:
@@ -172,11 +213,56 @@ def _extract_request_text(row: dict[str, Any]) -> str:
     raise ValueError("request_text not found")
 
 
+def _extract_source_type(row: dict[str, Any]) -> str:
+    value = str(row.get("source_type", "")).strip().lower()
+    if value:
+        return value
+
+    messages = row.get("messages")
+    if isinstance(messages, list):
+        for message in messages:
+            if message.get("role") != "user":
+                continue
+            content = str(message.get("content", "")).strip()
+            if "source_type=" not in content:
+                continue
+            source_type = content.split("source_type=", 1)[1].splitlines()[0].strip().lower()
+            if source_type:
+                return source_type
+    return "request_text"
+
+
+def _extract_weather(row: dict[str, Any]) -> str:
+    direct = str(row.get("weather", "")).strip().lower()
+    if direct in WEATHER_VALUES:
+        return direct
+
+    messages = row.get("messages")
+    if isinstance(messages, list):
+        for message in messages:
+            if message.get("role") != "user":
+                continue
+            content = str(message.get("content", "")).strip()
+            if "weather=" not in content:
+                continue
+            weather = content.split("weather=", 1)[1].split()[0].strip().lower().strip(",.")
+            if weather in WEATHER_VALUES:
+                return weather
+
+    lower = str(row.get("request_text", "")).lower()
+    if any(token in lower for token in ("rain", "storm", "drizzle", "wet")):
+        return "rainy"
+    if any(token in lower for token in ("night", "evening", "dusk", "cloud", "fog")):
+        return "cloudy"
+    if any(token in lower for token in ("sun", "morning", "bright", "daylight")):
+        return "sunny"
+    return "cloudy"
+
+
 def _extract_target_vector(row: dict[str, Any]) -> dict[str, float]:
     vector = row.get("target_hidden_params", {}).get("vector")
-    if isinstance(vector, dict):
-        if all(key in vector for key in KEYS):
-            return {key: float(vector[key]) for key in KEYS}
+    if isinstance(vector, dict) and all(key in vector for key in KEYS):
+        return {key: float(vector[key]) for key in KEYS}
 
     messages = row.get("messages")
     if isinstance(messages, list):
@@ -194,85 +280,191 @@ def _extract_target_vector(row: dict[str, Any]) -> dict[str, float]:
     raise ValueError("target hidden params not found")
 
 
-def normalize_row(row: dict[str, Any]) -> dict[str, Any]:
+def _infer_vector_scale(vector: dict[str, Any]) -> int:
+    values: list[float] = []
+    for key in KEYS:
+        value = vector.get(key)
+        if value is None:
+            continue
+        try:
+            values.append(float(value))
+        except (TypeError, ValueError):
+            continue
+    max_value = max(values) if values else 0.0
+    if max_value <= 10:
+        return 10
+    if max_value <= 100:
+        return 100
+    return 10
+
+
+def _extract_target_scale(row: dict[str, Any], default_scale: int) -> int:
+    candidates = [row.get("target_scale"), row.get("target_hidden_params", {}).get("target_scale")]
+    for value in candidates:
+        if value is None:
+            continue
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            continue
+        if parsed > 0:
+            return parsed
+    try:
+        vector = _extract_target_vector(row)
+        return _infer_vector_scale(vector)
+    except Exception:  # noqa: BLE001
+        return default_scale
+
+
+def normalize_row(row: dict[str, Any], default_scale: int) -> dict[str, Any]:
     request_text = _extract_request_text(row)
+    source_type = _extract_source_type(row)
+    weather = _extract_weather(row)
     target = _extract_target_vector(row)
-    return {"request_text": request_text, "target": target}
+    target_scale = _extract_target_scale(row, default_scale)
+    return {
+        "request_text": request_text,
+        "source_type": source_type,
+        "weather": weather,
+        "target": target,
+        "target_scale": target_scale,
+    }
 
 
-def build_regression_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_length: int) -> Dataset:
-    normalized = dataset.map(normalize_row, remove_columns=dataset.column_names, desc=f"normalize:{split_name}")
+def build_inference_prompt(request_text: str, weather: str, source_type: str, target_scale: int) -> str:
+    return "\n".join(
+        [
+            "You estimate 6 hidden music parameters.",
+            "Return strict JSON only with this schema:",
+            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Copy request_text exactly from input.",
+            f"Each hidden_params value must be integer between 0 and {target_scale}.",
+            f"source_type={source_type}",
+            f"weather={weather}",
+            f"request_text={request_text}",
+        ]
+    )
+
+
+def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_length: int, target_scale: int) -> Dataset:
+    normalized = dataset.map(
+        lambda row: normalize_row(row, target_scale),
+        remove_columns=dataset.column_names,
+        desc=f"normalize:{split_name}",
+    )
 
     def to_features(sample: dict[str, Any]) -> dict[str, Any]:
-        prompt = f"request_text={sample['request_text']}"
-        tokenized = tokenizer(
-            prompt,
+        sample_scale = max(1, int(sample.get("target_scale", target_scale)))
+        target_vector = {
+            key: convert_scale_int(float(sample["target"][key]), source_scale=sample_scale, target_scale=target_scale)
+            for key in KEYS
+        }
+        prompt = build_inference_prompt(
+            request_text=str(sample["request_text"]),
+            weather=str(sample["weather"]),
+            source_type=str(sample["source_type"]),
+            target_scale=target_scale,
+        )
+        assistant_json = json.dumps(
+            {
+                "request_text": str(sample["request_text"]),
+                "hidden_params": target_vector,
+            },
+            ensure_ascii=False,
+        )
+        eos = tokenizer.eos_token or ""
+        full_text = f"{prompt}\n{assistant_json}{eos}"
+
+        tokenized_full = tokenizer(
+            full_text,
             truncation=True,
             max_length=max_length,
             return_attention_mask=True,
         )
-        input_ids = tokenized["input_ids"]
-        attention_mask = tokenized["attention_mask"]
-        if input_ids and isinstance(input_ids[0], list):
-            input_ids = input_ids[0]
-        if attention_mask and isinstance(attention_mask[0], list):
-            attention_mask = attention_mask[0]
+        tokenized_prompt = tokenizer(
+            prompt,
+            truncation=True,
+            max_length=max_length,
+            return_attention_mask=False,
+        )
 
-        labels_raw = [max(0.0, min(100.0, float(sample["target"][key]))) for key in KEYS]
-        labels = [value / 100.0 for value in labels_raw]
+        input_ids = _unwrap_token_field(tokenized_full["input_ids"])
+        attention_mask = _unwrap_token_field(tokenized_full["attention_mask"])
+        prompt_ids = _unwrap_token_field(tokenized_prompt["input_ids"])
+        prompt_len = min(len(prompt_ids), len(input_ids))
+        labels = [-100] * prompt_len + input_ids[prompt_len:]
+
+        if len(labels) < len(input_ids):
+            labels.extend([-100] * (len(input_ids) - len(labels)))
+
         return {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
             "labels": labels,
-            "target_raw": labels_raw,
             "request_text": sample["request_text"],
+            "source_type": sample["source_type"],
+            "weather": sample["weather"],
+            "target_scale": target_scale,
+            "target_raw": [float(target_vector[key]) for key in KEYS],
+            "prompt_text": prompt,
         }
 
     return normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")
 
 
-class RegressionDataCollator:
+class SFTDataCollator:
     def __init__(self, tokenizer: Any):
         self.tokenizer = tokenizer
 
     def __call__(self, features: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
-        labels = torch.tensor([item["labels"] for item in features], dtype=torch.float32)
         inputs = [{"input_ids": item["input_ids"], "attention_mask": item["attention_mask"]} for item in features]
         batch = self.tokenizer.pad(inputs, padding=True, return_tensors="pt")
-        batch["labels"] = labels
+        max_len = int(batch["input_ids"].shape[1])
+
+        labels = []
+        for item in features:
+            row = list(item["labels"])
+            if len(row) < max_len:
+                row = row + [-100] * (max_len - len(row))
+            labels.append(row[:max_len])
+
+        batch["labels"] = torch.tensor(labels, dtype=torch.long)
         return batch
 
 
-def _forward_regression(model: torch.nn.Module, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
-    outputs = model.model.language_model(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        use_cache=False,
-        return_dict=True,
-    )
-    hidden = outputs.last_hidden_state
-    last_token_idx = attention_mask.sum(dim=1).clamp(min=1) - 1
-    pooled = hidden[torch.arange(hidden.size(0), device=hidden.device), last_token_idx]
-    pred = torch.sigmoid(model.regression_head(pooled.float()))
-    return pred
+class EvalGenerationCollator:
+    def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
+        return {
+            "prompts": [str(item["prompt_text"]) for item in features],
+            "request_text": [str(item["request_text"]) for item in features],
+            "source_type": [str(item.get("source_type", "request_text")) for item in features],
+            "weather": [str(item["weather"]) for item in features],
+            "target_raw": [list(item["target_raw"]) for item in features],
+        }
 
 
-class HiddenParamRegressionTrainer(Trainer):
+class HiddenParamSFTTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
-        labels = inputs["labels"].float()
-        pred = _forward_regression(model, inputs["input_ids"], inputs["attention_mask"])
-        loss = F.mse_loss(pred, labels)
+        outputs = model.model.language_model(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],
+            labels=inputs["labels"],
+            use_cache=False,
+            return_dict=True,
+        )
+        loss = outputs.loss
         if return_outputs:
-            return loss, {"logits": pred}
+            return loss, outputs
         return loss
 
 
-def _format_regression_metrics(preds: torch.Tensor, labels: torch.Tensor) -> dict[str, float]:
-    abs_norm = torch.abs(preds - labels)
-    sq_norm = (preds - labels) ** 2
+def _format_regression_metrics(preds_raw: torch.Tensor, labels_raw: torch.Tensor, target_scale: int) -> dict[str, float]:
+    denom = float(max(1, target_scale))
+    preds_norm = preds_raw / denom
+    labels_norm = labels_raw / denom
 
-    preds_raw = preds * 100.0
-    labels_raw = labels * 100.0
+    abs_norm = torch.abs(preds_norm - labels_norm)
+    sq_norm = (preds_norm - labels_norm) ** 2
     abs_raw = torch.abs(preds_raw - labels_raw)
     sq_raw = (preds_raw - labels_raw) ** 2
 
@@ -292,12 +484,95 @@ def _format_regression_metrics(preds: torch.Tensor, labels: torch.Tensor) -> dic
     return metrics
 
 
-def _extract_hard_cases(dataset: Dataset, preds: torch.Tensor, labels: torch.Tensor, top_k: int) -> list[dict[str, Any]]:
+def extract_json_blob(text: str) -> str | None:
+    stripped = text.strip()
+    if not stripped:
+        return None
+
+    try:
+        parsed = json.loads(stripped)
+        if isinstance(parsed, dict):
+            return stripped
+    except json.JSONDecodeError:
+        pass
+
+    fenced = stripped.split("```json")
+    if len(fenced) > 1:
+        tail = fenced[1].split("```", 1)[0].strip()
+        if tail:
+            return tail
+
+    first = stripped.find("{")
+    last = stripped.rfind("}")
+    if first >= 0 and last > first:
+        return stripped[first : last + 1]
+    return None
+
+
+def _extract_vector_payload(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("parsed_payload_not_object")
+
+    candidates: list[Any] = [payload]
+    candidates.extend(
+        [
+            payload.get("hidden_params"),
+            payload.get("target_hidden_params"),
+            payload.get("targetHiddenParams"),
+            payload.get("target_vector"),
+            payload.get("vector"),
+        ]
+    )
+
+    for candidate in candidates:
+        if isinstance(candidate, dict):
+            if all(key in candidate for key in KEYS):
+                return candidate
+            nested_vector = candidate.get("vector")
+            if isinstance(nested_vector, dict) and all(key in nested_vector for key in KEYS):
+                return nested_vector
+
+    raise ValueError("vector_payload_not_found")
+
+
+def sanitize_vector(payload: Any, target_scale: int) -> dict[str, int]:
+    vector_payload = _extract_vector_payload(payload)
+    out: dict[str, int] = {}
+    for key in KEYS:
+        value = float(vector_payload[key])
+        if not math.isfinite(value):
+            raise ValueError(f"non_finite:{key}")
+        out[key] = clamp_int(value, lo=0, hi=target_scale)
+    return out
+
+
+def parse_generated_vector(text: str, target_scale: int) -> tuple[dict[str, int] | None, str | None]:
+    blob = extract_json_blob(text)
+    if not blob:
+        return None, "json_block_not_found"
+
+    try:
+        parsed = json.loads(blob)
+    except json.JSONDecodeError as error:
+        return None, f"json_decode_error:{error}"
+
+    try:
+        return sanitize_vector(parsed, target_scale=target_scale), None
+    except Exception as error:  # noqa: BLE001
+        return None, f"invalid_vector:{error}"
+
+
+def _extract_hard_cases(
+    dataset: Dataset,
+    preds_raw: torch.Tensor,
+    labels_raw: torch.Tensor,
+    parse_errors: list[str | None],
+    generated_texts: list[str],
+    top_k: int,
+) -> list[dict[str, Any]]:
     if top_k <= 0 or len(dataset) == 0:
         return []
 
-    preds_raw = preds * 100.0
-    labels_raw = labels * 100.0
     abs_raw = torch.abs(preds_raw - labels_raw)
     mae_by_sample = torch.mean(abs_raw, dim=1)
     take = min(top_k, mae_by_sample.shape[0])
@@ -307,6 +582,8 @@ def _extract_hard_cases(dataset: Dataset, preds: torch.Tensor, labels: torch.Ten
     for rank, sample_idx in enumerate(top_indices):
         row = dataset[int(sample_idx)]
         request_text = str(row.get("request_text", ""))
+        source_type = str(row.get("source_type", "request_text"))
+        weather = str(row.get("weather", "sunny"))
         target = {key: float(labels_raw[sample_idx, idx].item()) for idx, key in enumerate(KEYS)}
         predicted = {key: float(preds_raw[sample_idx, idx].item()) for idx, key in enumerate(KEYS)}
         abs_error_raw = {key: float(abs_raw[sample_idx, idx].item()) for idx, key in enumerate(KEYS)}
@@ -315,49 +592,104 @@ def _extract_hard_cases(dataset: Dataset, preds: torch.Tensor, labels: torch.Ten
                 "rank": rank + 1,
                 "sample_index": int(sample_idx),
                 "request_text": request_text,
+                "source_type": source_type,
+                "weather": weather,
                 "target_vector": target,
                 "predicted_vector": predicted,
                 "abs_error_raw": abs_error_raw,
                 "mae_raw": float(mae_by_sample[sample_idx].item()),
+                "parse_error": parse_errors[sample_idx],
+                "generated_text": generated_texts[sample_idx],
             }
         )
     return hard_cases
 
 
-def evaluate_regression(
+def evaluate_generation(
     model: torch.nn.Module,
     dataset: Dataset,
-    collator: RegressionDataCollator,
+    tokenizer: Any,
     batch_size: int,
+    max_length: int,
+    max_new_tokens: int,
+    target_scale: int,
     hard_cases_top_k: int = 0,
 ) -> tuple[dict[str, float], list[dict[str, Any]]]:
     device = next(model.parameters()).device
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=collator)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=EvalGenerationCollator())
 
-    preds_all = []
-    labels_all = []
+    preds_raw_rows: list[list[float]] = []
+    labels_raw_rows: list[list[float]] = []
+    parse_errors: list[str | None] = []
+    generated_texts: list[str] = []
     was_training = model.training
 
     model.eval()
     with torch.no_grad():
         for batch in dataloader:
-            labels = batch["labels"].to(device)
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            pred = _forward_regression(model, input_ids, attention_mask)
-            preds_all.append(pred.cpu())
-            labels_all.append(labels.cpu())
+            prompts = list(batch["prompts"])
+            tokenized = tokenizer(
+                prompts,
+                truncation=True,
+                max_length=max_length,
+                padding=True,
+                return_tensors="pt",
+            )
+            input_ids = tokenized["input_ids"].to(device)
+            attention_mask = tokenized["attention_mask"].to(device)
+
+            generated_ids = model.model.language_model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
+
+            for idx in range(generated_ids.shape[0]):
+                prompt_len = int(attention_mask[idx].sum().item())
+                continuation_ids = generated_ids[idx][prompt_len:].tolist()
+                generated_text = str(tokenizer.decode(continuation_ids, skip_special_tokens=True)).strip()
+                vector, parse_error = parse_generated_vector(generated_text, target_scale=target_scale)
+                if vector is None:
+                    vector = default_vector_for_scale(target_scale)
+
+                preds_raw_rows.append([float(vector[key]) for key in KEYS])
+                labels_raw_rows.append([float(v) for v in batch["target_raw"][idx]])
+                parse_errors.append(parse_error)
+                generated_texts.append(generated_text[:600])
 
     if was_training:
         model.train()
 
-    if not preds_all:
-        return {"mse_norm": 0.0, "mae_norm": 0.0, "mse_raw": 0.0, "mae_raw": 0.0}, []
+    if not preds_raw_rows:
+        return {
+            "mse_norm": 0.0,
+            "mae_norm": 0.0,
+            "mse_raw": 0.0,
+            "mae_raw": 0.0,
+            "json_valid_rate": 0.0,
+            "parse_error_rate": 1.0,
+        }, []
 
-    preds = torch.cat(preds_all, dim=0)
-    labels = torch.cat(labels_all, dim=0)
-    metrics = _format_regression_metrics(preds, labels)
-    hard_cases = _extract_hard_cases(dataset, preds, labels, hard_cases_top_k)
+    preds_raw = torch.tensor(preds_raw_rows, dtype=torch.float32)
+    labels_raw = torch.tensor(labels_raw_rows, dtype=torch.float32)
+    metrics = _format_regression_metrics(preds_raw, labels_raw, target_scale=target_scale)
+    valid_count = sum(1 for error in parse_errors if not error)
+    total = len(parse_errors)
+    metrics["json_valid_rate"] = valid_count / total if total > 0 else 0.0
+    metrics["parse_error_rate"] = 1.0 - metrics["json_valid_rate"]
+    metrics["target_scale"] = float(target_scale)
+
+    hard_cases = _extract_hard_cases(
+        dataset=dataset,
+        preds_raw=preds_raw,
+        labels_raw=labels_raw,
+        parse_errors=parse_errors,
+        generated_texts=generated_texts,
+        top_k=hard_cases_top_k,
+    )
     return metrics, hard_cases
 
 
@@ -410,8 +742,6 @@ class DetailedEvalCallback(TrainerCallback):
         if self.has_wandb:
             import wandb
 
-            # Do not force global step here; Trainer may already advance W&B step.
-            # iter_eval/* is bound to iter_eval/step via wandb.define_metric.
             wandb.log(log_payload)
 
         if self.has_trackio:
@@ -438,12 +768,13 @@ def setup_wandb(args: argparse.Namespace) -> bool:
         job_type="train",
         name=args.run_name,
         config={
-            "objective": "mse_regression",
+            "objective": "next_token_json_sft",
             "base_model": args.base_model,
             "hub_model_id": args.hub_model_id,
             "dataset_repo": args.dataset_repo,
             "dataset_version": args.dataset_version,
             "source_type_mix": args.source_type_mix,
+            "target_scale": args.target_scale,
             "cycle_id": args.cycle_id,
             "weave_project": args.weave_project,
             "epochs": args.epochs,
@@ -451,6 +782,7 @@ def setup_wandb(args: argparse.Namespace) -> bool:
             "batch_size": args.batch_size,
             "grad_accum": args.grad_accum,
             "max_length": args.max_length,
+            "generation_max_new_tokens": args.generation_max_new_tokens,
             "logging_steps": args.logging_steps,
             "eval_steps": args.eval_steps,
             "detailed_eval_steps": args.detailed_eval_steps,
@@ -466,13 +798,13 @@ def setup_wandb(args: argparse.Namespace) -> bool:
             "hf-jobs",
             "ministral-3b",
             "request-to-hidden",
-            "regression",
-            "mse",
+            "sft",
+            "next-token",
+            "json-generation",
             args.cycle_id,
         ],
     )
 
-    # Keep iter_eval charts on their own x-axis to avoid collisions with Trainer logs.
     wandb.define_metric("iter_eval/step")
     wandb.define_metric("iter_eval/*", step_metric="iter_eval/step")
     return True
@@ -488,6 +820,7 @@ def log_dataset_artifact_to_wandb(args: argparse.Namespace) -> None:
             "dataset_repo": args.dataset_repo,
             "dataset_version": args.dataset_version,
             "source_type_mix": args.source_type_mix,
+            "target_scale": args.target_scale,
             "train_split": args.train_split,
             "valid_split": args.valid_split,
         },
@@ -512,10 +845,11 @@ def maybe_setup_trackio(args: argparse.Namespace) -> bool:
         name=args.run_name,
         space_id=args.trackio_space_id,
         config={
-            "objective": "mse_regression",
+            "objective": "next_token_json_sft",
             "base_model": args.base_model,
             "hub_model_id": args.hub_model_id,
             "dataset_repo": args.dataset_repo,
+            "target_scale": args.target_scale,
             "epochs": args.epochs,
             "learning_rate": args.learning_rate,
             "eval_steps": args.eval_steps,
@@ -526,32 +860,38 @@ def maybe_setup_trackio(args: argparse.Namespace) -> bool:
     return True
 
 
-def save_adapter_and_head(model: torch.nn.Module, tokenizer: Any, output_dir: str, base_model: str) -> Path:
+def save_adapter_model(
+    model: torch.nn.Module,
+    tokenizer: Any,
+    output_dir: str,
+    base_model: str,
+    target_scale: int,
+) -> Path:
     adapter_dir = Path(output_dir) / "adapter"
     adapter_dir.mkdir(parents=True, exist_ok=True)
 
     model.model.language_model.save_pretrained(adapter_dir)
     tokenizer.save_pretrained(adapter_dir)
-    torch.save(model.regression_head.state_dict(), adapter_dir / "regression_head.pt")
 
-    # Override PEFT auto-generated README to avoid invalid metadata validation on upload.
     readme = [
-        "# Atelier Kotone Regression Adapter",
+        "# Atelier Kotone JSON SFT Adapter",
         "",
         f"Base model: `{base_model}`",
         "",
-        "This adapter predicts hidden parameters as 6D continuous values",
-        "in the order: energy, warmth, brightness, acousticness, complexity, nostalgia.",
+        "This adapter is trained with next-token SFT and outputs strict JSON",
+        "for hidden parameter prediction with keys:",
+        "energy, warmth, brightness, acousticness, complexity, nostalgia.",
     ]
-    (adapter_dir / "README.md").write_text("\\n".join(readme) + "\\n", encoding="utf-8")
+    (adapter_dir / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
 
     metadata = {
-        "task": "request_text_to_hidden_params_regression",
+        "task": "request_text_to_hidden_params_json_generation",
         "target_keys": list(KEYS),
-        "target_scale": "0-1 normalized during training, convert to 0-100 for game",
-        "prediction_transform": "sigmoid",
+        "target_scale": f"integer 0-{target_scale}",
+        "output_format": "strict_json_object",
+        "objective": "next_token_prediction",
     }
-    (adapter_dir / "regression_head_meta.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    (adapter_dir / "sft_output_meta.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return adapter_dir
 
 
@@ -616,6 +956,7 @@ def maybe_log_eval_to_weave(
             "predicted_vector": case.get("predicted_vector"),
             "abs_error_raw": case.get("abs_error_raw"),
             "mae_raw": case.get("mae_raw"),
+            "parse_error": case.get("parse_error"),
         }
         log_case(payload)
         traces.append(
@@ -624,6 +965,7 @@ def maybe_log_eval_to_weave(
                 "trace_url_hint": build_trace_url(trace_id),
                 "rank": case.get("rank"),
                 "mae_raw": case.get("mae_raw"),
+                "parse_error": case.get("parse_error"),
             }
         )
 
@@ -639,9 +981,11 @@ def main() -> None:
     tokenizer = MistralCommonBackend.from_pretrained(args.base_model)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    if tokenizer.pad_token_id is None and tokenizer.eos_token_id is not None:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    train_lm = build_regression_dataset(train_ds, tokenizer, "train", args.max_length)
-    valid_lm = build_regression_dataset(valid_ds, tokenizer, "valid", args.max_length)
+    train_lm = build_sft_dataset(train_ds, tokenizer, "train", args.max_length, args.target_scale)
+    valid_lm = build_sft_dataset(valid_ds, tokenizer, "valid", args.max_length, args.target_scale)
 
     model = Mistral3ForConditionalGeneration.from_pretrained(
         args.base_model,
@@ -649,20 +993,12 @@ def main() -> None:
         attn_implementation="eager",
     )
 
-    hidden_size = model.model.language_model.config.hidden_size
-    model.regression_head = torch.nn.Sequential(
-        torch.nn.Linear(hidden_size, hidden_size // 2),
-        torch.nn.GELU(),
-        torch.nn.Dropout(0.1),
-        torch.nn.Linear(hidden_size // 2, len(KEYS)),
-    )
-
     peft_config = LoraConfig(
         r=args.lora_r,
         lora_alpha=args.lora_alpha,
         lora_dropout=args.lora_dropout,
         bias="none",
-        task_type="FEATURE_EXTRACTION",
+        task_type="CAUSAL_LM",
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     )
     model.model.language_model = get_peft_model(model.model.language_model, peft_config)
@@ -692,22 +1028,21 @@ def main() -> None:
         logging_steps=max(1, args.logging_steps),
         logging_first_step=True,
         save_strategy="no",
-        eval_strategy="steps",
-        eval_steps=max(1, args.eval_steps),
+        eval_strategy="no",
         max_steps=args.max_steps,
         bf16=True,
         report_to=report_to,
         remove_unused_columns=False,
     )
 
-    collator = RegressionDataCollator(tokenizer)
+    collator = SFTDataCollator(tokenizer)
     metrics_dir = Path(args.output_dir)
     metrics_dir.mkdir(parents=True, exist_ok=True)
     iter_eval_metrics_path = metrics_dir / "iter_eval_metrics.jsonl"
     if iter_eval_metrics_path.exists():
         iter_eval_metrics_path.unlink()
 
-    trainer = HiddenParamRegressionTrainer(
+    trainer = HiddenParamSFTTrainer(
         model=model,
         args=train_args,
         train_dataset=train_lm,
@@ -716,11 +1051,14 @@ def main() -> None:
     )
 
     def eval_fn() -> tuple[dict[str, float], list[dict[str, Any]]]:
-        return evaluate_regression(
-            model,
-            valid_lm,
-            collator,
+        return evaluate_generation(
+            model=model,
+            dataset=valid_lm,
+            tokenizer=tokenizer,
             batch_size=max(1, args.batch_size),
+            max_length=args.max_length,
+            max_new_tokens=args.generation_max_new_tokens,
+            target_scale=args.target_scale,
             hard_cases_top_k=args.hard_cases_top_k,
         )
 
@@ -742,7 +1080,7 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    adapter_dir = save_adapter_and_head(model, tokenizer, args.output_dir, args.base_model)
+    adapter_dir = save_adapter_model(model, tokenizer, args.output_dir, args.base_model, args.target_scale)
     if args.push_to_hub:
         push_adapter_to_hub(adapter_dir, args.hub_model_id)
 
@@ -750,11 +1088,12 @@ def main() -> None:
 
     metrics_path = metrics_dir / "final_metrics.json"
     metrics_payload = {
-        "objective": "mse_regression",
+        "objective": "next_token_json_sft",
         "target_keys": list(KEYS),
         "cycle_id": args.cycle_id,
         "dataset_version": args.dataset_version,
         "source_type_mix": args.source_type_mix,
+        "target_scale": args.target_scale,
         "train": train_result.metrics,
         "eval": eval_result,
         "hard_cases_top_k": args.hard_cases_top_k,
@@ -778,10 +1117,12 @@ def main() -> None:
             "dataset/hard_cases_count": len(hard_cases),
             "dataset/version": args.dataset_version,
             "dataset/source_type_mix": args.source_type_mix,
+            "dataset/target_scale": args.target_scale,
             "run/cycle_id": args.cycle_id,
         }
         final_payload.update({f"eval/{key}": value for key, value in eval_result.items()})
         wandb.log(final_payload)
+
         metrics_artifact = wandb.Artifact(f"final-metrics-{args.run_name}", type="metrics")
         metrics_artifact.add_file(str(metrics_path))
         metrics_artifact.add_file(str(hard_cases_path))
@@ -799,19 +1140,12 @@ def main() -> None:
                 "base_model": args.base_model,
                 "cycle_id": args.cycle_id,
                 "dataset_version": args.dataset_version,
+                "objective": "next_token_json_sft",
+                "target_scale": args.target_scale,
             },
         )
         model_artifact.add_dir(str(adapter_dir))
         wandb.log_artifact(model_artifact, aliases=["latest", args.cycle_id])
-
-        artifact = wandb.Artifact("final_metrics", type="metrics")
-        artifact.add_file(str(metrics_path))
-        artifact.add_file(str(hard_cases_path))
-        if iter_eval_metrics_path.exists():
-            artifact.add_file(str(iter_eval_metrics_path))
-        if weave_trace_path and weave_trace_path.exists():
-            artifact.add_file(str(weave_trace_path))
-        wandb.log_artifact(artifact)
         wandb.finish()
 
     if has_trackio:
@@ -823,7 +1157,7 @@ def main() -> None:
         trackio.finish()
 
     print(
-        "Training complete (MSE regression). "
+        "Training complete (next-token JSON SFT). "
         f"Metrics: {metrics_path} | Hard cases: {hard_cases_path} | Iter eval: {iter_eval_metrics_path}"
     )
 

@@ -119,24 +119,35 @@
 - focus次元 (`mae_raw_<dim>`) が前サイクルより改善
 - `vector_mae`, `mse_norm` が prompt baseline 比で悪化しない
 
-### 6.1 Planned Cycle_2 (Not Executed Yet)
+### 6.1 Run2 Plan (MCP-Based, Submitted)
 
+- Plan target:
+  - run name: `prod-cycle2-run2-mcp-conservative-20260228`
+  - W&B group: `prod_cycle2`
+  - Project: `haruk1y_/atelier-kotone-ft-prod`
+  - HF job (first): https://huggingface.co/jobs/Haruk1y/69a301bd5672f7593677022d (failed: schema cast)
+  - HF job (retry): https://huggingface.co/jobs/Haruk1y/69a3033adfb316ac3f7c0055 (running)
 - Inputs:
   - `artifacts/loop/cycle_1/mcp_eval_snapshot.json`
-  - `artifacts/wandb/weave_failure_cases.json`
-  - `artifacts/loop/cycle_1/summary.json`
+  - `artifacts/loop/cycle_1/mcp_decision_input.json`
+  - `artifacts/loop/cycle_1/decision_log.md`
+  - `artifacts/wandb/weave_failure_playbook.md`
+- MCP-derived focus:
+  - primary dims: `nostalgia`, `acousticness`
+  - secondary monitor dim: `warmth`
 - Hyperparameter plan:
   - `learning_rate: 2.0e-5 -> 1.2e-5`
   - `epochs: 2 -> 3`
   - `lora_r/lora_alpha/lora_dropout: keep (16/32/0.05)`
-- Data plan:
-  - focus dims: `nostalgia`, `acousticness`
-  - synthetic hard-case augmentation: `+100`
-  - hard-case replay: `+15`
-  - merged dataset size: `500 -> 615`
+- Conservative data plan (overshoot mitigation):
+  - `LOOP_ADD_RATIO: 0.20 -> 0.12`
+  - `LOOP_HARD_CASE_REPLAY_RATIO: 0.15 -> 0.25`
+  - expected merge size: `500 + ~60 = ~560` (exact count logged after `loop:cycle`)
+  - actual loop generation (stale snapshot mode): generated `60` + replay `15`
 - Promotion gate:
-  - include at least 3 MCP trace-linked failure remediations in report
-  - require improvement on focus dims before model promotion
+  - `eval/mae_raw < 25.9905` (run1 baseline)
+  - `mae_raw_nostalgia`, `mae_raw_acousticness` improved vs run1
+  - include at least 3 MCP trace-linked remediations in final report
 
 ## 7. Message for Judges (Latency vs Quality)
 

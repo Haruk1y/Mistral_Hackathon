@@ -195,16 +195,10 @@ export const computeOutputSanityScore = (input: {
 };
 
 export const createSinePrompt = (payload: CreateMusicRequest): string => {
-  const hiddenParamsSummary = payload.targetHiddenParams
-    ? `Target hidden params: energy=${payload.targetHiddenParams.vector.energy}, warmth=${payload.targetHiddenParams.vector.warmth}, brightness=${payload.targetHiddenParams.vector.brightness}, acousticness=${payload.targetHiddenParams.vector.acousticness}, complexity=${payload.targetHiddenParams.vector.complexity}, nostalgia=${payload.targetHiddenParams.vector.nostalgia}`
-    : "Target hidden params: unknown";
-
   const lines = [
     "Compose nostalgic retro pixel-town background music.",
     "Return instrumental music suitable for a game scene.",
     "This is a rule-based prompt generated from selected Kotone parts.",
-    `User request: ${payload.requestText}`,
-    hiddenParamsSummary,
     "Selected Kotone combination:",
     ...Object.entries(payload.selectedPartsBySlot).map(
       ([slot, partId]) => `- ${slot}: ${getPartName(partId)} (${partId})`

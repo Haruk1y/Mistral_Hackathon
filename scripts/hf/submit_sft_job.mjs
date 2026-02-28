@@ -4,7 +4,6 @@ import { resolve } from "node:path";
 import { loadEnvFiles } from "../utils/load-env.mjs";
 
 const root = resolve(new URL("../../", import.meta.url).pathname);
-const scriptPath = resolve(root, "scripts/hf/train_sft_request_to_hidden.py");
 const submissionLogPath = resolve(root, "artifacts/hf_jobs/submissions.jsonl");
 loadEnvFiles(root);
 
@@ -12,6 +11,12 @@ const flavor = process.env.HF_JOB_FLAVOR || "a10g-small";
 const timeout = process.env.HF_JOB_TIMEOUT || "2h";
 const namespace = process.env.HF_NAMESPACE || "Haruk1y";
 const shouldSubmit = process.env.HF_JOB_SUBMIT === "true";
+const ftObjective = process.env.HF_FT_OBJECTIVE || "next_token_json_sft";
+const trainScriptRelPath =
+  ftObjective === "mse_regression_head"
+    ? "scripts/hf/train_sft_request_to_hidden.py"
+    : "scripts/hf/train_sft_request_to_hidden_lm.py";
+const scriptPath = resolve(root, trainScriptRelPath);
 
 const envConfig = {
   HF_BASE_MODEL_ID: process.env.HF_BASE_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512",
@@ -21,13 +26,15 @@ const envConfig = {
   HF_FT_VALID_SPLIT: process.env.HF_FT_VALID_SPLIT || "validation",
   HF_FT_OUTPUT_MODEL_ID: process.env.HF_FT_OUTPUT_MODEL_ID || "Haruk1y/atelier-kotone-ministral3b-ft",
   HF_FT_OUTPUT_DIR: process.env.HF_FT_OUTPUT_DIR || "outputs/ministral3b-request-hidden",
-  HF_FT_RUN_NAME: process.env.HF_FT_RUN_NAME || `ministral3b-regression-${Date.now()}`,
+  HF_FT_RUN_NAME: process.env.HF_FT_RUN_NAME || `ministral3b-nexttoken-${Date.now()}`,
+  HF_FT_OBJECTIVE: ftObjective,
   HF_FT_EPOCHS: process.env.HF_FT_EPOCHS || "2",
   HF_FT_LR: process.env.HF_FT_LR || "0.00002",
   HF_FT_BATCH_SIZE: process.env.HF_FT_BATCH_SIZE || "2",
   HF_FT_GRAD_ACCUM: process.env.HF_FT_GRAD_ACCUM || "8",
   HF_FT_WARMUP_RATIO: process.env.HF_FT_WARMUP_RATIO || "0.1",
   HF_FT_MAX_LENGTH: process.env.HF_FT_MAX_LENGTH || "768",
+  HF_FT_TARGET_SCALE: process.env.HF_FT_TARGET_SCALE || process.env.FT_TARGET_SCALE || "10",
   HF_FT_LOGGING_STEPS: process.env.HF_FT_LOGGING_STEPS || "1",
   HF_FT_EVAL_STEPS: process.env.HF_FT_EVAL_STEPS || "25",
   HF_FT_DETAILED_EVAL_STEPS: process.env.HF_FT_DETAILED_EVAL_STEPS || "1",
@@ -124,6 +131,8 @@ const record = {
   namespace,
   flavor,
   timeout,
+  objective: ftObjective,
+  train_script: trainScriptRelPath,
   run_name: envConfig.HF_FT_RUN_NAME,
   output_model_id: envConfig.HF_FT_OUTPUT_MODEL_ID,
   dataset_repo_id: envConfig.HF_FT_DATASET_REPO_ID,

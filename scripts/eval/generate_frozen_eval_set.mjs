@@ -13,13 +13,13 @@ const teacherAllowFallback = process.env.EVAL_TEACHER_ALLOW_FALLBACK === "true";
 const teacherLang = process.env.EVAL_TEACHER_LANG || "en";
 const teacherRetries = Math.max(0, Number(process.env.EVAL_TEACHER_MAX_RETRIES || 2));
 const teacherTemperature = Number(process.env.EVAL_TEACHER_TEMPERATURE || 0.2);
-
-const PARTS_BY_SLOT = {
-  style: ["style_80s_citypop", "style_90s_hiphop", "style_2000s_pop"],
-  instrument: ["inst_piano_upright", "inst_soft_strings", "inst_analog_synth"],
-  mood: ["mood_rain_ambience", "mood_sun_glow", "mood_night_drive"],
-  gimmick: ["gimmick_beat_mute", "gimmick_filter_rise", "gimmick_harmony_stack"]
-};
+const targetScaleEnv = Number(process.env.EVAL_TARGET_SCALE || process.env.HF_FT_TARGET_SCALE || process.env.FT_TARGET_SCALE || "10");
+if (targetScaleEnv !== 10) {
+  throw new Error(`EVAL_TARGET_SCALE must be 10 for this pipeline. got=${targetScaleEnv}`);
+}
+const TARGET_SCALE = 10;
+const SYSTEM_PROMPT =
+  "You are a request interpreter for Atelier kotone. Return strict JSON only with keys: energy, warmth, brightness, acousticness, complexity, nostalgia.";
 
 const BASE_REQUESTS = [
   "A quiet evening after rain in a small town.",
@@ -54,25 +54,27 @@ const lcg = (seed) => {
 };
 
 const toInt = (value, min, max) => Math.max(min, Math.min(max, Math.round(value)));
+const scaleFrom100 = (value) => (Number(value) / 100) * TARGET_SCALE;
+const threshold = (value100) => (Number(value100) / 100) * TARGET_SCALE;
 
 const makeVector = (rng, profile = "balanced") => {
   const base = {
-    energy: toInt(25 + rng() * 55, 0, 100),
-    warmth: toInt(30 + rng() * 50, 0, 100),
-    brightness: toInt(20 + rng() * 60, 0, 100),
-    acousticness: toInt(25 + rng() * 60, 0, 100),
-    complexity: toInt(15 + rng() * 50, 0, 100),
-    nostalgia: toInt(25 + rng() * 65, 0, 100)
+    energy: toInt(scaleFrom100(25 + rng() * 55), 0, TARGET_SCALE),
+    warmth: toInt(scaleFrom100(30 + rng() * 50), 0, TARGET_SCALE),
+    brightness: toInt(scaleFrom100(20 + rng() * 60), 0, TARGET_SCALE),
+    acousticness: toInt(scaleFrom100(25 + rng() * 60), 0, TARGET_SCALE),
+    complexity: toInt(scaleFrom100(15 + rng() * 50), 0, TARGET_SCALE),
+    nostalgia: toInt(scaleFrom100(25 + rng() * 65), 0, TARGET_SCALE)
   };
 
-  if (profile === "high_nostalgia") base.nostalgia = toInt(72 + rng() * 24, 0, 100);
-  if (profile === "low_brightness") base.brightness = toInt(4 + rng() * 22, 0, 100);
-  if (profile === "high_energy") base.energy = toInt(72 + rng() * 24, 0, 100);
-  if (profile === "acoustic_focus") base.acousticness = toInt(78 + rng() * 20, 0, 100);
+  if (profile === "high_nostalgia") base.nostalgia = toInt(scaleFrom100(72 + rng() * 24), 0, TARGET_SCALE);
+  if (profile === "low_brightness") base.brightness = toInt(scaleFrom100(4 + rng() * 22), 0, TARGET_SCALE);
+  if (profile === "high_energy") base.energy = toInt(scaleFrom100(72 + rng() * 24), 0, TARGET_SCALE);
+  if (profile === "acoustic_focus") base.acousticness = toInt(scaleFrom100(78 + rng() * 20), 0, TARGET_SCALE);
   if (profile === "rainy_quiet") {
-    base.energy = toInt(8 + rng() * 24, 0, 100);
-    base.brightness = toInt(5 + rng() * 26, 0, 100);
-    base.nostalgia = toInt(70 + rng() * 24, 0, 100);
+    base.energy = toInt(scaleFrom100(8 + rng() * 24), 0, TARGET_SCALE);
+    base.brightness = toInt(scaleFrom100(5 + rng() * 26), 0, TARGET_SCALE);
+    base.nostalgia = toInt(scaleFrom100(70 + rng() * 24), 0, TARGET_SCALE);
   }
 
   return base;
@@ -80,46 +82,56 @@ const makeVector = (rng, profile = "balanced") => {
 
 const selectTop1 = (vector) => {
   const style =
-    vector.brightness > 68 ? "style_2000s_pop" : vector.nostalgia > 65 ? "style_80s_citypop" : "style_90s_hiphop";
+    vector.brightness > threshold(68) ? "style_2000s_pop" : vector.nostalgia > threshold(65) ? "style_80s_citypop" : "style_90s_hiphop";
   const instrument =
-    vector.acousticness > 70
+    vector.acousticness > threshold(70)
       ? "inst_piano_upright"
-      : vector.warmth > 64
+      : vector.warmth > threshold(64)
         ? "inst_soft_strings"
         : "inst_analog_synth";
   const mood =
-    vector.brightness < 35 ? "mood_rain_ambience" : vector.energy > 62 ? "mood_sun_glow" : "mood_night_drive";
+    vector.brightness < threshold(35) ? "mood_rain_ambience" : vector.energy > threshold(62) ? "mood_sun_glow" : "mood_night_drive";
   const gimmick =
-    vector.complexity > 55
+    vector.complexity > threshold(55)
       ? "gimmick_harmony_stack"
-      : vector.energy > 62
+      : vector.energy > threshold(62)
         ? "gimmick_filter_rise"
         : "gimmick_beat_mute";
 
   return { style, instrument, mood, gimmick };
 };
 
-const makeConstraints = (vector) => ({
-  preferredStyleTags: vector.nostalgia > 65 ? ["citypop_80s"] : vector.brightness > 68 ? ["pop_2000s"] : ["hiphop_90s"],
-  preferredGimmickTags: vector.energy > 62 ? ["filter_rise"] : ["beat_mute"],
-  avoidPartIds: vector.brightness < 22 ? ["style_2000s_pop"] : []
-});
-
-const makeTags = (vector) => {
-  const tags = [];
-  if (vector.nostalgia > 65) tags.push("nostalgic");
-  if (vector.energy > 62) tags.push("upbeat");
-  if (vector.acousticness > 70) tags.push("acoustic");
-  if (vector.brightness < 35) tags.push("rain");
-  if (vector.warmth > 62) tags.push("cozy");
-  return tags.length ? tags : ["balanced"];
+const toEvalRow = (item) => {
+  const sourceType = "request_text";
+  const targetHiddenParams = {
+    vector: item.target_hidden_params?.vector || {}
+  };
+  return {
+    source_type: sourceType,
+    request_text: item.request_text,
+    target_hidden_params: targetHiddenParams,
+    messages: [
+      {
+        role: "system",
+        content: SYSTEM_PROMPT
+      },
+      {
+        role: "user",
+        content: item.request_text
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify(targetHiddenParams.vector)
+      }
+    ]
+  };
 };
 
 const toBand = (value) => {
-  if (value <= 25) return "very_low";
-  if (value <= 45) return "low";
-  if (value <= 65) return "mid";
-  if (value <= 85) return "high";
+  if (value <= threshold(25)) return "very_low";
+  if (value <= threshold(45)) return "low";
+  if (value <= threshold(65)) return "mid";
+  if (value <= threshold(85)) return "high";
   return "very_high";
 };
 
@@ -129,7 +141,6 @@ const hasLeak = (text) =>
 
 const teacherPromptFor = (item) => {
   const bands = VECTOR_KEYS.map((key) => `${key}:${toBand(item.target_hidden_params.vector[key])}`).join(", ");
-  const constraints = JSON.stringify(item.target_hidden_params.constraints);
 
   return [
     `Language: ${teacherLang}`,
@@ -138,8 +149,6 @@ const teacherPromptFor = (item) => {
     `Scenario=${item.scenario}`,
     `Weather=${item.weather}`,
     `VectorBands=${bands}`,
-    `Tags=${item.target_hidden_params.tags.join(",")}`,
-    `Constraints=${constraints}`,
     `SeedText=${item.request_text}`
   ].join("\n");
 };
@@ -246,17 +255,13 @@ const buildFixed50 = () => {
 
     rows.push({
       id: `fixed_${String(id).padStart(3, "0")}`,
-      split: "frozen_eval",
       scenario: "fixed_request",
       request_text: requestText,
       weather,
-      inventory_part_ids: Object.values(PARTS_BY_SLOT).flat(),
-      expected_top1_by_slot: expectedTop1BySlot,
       target_hidden_params: {
-        vector,
-        tags: makeTags(vector),
-        constraints: makeConstraints(vector)
-      }
+        vector
+      },
+      expected_top1_by_slot: expectedTop1BySlot
     });
 
     id += 1;
@@ -274,17 +279,13 @@ const buildProfile20 = () => {
 
     rows.push({
       id: `profile_${String(i + 1).padStart(3, "0")}`,
-      split: "frozen_eval",
       scenario,
       request_text: `Profile scenario ${scenario.replaceAll("_", " ")} sample ${i + 1}`,
       weather: WEATHER[(i + 1) % WEATHER.length],
-      inventory_part_ids: Object.values(PARTS_BY_SLOT).flat(),
-      expected_top1_by_slot: selectTop1(vector),
       target_hidden_params: {
-        vector,
-        tags: makeTags(vector),
-        constraints: makeConstraints(vector)
-      }
+        vector
+      },
+      expected_top1_by_slot: selectTop1(vector)
     });
   }
 
@@ -300,9 +301,10 @@ const main = async () => {
 
   const baseData = [...buildFixed50(), ...buildProfile20()];
   const data = useMistralTeacher ? await applyTeacherRequests(baseData) : baseData;
+  const evalRows = data.map((item) => toEvalRow(item));
 
-  if (data.length !== 70) {
-    throw new Error(`Frozen eval set must have 70 rows, got ${data.length}`);
+  if (evalRows.length !== 70) {
+    throw new Error(`Frozen eval set must have 70 rows, got ${evalRows.length}`);
   }
 
   await mkdir(dirname(outputPath), { recursive: true });
@@ -310,12 +312,12 @@ const main = async () => {
     outputPath,
     JSON.stringify(
       {
-        dataset_version: useMistralTeacher ? "frozen_eval_set.v1_teacher_mistral" : "frozen_eval_set.v1",
+        dataset_version: `${useMistralTeacher ? "frozen_eval_set.v1_teacher_mistral" : "frozen_eval_set.v1"}_scale${TARGET_SCALE}`,
         created_at: new Date().toISOString(),
         request_generation_mode: generationMode,
         teacher_model: useMistralTeacher ? mistralTeacherModel : null,
-        count: data.length,
-        items: data
+        count: evalRows.length,
+        items: evalRows
       },
       null,
       2
@@ -323,7 +325,7 @@ const main = async () => {
   );
 
   console.log(
-    `Wrote ${data.length} rows to ${outputPath} (mode=${generationMode}${useMistralTeacher ? `, teacher=${mistralTeacherModel}` : ""})`
+    `Wrote ${evalRows.length} rows to ${outputPath} (mode=${generationMode}${useMistralTeacher ? `, teacher=${mistralTeacherModel}` : ""})`
   );
 };
 

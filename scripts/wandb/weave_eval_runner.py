@@ -45,6 +45,21 @@ DEFAULT_COST_PER_REQUEST_USD = {
 }
 
 
+def _read_target_scale() -> int:
+    raw = os.getenv("EVAL_TARGET_SCALE") or os.getenv("HF_FT_TARGET_SCALE") or os.getenv("FT_TARGET_SCALE") or "10"
+    try:
+        parsed = int(raw)
+    except (TypeError, ValueError):
+        parsed = 10
+    if parsed != 10:
+        raise ValueError(f"EVAL_TARGET_SCALE must be 10 for this pipeline, got: {parsed}")
+    return 10
+
+
+EVAL_TARGET_SCALE = _read_target_scale()
+THRESHOLD_SCALE = 100.0 / float(EVAL_TARGET_SCALE)
+
+
 def env_str(name: str, default: str) -> str:
     value = os.getenv(name)
     return value if value is not None and value != "" else default
@@ -73,6 +88,45 @@ def env_bool(name: str, default: bool) -> bool:
 
 def clamp(value: float, min_v: float, max_v: float) -> float:
     return max(min_v, min(max_v, value))
+
+
+def scale_from_100(value: float) -> int:
+    return int(round(clamp((float(value) / 100.0) * float(EVAL_TARGET_SCALE), 0.0, float(EVAL_TARGET_SCALE))))
+
+
+def threshold(value_100: float) -> float:
+    return (float(value_100) / 100.0) * float(EVAL_TARGET_SCALE)
+
+
+def infer_scale(vector: dict[str, Any]) -> int:
+    values: list[float] = []
+    for key in KEYS:
+        value = vector.get(key)
+        if value is None:
+            continue
+        try:
+            values.append(float(value))
+        except (TypeError, ValueError):
+            continue
+    max_value = max(values) if values else float(EVAL_TARGET_SCALE)
+    if max_value <= 10:
+        return 10
+    if max_value <= 100:
+        return 100
+    return EVAL_TARGET_SCALE
+
+
+def normalize_to_eval_scale(vector: dict[str, Any], source_scale: int) -> dict[str, int]:
+    src = max(1, int(source_scale))
+    out: dict[str, int] = {}
+    for key in KEYS:
+        try:
+            value = float(vector.get(key, 0))
+        except (TypeError, ValueError):
+            value = 0.0
+        bounded = clamp(value, 0.0, float(src))
+        out[key] = int(round(clamp((bounded / float(src)) * float(EVAL_TARGET_SCALE), 0.0, float(EVAL_TARGET_SCALE))))
+    return out
 
 
 def mean(values: list[float]) -> float:
@@ -109,29 +163,50 @@ def extract_json_blob(text: str) -> str | None:
     return None
 
 
+def extract_vector_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    candidates: list[Any] = [
+        payload,
+        payload.get("hidden_params"),
+        payload.get("target_hidden_params"),
+        payload.get("targetHiddenParams"),
+        payload.get("target_vector"),
+        payload.get("vector"),
+    ]
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            continue
+        if all(key in candidate for key in KEYS):
+            return candidate
+        nested = candidate.get("vector")
+        if isinstance(nested, dict) and all(key in nested for key in KEYS):
+            return nested
+    raise ValueError("vector_payload_not_found")
+
+
 def sanitize_vector(payload: dict[str, Any]) -> dict[str, int]:
+    vector_payload = extract_vector_payload(payload)
     vector: dict[str, int] = {}
     for key in KEYS:
-        value = payload.get(key)
+        value = vector_payload.get(key)
         if value is None:
             raise ValueError(f"missing key: {key}")
-        vector[key] = int(round(clamp(float(value), 0, 100)))
+        vector[key] = int(round(clamp(float(value), 0, EVAL_TARGET_SCALE)))
     return vector
 
 
 def derive_constraints(vector: dict[str, int]) -> dict[str, Any]:
     return {
-        "preferredStyleTags": ["citypop_80s"] if vector["nostalgia"] > 60 else ["pop_2000s"] if vector["brightness"] > 65 else ["hiphop_90s"],
-        "preferredGimmickTags": ["filter_rise"] if vector["energy"] > 60 else ["beat_mute"],
-        "avoidPartIds": ["style_2000s_pop"] if vector["brightness"] < 22 else [],
+        "preferredStyleTags": ["citypop_80s"] if vector["nostalgia"] > threshold(60) else ["pop_2000s"] if vector["brightness"] > threshold(65) else ["hiphop_90s"],
+        "preferredGimmickTags": ["filter_rise"] if vector["energy"] > threshold(60) else ["beat_mute"],
+        "avoidPartIds": ["style_2000s_pop"] if vector["brightness"] < threshold(22) else [],
     }
 
 
 def derive_slot_top1(vector: dict[str, int]) -> dict[str, str]:
-    style = "style_2000s_pop" if vector["brightness"] > 68 else "style_80s_citypop" if vector["nostalgia"] > 65 else "style_90s_hiphop"
-    instrument = "inst_piano_upright" if vector["acousticness"] > 70 else "inst_soft_strings" if vector["warmth"] > 64 else "inst_analog_synth"
-    mood = "mood_rain_ambience" if vector["brightness"] < 35 else "mood_sun_glow" if vector["energy"] > 62 else "mood_night_drive"
-    gimmick = "gimmick_harmony_stack" if vector["complexity"] > 55 else "gimmick_filter_rise" if vector["energy"] > 62 else "gimmick_beat_mute"
+    style = "style_2000s_pop" if vector["brightness"] > threshold(68) else "style_80s_citypop" if vector["nostalgia"] > threshold(65) else "style_90s_hiphop"
+    instrument = "inst_piano_upright" if vector["acousticness"] > threshold(70) else "inst_soft_strings" if vector["warmth"] > threshold(64) else "inst_analog_synth"
+    mood = "mood_rain_ambience" if vector["brightness"] < threshold(35) else "mood_sun_glow" if vector["energy"] > threshold(62) else "mood_night_drive"
+    gimmick = "gimmick_harmony_stack" if vector["complexity"] > threshold(55) else "gimmick_filter_rise" if vector["energy"] > threshold(62) else "gimmick_beat_mute"
     return {"style": style, "instrument": instrument, "mood": mood, "gimmick": gimmick}
 
 
@@ -141,22 +216,69 @@ def score_output_sanity(json_valid: bool, parse_error: str | None, vector: dict[
     if not vector:
         return 30
     spread = statistics.pstdev([vector[k] for k in KEYS]) if len(KEYS) > 1 else 0
-    return int(round(clamp(72 + spread * 0.6, 0, 100)))
+    return int(round(clamp(72 + (spread * THRESHOLD_SCALE) * 0.6, 0, 100)))
 
 
 def score_intent_from_error(abs_error: dict[str, float]) -> float:
     sample_mae = mean([abs_error[k] for k in KEYS])
-    return float(clamp(100.0 - sample_mae * 2.1, 0, 100))
+    return float(clamp(100.0 - sample_mae * THRESHOLD_SCALE * 2.1, 0, 100))
 
 
 def rule_based_predict(request_text: str) -> dict[str, int]:
     lower = request_text.lower()
-    default = {"energy": 45, "warmth": 55, "brightness": 50, "acousticness": 65, "complexity": 38, "nostalgia": 60}
+    default = {
+        "energy": scale_from_100(45),
+        "warmth": scale_from_100(55),
+        "brightness": scale_from_100(50),
+        "acousticness": scale_from_100(65),
+        "complexity": scale_from_100(38),
+        "nostalgia": scale_from_100(60),
+    }
     profiles = [
-        (["rain", "quiet", "evening", "night"], {"energy": 22, "warmth": 60, "brightness": 24, "acousticness": 72, "complexity": 32, "nostalgia": 72}),
-        (["smile", "bright", "market", "sun"], {"energy": 75, "warmth": 58, "brightness": 82, "acousticness": 38, "complexity": 48, "nostalgia": 42}),
-        (["focus", "study", "reading", "cafe"], {"energy": 34, "warmth": 54, "brightness": 44, "acousticness": 68, "complexity": 28, "nostalgia": 58}),
-        (["memory", "old", "nostalgia", "retro"], {"energy": 40, "warmth": 74, "brightness": 50, "acousticness": 76, "complexity": 40, "nostalgia": 88}),
+        (
+            ["rain", "quiet", "evening", "night"],
+            {
+                "energy": scale_from_100(22),
+                "warmth": scale_from_100(60),
+                "brightness": scale_from_100(24),
+                "acousticness": scale_from_100(72),
+                "complexity": scale_from_100(32),
+                "nostalgia": scale_from_100(72),
+            },
+        ),
+        (
+            ["smile", "bright", "market", "sun"],
+            {
+                "energy": scale_from_100(75),
+                "warmth": scale_from_100(58),
+                "brightness": scale_from_100(82),
+                "acousticness": scale_from_100(38),
+                "complexity": scale_from_100(48),
+                "nostalgia": scale_from_100(42),
+            },
+        ),
+        (
+            ["focus", "study", "reading", "cafe"],
+            {
+                "energy": scale_from_100(34),
+                "warmth": scale_from_100(54),
+                "brightness": scale_from_100(44),
+                "acousticness": scale_from_100(68),
+                "complexity": scale_from_100(28),
+                "nostalgia": scale_from_100(58),
+            },
+        ),
+        (
+            ["memory", "old", "nostalgia", "retro"],
+            {
+                "energy": scale_from_100(40),
+                "warmth": scale_from_100(74),
+                "brightness": scale_from_100(50),
+                "acousticness": scale_from_100(76),
+                "complexity": scale_from_100(40),
+                "nostalgia": scale_from_100(88),
+            },
+        ),
     ]
     for keywords, vector in profiles:
         if any(keyword in lower for keyword in keywords):
@@ -177,9 +299,10 @@ def hf_predict_vector(
     prompt = "\n".join(
         [
             "You estimate 6 hidden music parameters.",
-            "Return strict JSON only with numeric keys:",
-            '{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}',
-            "Values must be integers between 0 and 100.",
+            "Return strict JSON only with schema:",
+            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Copy request_text exactly from input.",
+            f"Values in hidden_params must be integers between 0 and {EVAL_TARGET_SCALE}.",
             f"weather={weather}",
             f"request_text={request_text}",
         ]
@@ -271,9 +394,10 @@ def mistral_predict_vector(
     prompt = "\n".join(
         [
             "You estimate 6 hidden music parameters.",
-            "Return strict JSON only with numeric keys:",
-            '{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}',
-            "Values must be integers between 0 and 100.",
+            "Return strict JSON only with schema:",
+            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Copy request_text exactly from input.",
+            f"Values in hidden_params must be integers between 0 and {EVAL_TARGET_SCALE}.",
             f"weather={weather}",
             f"request_text={request_text}",
         ]
@@ -368,6 +492,7 @@ def weave_trace_url(entity: str | None, project: str, trace_id: str) -> str | No
 class EvalConfig:
     mode: str
     dataset_path: Path
+    target_scale: int
     prompt_model_id: str
     fine_tuned_model_id: str
     hf_token: str
@@ -389,6 +514,7 @@ def load_config(root: Path) -> EvalConfig:
     return EvalConfig(
         mode=env_str("EVAL_MODE", "prompt_baseline"),
         dataset_path=Path(env_str("EVAL_DATASET_PATH", str(root / "data/eval/frozen_eval_set.v1.json"))),
+        target_scale=EVAL_TARGET_SCALE,
         prompt_model_id=env_str("EVAL_PROMPT_BASELINE_MODEL_ID", env_str("HF_BASE_MODEL_ID", "mistralai/Ministral-3-3B-Instruct-2512")),
         fine_tuned_model_id=env_str("EVAL_FINE_TUNED_MODEL_ID", env_str("HF_FT_OUTPUT_MODEL_ID", "")),
         hf_token=env_str("HF_TOKEN", env_str("HF_API_TOKEN", "")),
@@ -465,6 +591,7 @@ def maybe_init_wandb(enabled: bool, project: str, entity: str | None, group: str
                 "dataset_path": env_str("EVAL_DATASET_PATH", ""),
                 "prompt_model_id": env_str("EVAL_PROMPT_BASELINE_MODEL_ID", ""),
                 "fine_tuned_model_id": env_str("EVAL_FINE_TUNED_MODEL_ID", ""),
+                "target_scale": EVAL_TARGET_SCALE,
             },
         )
         return run
@@ -521,9 +648,15 @@ def main() -> None:
     for item in items:
         request_text = str(item.get("request_text", ""))
         weather = str(item.get("weather", "sunny"))
-        target_vector = item.get("target_hidden_params", {}).get("vector", {})
-        target_constraints = item.get("target_hidden_params", {}).get("constraints", {})
-        expected_top1 = item.get("expected_top1_by_slot", {})
+        raw_target_vector = item.get("target_hidden_params", {}).get("vector", {})
+        source_scale = int(
+            item.get("target_scale")
+            or item.get("target_hidden_params", {}).get("target_scale")
+            or infer_scale(raw_target_vector)
+        )
+        target_vector = normalize_to_eval_scale(raw_target_vector, source_scale)
+        target_constraints = derive_constraints(target_vector)
+        expected_top1 = derive_slot_top1(target_vector)
 
         trace_id = f"eval_{mode}_{uuid.uuid4().hex[:16]}"
         started = time.perf_counter()
@@ -571,7 +704,7 @@ def main() -> None:
             "id": item.get("id"),
             "mode": mode,
             "scenario": item.get("scenario"),
-            "source_type": item.get("scenario", "unknown"),
+            "source_type": item.get("source_type") or item.get("scenario", "unknown"),
             "request_text": request_text,
             "weather": weather,
             "model_source": model_source,
@@ -656,10 +789,11 @@ def main() -> None:
         sample_rows.append(row)
 
     metrics = {
+        "target_scale": cfg.target_scale,
         "json_valid_rate": mean(json_valid_flags),
         "vector_mae": mean(abs_errors),
         "mse_raw": mean(sq_errors),
-        "mse_norm": mean(sq_errors) / (100.0 * 100.0),
+        "mse_norm": mean(sq_errors) / (float(cfg.target_scale) * float(cfg.target_scale)),
         "r2_score": compute_r2(target_values, sq_errors),
         "constraint_match_rate": mean(constraint_flags),
         "slot_exact_match": mean(slot_flags),
@@ -681,6 +815,7 @@ def main() -> None:
 
     run_payload = {
         "dataset_version": dataset.get("dataset_version", "unknown"),
+        "target_scale": cfg.target_scale,
         "mode": mode,
         "model_source": model_source,
         "model_id": model_id,
@@ -692,6 +827,7 @@ def main() -> None:
     sample_payload = {
         "run_id": run_id,
         "mode": mode,
+        "target_scale": cfg.target_scale,
         "dataset_version": dataset.get("dataset_version", "unknown"),
         "model_source": model_source,
         "model_id": model_id,
