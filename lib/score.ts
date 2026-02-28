@@ -1,5 +1,12 @@
 import { CATALOG_PARTS } from "@/lib/catalog";
-import type { Part, Rank, ScoreBreakdown, SlotKey, TargetProfile } from "@/lib/types";
+import type {
+  DistanceBreakdown,
+  Part,
+  Rank,
+  ScoreBreakdown,
+  SlotKey,
+  TargetProfile
+} from "@/lib/types";
 
 const MAX_VECTOR_DISTANCE = Math.sqrt(6 * 100 * 100);
 
@@ -45,7 +52,7 @@ export const composeVectorFromParts = (selectedPartIds: string[]) => {
   return aggregate;
 };
 
-const vectorDistance = (
+export const calculateVectorDistance = (
   source: ReturnType<typeof composeVectorFromParts>,
   target: TargetProfile["vector"]
 ): number => {
@@ -172,7 +179,7 @@ export const scoreComposition = (
   const vector = composeVectorFromParts(selectedPartIds);
   const tags = buildTagSet(selectedPartIds);
 
-  const distance = vectorDistance(vector, targetProfile.vector);
+  const distance = calculateVectorDistance(vector, targetProfile.vector);
   const vectorScore = Math.max(0, Math.round((1 - distance / MAX_VECTOR_DISTANCE) * 60));
   const tagScore = scoreTagAlignment(targetProfile, tags);
   const preferenceScore = scorePreferences(selectedPartsBySlot, targetProfile);
@@ -190,6 +197,31 @@ export const scoreComposition = (
     synergyScore,
     antiSynergyPenalty,
     total
+  };
+};
+
+export const buildDistanceBreakdown = (
+  selectedPartsBySlot: Record<SlotKey, string>,
+  targetProfile: TargetProfile
+): DistanceBreakdown => {
+  const selectedPartIds = Object.values(selectedPartsBySlot);
+  const vector = composeVectorFromParts(selectedPartIds);
+  const tags = buildTagSet(selectedPartIds);
+  const vectorDistance = calculateVectorDistance(vector, targetProfile.vector);
+  const normalizedDistance = Math.max(0, Math.min(1, vectorDistance / MAX_VECTOR_DISTANCE));
+  const vectorScore = Math.max(0, Math.round((1 - normalizedDistance) * 60));
+  const tagScore = scoreTagAlignment(targetProfile, tags);
+  const preferenceScore = scorePreferences(selectedPartsBySlot, targetProfile);
+  const { synergyScore, antiSynergyPenalty } = scoreSynergy(selectedPartIds);
+
+  return {
+    vectorDistance,
+    normalizedDistance,
+    vectorScore,
+    tagScore,
+    preferenceScore,
+    synergyScore,
+    antiSynergyPenalty
   };
 };
 

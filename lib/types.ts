@@ -38,6 +38,28 @@ export type TargetProfile = {
   };
 };
 
+export type TargetHiddenParams = {
+  vector: ProfileVector;
+  tags: string[];
+  constraints: Record<string, unknown>;
+};
+
+export type InterpreterModelSource =
+  | "rule_baseline"
+  | "prompt_baseline"
+  | "fine_tuned"
+  | "firebase_callable"
+  | "unknown";
+
+export type InterpreterEvaluationMeta = {
+  json_valid: boolean;
+  parse_error?: string;
+  model_source: InterpreterModelSource;
+  latency_ms?: number;
+  trace_id?: string;
+  cost_usd?: number;
+};
+
 export type Part = {
   id: string;
   slot: SlotKey;
@@ -68,13 +90,16 @@ export type InterpreterRequest = {
   requestText: string;
   weather: Weather;
   inventoryPartIds: string[];
+  commissionId?: string;
 };
 
 export type InterpreterResponse = {
   recommended: Record<SlotKey, string[]>;
   targetProfile: TargetProfile;
+  targetHiddenParams: TargetHiddenParams;
   hintToPlayer: string;
   rationale: string[];
+  evaluationMeta: InterpreterEvaluationMeta;
 };
 
 export type SubmitCompositionRequest = {
@@ -82,17 +107,41 @@ export type SubmitCompositionRequest = {
   selectedPartsBySlot: Record<SlotKey, string>;
 };
 
+export type DistanceBreakdown = {
+  vectorDistance: number;
+  normalizedDistance: number;
+  vectorScore: number;
+  tagScore: number;
+  preferenceScore: number;
+  synergyScore: number;
+  antiSynergyPenalty: number;
+};
+
+export type EvalSnapshot = {
+  intent_score_mean?: number;
+  slot_exact_match?: number;
+  constraint_match_rate?: number;
+  json_valid_rate?: number;
+  vector_mae?: number;
+  mse_raw?: number;
+  mse_norm?: number;
+  timestamp: string;
+};
+
 export type SubmitCompositionResponse = {
   score: number;
   rank: Rank;
   coachFeedbackBySlot: Record<SlotKey, string>;
   rewardMoney: number;
+  distanceBreakdown?: DistanceBreakdown;
+  evalSnapshot?: EvalSnapshot;
 };
 
 export type CreateMusicRequest = {
   commissionId: string;
   requestText: string;
   selectedPartsBySlot: Record<SlotKey, string>;
+  targetHiddenParams?: TargetHiddenParams;
 };
 
 export type CreateMusicResponse = {
@@ -103,6 +152,10 @@ export type MusicJobStatusResponse = {
   status: MusicJobStatus;
   audioUrl?: string;
   error?: string;
+  compositionPlan?: unknown;
+  songMetadata?: unknown;
+  outputSanityScore?: number;
+  traceId?: string;
 };
 
 export type Commission = {
@@ -112,12 +165,18 @@ export type Commission = {
   weather: Weather;
   status: CommissionStatus;
   targetProfile?: TargetProfile;
+  targetHiddenParams?: TargetHiddenParams;
+  interpreterHiddenParams?: TargetHiddenParams;
   interpreterOutput?: InterpreterResponse;
+  generationSource?: "baseline" | "prompt_baseline" | "ft_model";
+  traceId?: string;
   selectedPartsBySlot?: Record<SlotKey, string>;
   score?: number;
   rank?: Rank;
   rewardMoney?: number;
   coachFeedbackBySlot?: Record<SlotKey, string>;
+  distanceBreakdown?: DistanceBreakdown;
+  evalSnapshot?: EvalSnapshot;
   jobId?: string;
   trackId?: string;
   createdAt: string;
@@ -131,6 +190,10 @@ export type Track = {
   usedPartsBySlot: Record<SlotKey, string>;
   score: number;
   rank: Rank;
+  compositionPlan?: unknown;
+  songMetadata?: unknown;
+  outputSanityScore?: number;
+  traceId?: string;
   createdAt: string;
 };
 
@@ -142,6 +205,10 @@ export type MusicJob = {
   status: MusicJobStatus;
   audioUrl?: string;
   error?: string;
+  compositionPlan?: unknown;
+  songMetadata?: unknown;
+  outputSanityScore?: number;
+  traceId?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -174,4 +241,23 @@ export type ScoreBreakdown = {
   synergyScore: number;
   antiSynergyPenalty: number;
   total: number;
+};
+
+export type HiddenParamsEvalMetrics = {
+  json_valid_rate: number;
+  vector_mae: number;
+  mse_raw: number;
+  mse_norm: number;
+  r2_score: number;
+};
+
+export type ConstraintEvalMetrics = {
+  constraint_match_rate: number;
+  slot_exact_match: number;
+};
+
+export type PerfCostMetrics = {
+  p50_inference_latency_ms: number;
+  p95_inference_latency_ms: number;
+  cost_per_100_requests_usd: number;
 };

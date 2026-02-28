@@ -29,7 +29,50 @@ export const targetProfileSchema = z.object({
     .default({})
 });
 
+export const targetHiddenParamsSchema = z.object({
+  vector: vectorSchema,
+  tags: z.array(z.string()),
+  constraints: z.record(z.unknown())
+});
+
+export const interpreterEvaluationMetaSchema = z.object({
+  json_valid: z.boolean(),
+  parse_error: z.string().optional(),
+  model_source: z.enum([
+    "rule_baseline",
+    "prompt_baseline",
+    "fine_tuned",
+    "firebase_callable",
+    "unknown"
+  ]),
+  latency_ms: z.number().nonnegative().optional(),
+  trace_id: z.string().optional(),
+  cost_usd: z.number().nonnegative().optional()
+});
+
+export const distanceBreakdownSchema = z.object({
+  vectorDistance: z.number().nonnegative(),
+  normalizedDistance: z.number().min(0).max(1),
+  vectorScore: z.number().min(0).max(60),
+  tagScore: z.number().min(0).max(25),
+  preferenceScore: z.number().min(-10).max(10),
+  synergyScore: z.number().min(0).max(10),
+  antiSynergyPenalty: z.number().min(-10).max(0)
+});
+
+export const evalSnapshotSchema = z.object({
+  intent_score_mean: z.number().optional(),
+  slot_exact_match: z.number().optional(),
+  constraint_match_rate: z.number().optional(),
+  json_valid_rate: z.number().optional(),
+  vector_mae: z.number().optional(),
+  mse_raw: z.number().optional(),
+  mse_norm: z.number().optional(),
+  timestamp: z.string()
+});
+
 export const interpreterRequestSchema = z.object({
+  commissionId: z.string().optional(),
   requestText: z.string().min(1),
   weather: z.enum(["sunny", "cloudy", "rainy"]),
   inventoryPartIds: z.array(z.string())
@@ -38,8 +81,10 @@ export const interpreterRequestSchema = z.object({
 export const interpreterResponseSchema = z.object({
   recommended: slotRecord(z.array(z.string())),
   targetProfile: targetProfileSchema,
+  targetHiddenParams: targetHiddenParamsSchema,
   hintToPlayer: z.string(),
-  rationale: z.array(z.string())
+  rationale: z.array(z.string()),
+  evaluationMeta: interpreterEvaluationMetaSchema
 });
 
 export const submitCompositionSchema = z.object({
@@ -50,14 +95,27 @@ export const submitCompositionSchema = z.object({
 export const createMusicRequestSchema = z.object({
   commissionId: z.string().min(1),
   requestText: z.string().min(1),
-  selectedPartsBySlot: slotRecord(z.string().min(1))
+  selectedPartsBySlot: slotRecord(z.string().min(1)),
+  targetHiddenParams: targetHiddenParamsSchema.optional()
 });
 
 export const scoreResponseSchema = z.object({
   score: z.number().min(0).max(100),
   rank: z.enum(["S", "A", "B", "C", "D"]),
   coachFeedbackBySlot: slotRecord(z.string()),
-  rewardMoney: z.number().int().min(0)
+  rewardMoney: z.number().int().min(0),
+  distanceBreakdown: distanceBreakdownSchema.optional(),
+  evalSnapshot: evalSnapshotSchema.optional()
+});
+
+export const musicJobStatusResponseSchema = z.object({
+  status: z.enum(["queued", "running", "done", "failed"]),
+  audioUrl: z.string().optional(),
+  error: z.string().optional(),
+  compositionPlan: z.unknown().optional(),
+  songMetadata: z.unknown().optional(),
+  outputSanityScore: z.number().optional(),
+  traceId: z.string().optional()
 });
 
 export const gameStateSchema = z.object({

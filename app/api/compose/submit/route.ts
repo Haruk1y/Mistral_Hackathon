@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { buildCoachFeedbackBySlot, calculateRank, ensureSlotCategoryIntegrity, scoreComposition } from "@/lib/score";
+import {
+  buildCoachFeedbackBySlot,
+  buildDistanceBreakdown,
+  calculateRank,
+  ensureSlotCategoryIntegrity,
+  scoreComposition
+} from "@/lib/score";
 import { submitCompositionSchema, targetProfileSchema } from "@/lib/schemas";
 
 const requestSchema = submitCompositionSchema.extend({
@@ -22,6 +28,10 @@ export async function POST(request: Request) {
     }
 
     const breakdown = scoreComposition(parsed.data.selectedPartsBySlot, parsed.data.targetProfile);
+    const distanceBreakdown = buildDistanceBreakdown(
+      parsed.data.selectedPartsBySlot,
+      parsed.data.targetProfile
+    );
     const rank = calculateRank(breakdown.total);
     const rewardMoney = 30 + Math.round(breakdown.total * 1.8);
 
@@ -29,7 +39,12 @@ export async function POST(request: Request) {
       score: breakdown.total,
       rank,
       rewardMoney,
-      coachFeedbackBySlot: buildCoachFeedbackBySlot(parsed.data.selectedPartsBySlot, parsed.data.targetProfile)
+      coachFeedbackBySlot: buildCoachFeedbackBySlot(parsed.data.selectedPartsBySlot, parsed.data.targetProfile),
+      distanceBreakdown,
+      evalSnapshot: {
+        intent_score_mean: breakdown.total,
+        timestamp: new Date().toISOString()
+      }
     };
 
     return NextResponse.json(response);

@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "eval:run": "node --loader ts-node/esm scripts/eval/run_eval.ts",
+    "eval:aggregate": "node --loader ts-node/esm scripts/eval/aggregate_metrics.ts"
   },
   "dependencies": {
     "next": "^15.0.0",
@@ -19,6 +23,7 @@
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }

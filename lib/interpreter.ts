@@ -1,5 +1,13 @@
+import { nanoid } from "nanoid";
 import { CATALOG_PARTS, REQUEST_TEMPLATES } from "@/lib/catalog";
-import type { InterpreterRequest, InterpreterResponse, Part, SlotKey, TargetProfile } from "@/lib/types";
+import type {
+  InterpreterRequest,
+  InterpreterResponse,
+  Part,
+  SlotKey,
+  TargetHiddenParams,
+  TargetProfile
+} from "@/lib/types";
 import { SLOT_KEYS } from "@/lib/types";
 import { interpreterResponseSchema } from "@/lib/schemas";
 
@@ -39,6 +47,14 @@ const keywordProfiles: Array<{ keywords: string[]; profile: TargetProfile }> = [
     profile: REQUEST_TEMPLATES[3].targetProfile
   }
 ];
+
+const toHiddenParams = (profile: TargetProfile): TargetHiddenParams => ({
+  vector: profile.vector,
+  tags: [...new Set([...profile.requiredTags, ...profile.optionalTags])],
+  constraints: {
+    ...profile.constraints
+  }
+});
 
 const pickProfile = (requestText: string): TargetProfile => {
   const lower = requestText.toLowerCase();
@@ -83,8 +99,13 @@ const scorePartForProfile = (part: Part, profile: TargetProfile) => {
   return score;
 };
 
-const inferFallback = (input: InterpreterRequest): InterpreterResponse => {
-  const profile = pickProfile(input.requestText);
+const buildResponseFromProfile = (
+  input: InterpreterRequest,
+  profile: TargetProfile,
+  modelSource: InterpreterResponse["evaluationMeta"]["model_source"],
+  latencyMs: number,
+  parseError?: string
+): InterpreterResponse => {
   const inventory = CATALOG_PARTS.filter((part) => input.inventoryPartIds.includes(part.id));
 
   const recommended = Object.fromEntries(
@@ -106,12 +127,21 @@ const inferFallback = (input: InterpreterRequest): InterpreterResponse => {
   return {
     recommended,
     targetProfile: profile,
+    targetHiddenParams: toHiddenParams(profile),
     hintToPlayer: "STYLEで文法を決め、MOODとGIMMICKで短尺フックを作ると成功率が上がります。",
     rationale: [
       `weather=${input.weather} を加味して targetProfile を選定しました。`,
       "requiredTags に一致するパーツを優先して候補化しました。",
       "forbiddenTags は減点し、上位3候補を返しています。"
-    ]
+    ],
+    evaluationMeta: {
+      json_valid: true,
+      parse_error: parseError,
+      model_source: modelSource,
+      latency_ms: latencyMs,
+      trace_id: nanoid(),
+      cost_usd: 0
+    }
   };
 };
 
@@ -136,11 +166,12 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     return null;
   }
 
+  const startedAt = performance.now();
   const prompt = [
     "You are Request Interpreter for a music composition game.",
     "Return strict JSON only.",
     "Schema:",
-    '{"recommended":{"style":["part_id"],"instrument":["part_id"],"mood":["part_id"],"gimmick":["part_id"]},"targetProfile":{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0},"requiredTags":[],"optionalTags":[],"forbiddenTags":[],"constraints":{"preferredStyleTags":[],"preferredGimmickTags":[],"avoidPartIds":[]}},"hintToPlayer":"","rationale":[]}',
+    '{"recommended":{"style":["part_id"],"instrument":["part_id"],"mood":["part_id"],"gimmick":["part_id"]},"targetProfile":{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0},"requiredTags":[],"optionalTags":[],"forbiddenTags":[],"constraints":{"preferredStyleTags":[],"preferredGimmickTags":[],"avoidPartIds":[]}},"targetHiddenParams":{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0},"tags":[],"constraints":{}},"hintToPlayer":"","rationale":[],"evaluationMeta":{"json_valid":true,"model_source":"prompt_baseline"}}',
     `requestText=${input.requestText}`,
     `weather=${input.weather}`,
     `inventoryPartIds=${input.inventoryPartIds.join(",")}`,
@@ -156,7 +187,7 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     body: JSON.stringify({
       inputs: prompt,
       parameters: {
-        max_new_tokens: 500,
+        max_new_tokens: 550,
         temperature: 0.2,
         return_full_text: false
       }
@@ -182,7 +213,24 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
   }
 
   try {
-    const parsed = JSON.parse(jsonBlock);
+    const parsed = JSON.parse(jsonBlock) as Partial<InterpreterResponse>;
+
+    if (!parsed.targetHiddenParams && parsed.targetProfile) {
+      parsed.targetHiddenParams = toHiddenParams(parsed.targetProfile);
+    }
+
+    const latency = Math.max(0, performance.now() - startedAt);
+    parsed.evaluationMeta = {
+      json_valid: true,
+      model_source:
+        process.env.MISTRAL_FINE_TUNED_MODEL_ID && process.env.MISTRAL_FINE_TUNED_MODEL_ID.length > 0
+          ? "fine_tuned"
+          : "prompt_baseline",
+      latency_ms: latency,
+      trace_id: nanoid(),
+      cost_usd: 0
+    };
+
     const validated = interpreterResponseSchema.safeParse(parsed);
     if (!validated.success) {
       return null;
@@ -195,10 +243,14 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
 };
 
 export const runInterpreter = async (input: InterpreterRequest): Promise<InterpreterResponse> => {
+  const startedAt = performance.now();
   const hfResponse = await callHfModel(input);
   if (hfResponse) {
     return hfResponse;
   }
 
-  return inferFallback(input);
+  const profile = pickProfile(input.requestText);
+  const latencyMs = Math.max(0, performance.now() - startedAt);
+
+  return buildResponseFromProfile(input, profile, "rule_baseline", latencyMs);
 };

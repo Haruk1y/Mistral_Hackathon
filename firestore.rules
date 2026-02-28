@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthed() && request.auth.uid == uid;
+    }
+
+    match /catalogParts/{partId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /catalogCustomers/{customerId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /catalogRequests/{requestId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+
+      match /inventory/{partId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /days/{dayId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /commissions/{commissionId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /tracks/{trackId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /jobs/{jobId} {
+        allow read: if isOwner(uid);
+        allow create: if isOwner(uid);
+        allow update, delete: if false;
+      }
+    }
+  }
+}
