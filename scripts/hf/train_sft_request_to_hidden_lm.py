@@ -445,7 +445,7 @@ class EvalGenerationCollator:
 
 class HiddenParamSFTTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
-        outputs = model.model.language_model(
+        outputs = model(
             input_ids=inputs["input_ids"],
             attention_mask=inputs["attention_mask"],
             labels=inputs["labels"],
@@ -456,6 +456,25 @@ class HiddenParamSFTTrainer(Trainer):
         if return_outputs:
             return loss, outputs
         return loss
+
+
+def ensure_peft_generation_compat(model: torch.nn.Module) -> None:
+    # Some Transformers/PEFT combinations expect this method to exist on the base module.
+    if hasattr(model, "prepare_inputs_for_generation"):
+        return
+
+    def _prepare_inputs_for_generation(
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor | None = None,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        prepared: dict[str, Any] = {"input_ids": input_ids}
+        if attention_mask is not None:
+            prepared["attention_mask"] = attention_mask
+        prepared.update(kwargs)
+        return prepared
+
+    setattr(model, "prepare_inputs_for_generation", _prepare_inputs_for_generation)
 
 
 def _format_regression_metrics(preds_raw: torch.Tensor, labels_raw: torch.Tensor, target_scale: int) -> dict[str, float]:
@@ -638,7 +657,7 @@ def evaluate_generation(
             input_ids = tokenized["input_ids"].to(device)
             attention_mask = tokenized["attention_mask"].to(device)
 
-            generated_ids = model.model.language_model.generate(
+            generated_ids = model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_new_tokens=max_new_tokens,
@@ -1001,6 +1020,7 @@ def main() -> None:
         task_type="CAUSAL_LM",
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     )
+    ensure_peft_generation_compat(model.model.language_model)
     model.model.language_model = get_peft_model(model.model.language_model, peft_config)
 
     has_wandb = setup_wandb(args)

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-28T10:00:39.546Z",
-  "runs_count": 13,
+  "generated_at": "2026-02-28T18:12:47.175Z",
+  "runs_count": 25,
   "latest_by_mode": {
     "fine_tuned": {
       "dataset_version": "frozen_eval_set.v1_teacher_mistral",
@@ -27,52 +27,82 @@
       "file": "2026-02-28T09-23-05-874099+00-00_fine_tuned.json"
     },
     "prompt_baseline": {
-      "dataset_version": "frozen_eval_set.v1_teacher_mistral",
+      "dataset_version": "test_eval_set.from_ft_test.v1",
+      "target_scale": 10,
       "mode": "prompt_baseline",
       "model_source": "prompt_baseline",
       "model_id": "mistralai/Ministral-3-3B-Instruct-2512",
-      "evaluated_count": 70,
-      "timestamp": "2026-02-28T09:21:25.788775+00:00",
+      "evaluated_count": 100,
+      "timestamp": "2026-02-28T17:54:21.445218+00:00",
       "metrics": {
-        "json_valid_rate": 0.9857142857142858,
-        "vector_mae": 20.367149758454108,
-        "mse_raw": 630.6618357487922,
-        "mse_norm": 0.06306618357487923,
-        "r2_score": -0.7964754431722538,
-        "constraint_match_rate": 0.21739130434782608,
-        "slot_exact_match": 0.42028985507246375,
-        "intent_score_mean": 57.22898550724637,
-        "output_sanity_score": 83.41428571428571,
-        "p95_inference_latency_ms": 1558.7693749985192,
-        "p50_inference_latency_ms": 1164.6003749992815,
+        "target_scale": 10,
+        "json_valid_rate": 0.89,
+        "vector_mae": 2.0842696629213484,
+        "mse_raw": 7.837078651685394,
+        "mse_norm": 0.07837078651685393,
+        "r2_score": -0.15661105441085454,
+        "constraint_match_rate": 0.1348314606741573,
+        "slot_exact_match": 0.5,
+        "intent_score_mean": 56.23033707865169,
+        "output_sanity_score": 79.44,
+        "p95_inference_latency_ms": 1406.1621669970918,
+        "p50_inference_latency_ms": 1072.4067499977536,
         "cost_per_100_requests_usd": 0.27999999999999997
       },
-      "weave_project": "atelier-kotone-weave",
-      "file": "2026-02-28T09-21-25-788299+00-00_prompt_baseline.json"
+      "weave_project": "atelier-kotone-ft-kotoneonly-v1-20260301",
+      "file": "2026-02-28T17-54-21-444038+00-00_prompt_baseline.json"
     },
     "rule_baseline": {
-      "dataset_version": "frozen_eval_set.v1_teacher_mistral",
+      "dataset_version": "frozen_eval_set.v1_scale10",
+      "target_scale": 10,
       "mode": "rule_baseline",
       "model_source": "rule_baseline",
       "model_id": "rule_based_keyword_v1",
       "evaluated_count": 70,
-      "timestamp": "2026-02-28T08:54:17.391739+00:00",
+      "timestamp": "2026-02-28T17:32:57.527849+00:00",
       "metrics": {
+        "target_scale": 10,
         "json_valid_rate": 1,
-        "vector_mae": 19.076190476190476,
-        "mse_raw": 564.7809523809524,
-        "mse_norm": 0.05647809523809524,
-        "r2_score": -0.6040285222279518,
-        "constraint_match_rate": 0.2714285714285714,
-        "slot_exact_match": 0.4142857142857143,
-        "intent_score_mean": 59.940000000000005,
-        "output_sanity_score": 82.11428571428571,
-        "p95_inference_latency_ms": 0.03108399687334895,
-        "p50_inference_latency_ms": 0.008000002708286047,
+        "vector_mae": 1.980952380952381,
+        "mse_raw": 6.128571428571429,
+        "mse_norm": 0.06128571428571429,
+        "r2_score": -0.6471366169007173,
+        "constraint_match_rate": 0.21428571428571427,
+        "slot_exact_match": 0.425,
+        "intent_score_mean": 58.4,
+        "output_sanity_score": 82.44285714285714,
+        "p95_inference_latency_ms": 0.06908299110364169,
+        "p50_inference_latency_ms": 0.017790996935218573,
         "cost_per_100_requests_usd": 0.02
       },
-      "weave_project": "atelier-kotone-weave",
-      "file": "2026-02-28T08-54-17-390506+00-00_rule_baseline.json"
+      "weave_project": "atelier-kotone-ft-kotoneonly-v1-20260301",
+      "file": "2026-02-28T17-32-57-527569+00-00_rule_baseline.json"
+    },
+    "large_baseline": {
+      "dataset_version": "ft_test_split_v1",
+      "target_scale": 10,
+      "mode": "large_baseline",
+      "model_source": "large_baseline",
+      "model_id": "mistral-large-latest",
+      "evaluated_count": 100,
+      "timestamp": "2026-02-28T17:48:50.184753+00:00",
+      "metrics": {
+        "target_scale": 10,
+        "json_valid_rate": 0.84,
+        "vector_mae": 1.8571428571428572,
+        "mse_raw": 6.373015873015873,
+        "mse_norm": 0.06373015873015872,
+        "r2_score": 0.04856421971708136,
+        "constraint_match_rate": 0.5119047619047619,
+        "slot_exact_match": 0.5892857142857143,
+        "intent_score_mean": 61,
+        "output_sanity_score": 73.07,
+        "p95_inference_latency_ms": 3248.0655830004252,
+        "p50_inference_latency_ms": 2206.388375008828,
+        "cost_per_100_requests_usd": 0.44999999999999996
+      },
+      "weave_project": "atelier-kotone-ft-kotoneonly-v1-20260301",
+      "file": "2026-02-28T17-48-50-184210+00-00_large_baseline.json"
     }
   },
   "latest_samples_by_mode": {
@@ -88,37 +118,62 @@
       ]
     },
     "prompt_baseline": {
-      "sample_file": "2026-02-28T09-21-25-788299+00-00_prompt_baseline.json",
+      "sample_file": "2026-02-28T17-54-21-444038+00-00_prompt_baseline.json",
       "failure_count": 20,
       "top_trace_urls": [
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_056f6b2b9daa4fc9",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_54e03ff67f2e4a2c",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_383883a9e2b04bf5",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_86bd567e76964929",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_prompt_baseline_9b5265c57eea495b"
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_prompt_baseline_ea651974c4de49b8",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_prompt_baseline_69790007d37d4124",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_prompt_baseline_2b5957d58ff04dbd",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_prompt_baseline_195dbb542d5744ee",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_prompt_baseline_e25615bd442f4d31"
       ]
     },
     "rule_baseline": {
-      "sample_file": "2026-02-28T08-54-17-390506+00-00_rule_baseline.json",
+      "sample_file": "2026-02-28T17-32-57-527569+00-00_rule_baseline.json",
       "failure_count": 20,
       "top_trace_urls": [
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_ae27972eeba649bf",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_cb3421ae06404832",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_da46747112e84269",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_f8e3425b605c480e",
-        "https://wandb.ai/atelier-kotone-weave/weave/traces?query=eval_rule_baseline_df0c15db7cc640a1"
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_rule_baseline_bc870f470efc4a6e",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_rule_baseline_1b5a0cc7aeaf462e",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_rule_baseline_38dd9bb2ca2d4c54",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_rule_baseline_4a07626057854726",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_rule_baseline_0dcae57da622421e"
+      ]
+    },
+    "large_baseline": {
+      "sample_file": "2026-02-28T17-48-50-184210+00-00_large_baseline.json",
+      "failure_count": 20,
+      "top_trace_urls": [
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_large_baseline_16ae2af4f9834d39",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_large_baseline_e96e3c4b3ce34dc8",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_large_baseline_9b2ab6f7694e4217",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_large_baseline_2e77dacadc2b4a2d",
+        "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave/traces?query=eval_large_baseline_e3a1ffd30366423e"
       ]
     }
   },
+  "comparison_assets": {
+    "radar_html_link": "artifacts/eval/summary/test_model_radar.html",
+    "comparison_json_link": "artifacts/eval/summary/test_model_comparison.json",
+    "comparison_csv_link": "artifacts/eval/summary/test_model_comparison.csv",
+    "weave_eval_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave",
+    "weave_project_url": "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/weave",
+    "weave_eval_name": "kotone-test-model-comparison-v3",
+    "weave_eval_project": "haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301",
+    "weave_eval_published_at": "2026-02-28T18:12:23.244204+00:00",
+    "weave_eval_run_urls": [
+      "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/r/call/019ca573-7d71-7223-b52a-c364899a097e",
+      "https://wandb.ai/haruk1y_/atelier-kotone-ft-kotoneonly-v1-20260301/r/call/019ca573-8cec-7110-a745-cab99bfb1288"
+    ]
+  },
   "auto_improvement_delta": {
-    "intent_score_mean": -12.098985507246375,
-    "vector_mae": 5.761421670117322,
-    "json_valid_rate": 0.014285714285714235
+    "intent_score_mean": -11.100337078651691,
+    "vector_mae": 24.044301765650083,
+    "json_valid_rate": 0.10999999999999999
   },
   "loop_completion_rate": 1,
   "loop_detail": {
-    "completed": 2,
-    "planned": 2,
+    "completed": 3,
+    "planned": 3,
     "rate": 1
   }
 }

@@ -42,6 +42,7 @@ DEFAULT_COST_PER_REQUEST_USD = {
     "rule_baseline": 0.0002,
     "prompt_baseline": 0.0028,
     "fine_tuned": 0.0019,
+    "large_baseline": 0.0045,
 }
 
 
@@ -495,11 +496,13 @@ class EvalConfig:
     target_scale: int
     prompt_model_id: str
     fine_tuned_model_id: str
+    large_model_id: str
     hf_token: str
     mistral_api_key: str
     mistral_base_url: str
     mistral_prompt_model_id: str
     mistral_fine_tuned_model_id: str
+    mistral_large_model_id: str
     mistral_fallback_enabled: bool
     top_failures: int
     weave_project: str
@@ -517,6 +520,10 @@ def load_config(root: Path) -> EvalConfig:
         target_scale=EVAL_TARGET_SCALE,
         prompt_model_id=env_str("EVAL_PROMPT_BASELINE_MODEL_ID", env_str("HF_BASE_MODEL_ID", "mistralai/Ministral-3-3B-Instruct-2512")),
         fine_tuned_model_id=env_str("EVAL_FINE_TUNED_MODEL_ID", env_str("HF_FT_OUTPUT_MODEL_ID", "")),
+        large_model_id=env_str(
+            "EVAL_LARGE_BASELINE_MODEL_ID",
+            env_str("MISTRAL_LARGE_MODEL_ID", "mistral-large-latest"),
+        ),
         hf_token=env_str("HF_TOKEN", env_str("HF_API_TOKEN", "")),
         mistral_api_key=env_str("MISTRAL_API_KEY", ""),
         mistral_base_url=env_str("MISTRAL_BASE_URL", "https://api.mistral.ai/v1"),
@@ -524,6 +531,10 @@ def load_config(root: Path) -> EvalConfig:
         mistral_fine_tuned_model_id=env_str(
             "EVAL_MISTRAL_FINE_TUNED_MODEL_ID",
             env_str("MISTRAL_FINE_TUNED_MODEL_ID", env_str("MISTRAL_FT_MODEL_ID", "")),
+        ),
+        mistral_large_model_id=env_str(
+            "EVAL_MISTRAL_LARGE_MODEL_ID",
+            env_str("MISTRAL_LARGE_MODEL_ID", "mistral-large-latest"),
         ),
         mistral_fallback_enabled=env_bool("EVAL_MISTRAL_FALLBACK_ENABLED", True),
         top_failures=env_int("EVAL_TOP_FAILURES", 20),
@@ -537,7 +548,7 @@ def load_config(root: Path) -> EvalConfig:
 
 
 def ensure_mode(mode: str) -> str:
-    allowed = {"rule_baseline", "prompt_baseline", "fine_tuned"}
+    allowed = {"rule_baseline", "prompt_baseline", "fine_tuned", "large_baseline"}
     if mode not in allowed:
         return "prompt_baseline"
     return mode
@@ -591,6 +602,7 @@ def maybe_init_wandb(enabled: bool, project: str, entity: str | None, group: str
                 "dataset_path": env_str("EVAL_DATASET_PATH", ""),
                 "prompt_model_id": env_str("EVAL_PROMPT_BASELINE_MODEL_ID", ""),
                 "fine_tuned_model_id": env_str("EVAL_FINE_TUNED_MODEL_ID", ""),
+                "large_model_id": env_str("EVAL_LARGE_BASELINE_MODEL_ID", ""),
                 "target_scale": EVAL_TARGET_SCALE,
             },
         )
@@ -599,14 +611,41 @@ def maybe_init_wandb(enabled: bool, project: str, entity: str | None, group: str
         return None
 
 
+def load_eval_items(path: Path) -> list[dict[str, Any]]:
+    raw = path.read_text(encoding="utf-8")
+    stripped = raw.strip()
+    if not stripped:
+        return []
+
+    parsed: Any = None
+    try:
+        parsed = json.loads(stripped)
+    except json.JSONDecodeError:
+        parsed = None
+
+    if isinstance(parsed, dict) and isinstance(parsed.get("items"), list):
+        return [item for item in parsed["items"] if isinstance(item, dict)]
+    if isinstance(parsed, list):
+        return [item for item in parsed if isinstance(item, dict)]
+
+    items: list[dict[str, Any]] = []
+    for line in raw.splitlines():
+        text = line.strip()
+        if not text:
+            continue
+        row = json.loads(text)
+        if isinstance(row, dict):
+            items.append(row)
+    return items
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     cfg = load_config(root)
     mode = ensure_mode(cfg.mode)
 
-    raw = cfg.dataset_path.read_text(encoding="utf-8")
-    dataset = json.loads(raw)
-    items = dataset.get("items", [])
+    items = load_eval_items(cfg.dataset_path)
+    dataset_version = env_str("EVAL_DATASET_VERSION", cfg.dataset_path.stem)
 
     if not isinstance(items, list) or len(items) == 0:
         raise ValueError(f"No eval items in dataset: {cfg.dataset_path}")
@@ -616,6 +655,8 @@ def main() -> None:
         model_id = "rule_based_keyword_v1"
     elif mode == "fine_tuned":
         model_id = cfg.fine_tuned_model_id or cfg.prompt_model_id
+    elif mode == "large_baseline":
+        model_id = cfg.large_model_id or cfg.prompt_model_id
     else:
         model_id = cfg.prompt_model_id
 
@@ -645,7 +686,7 @@ def main() -> None:
     latencies: list[float] = []
     costs: list[float] = []
 
-    for item in items:
+    for idx, item in enumerate(items):
         request_text = str(item.get("request_text", ""))
         weather = str(item.get("weather", "sunny"))
         raw_target_vector = item.get("target_hidden_params", {}).get("vector", {})
@@ -674,6 +715,8 @@ def main() -> None:
                 fallback_model_id = cfg.mistral_prompt_model_id
                 if mode == "fine_tuned":
                     fallback_model_id = cfg.mistral_fine_tuned_model_id or cfg.mistral_prompt_model_id
+                elif mode == "large_baseline":
+                    fallback_model_id = cfg.mistral_large_model_id or cfg.mistral_prompt_model_id
                 fallback_vector, fallback_error = mistral_predict_vector(
                     fallback_model_id,
                     request_text,
@@ -701,9 +744,9 @@ def main() -> None:
         costs.append(cost_usd)
 
         row: dict[str, Any] = {
-            "id": item.get("id"),
+            "id": item.get("id") or f"{mode}_{idx:04d}",
             "mode": mode,
-            "scenario": item.get("scenario"),
+            "scenario": item.get("scenario") or item.get("source_type") or "unknown",
             "source_type": item.get("source_type") or item.get("scenario", "unknown"),
             "request_text": request_text,
             "weather": weather,
@@ -814,7 +857,7 @@ def main() -> None:
     samples_dir.mkdir(parents=True, exist_ok=True)
 
     run_payload = {
-        "dataset_version": dataset.get("dataset_version", "unknown"),
+        "dataset_version": dataset_version,
         "target_scale": cfg.target_scale,
         "mode": mode,
         "model_source": model_source,
@@ -828,7 +871,7 @@ def main() -> None:
         "run_id": run_id,
         "mode": mode,
         "target_scale": cfg.target_scale,
-        "dataset_version": dataset.get("dataset_version", "unknown"),
+        "dataset_version": dataset_version,
         "model_source": model_source,
         "model_id": model_id,
         "rows": sample_rows,

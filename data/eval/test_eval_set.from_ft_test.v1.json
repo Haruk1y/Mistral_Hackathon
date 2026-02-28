@@ -1,0 +1,1808 @@
+{
+  "version": "ft_test_split_v1",
+  "generated_at": "2026-02-28T17:41:25.068Z",
+  "source_path": "/Users/yajima/Desktop/dev/Mistral_Hackathon/data/ft/ft_request_param_test.jsonl",
+  "count": 100,
+  "items": [
+    {
+      "id": "ft_test_0001",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I want warm, lively echoes of rain-soaked memories filling this cozy corner.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 5,
+          "brightness": 2,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0002",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 3,
+          "complexity": 7,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0003",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Can you make the air feel thick with sunlight and the comfort of stillness?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 6,
+          "brightness": 8,
+          "acousticness": 1,
+          "complexity": 1,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0004",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Hope Star (mood_hope_star)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 3,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0005",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Could you make something that hums with distant echoes under flickering lights.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 0,
+          "brightness": 7,
+          "acousticness": 8,
+          "complexity": 7,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0006",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 7,
+          "brightness": 4,
+          "acousticness": 7,
+          "complexity": 6,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0007",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Please compose something that turns the cold, wet streets into a place of joy.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 3,
+          "brightness": 2,
+          "acousticness": 4,
+          "complexity": 1,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0008",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0009",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Make me feel the slow, quiet descent of evening wrapped in soft, gray hues.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 6,
+          "brightness": 1,
+          "acousticness": 5,
+          "complexity": 7,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0010",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 7,
+          "acousticness": 7,
+          "complexity": 4,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0011",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please compose a soft glow that lingers like dusk on familiar cobblestones.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 9,
+          "brightness": 4,
+          "acousticness": 0,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0012",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 4,
+          "complexity": 7,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0013",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "I need something gentle that cradles me like a slow climb up a familiar path.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 6,
+          "brightness": 6,
+          "acousticness": 5,
+          "complexity": 1,
+          "nostalgia": 0
+        }
+      }
+    },
+    {
+      "id": "ft_test_0014",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Hope Star (mood_hope_star)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 3,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0015",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Could you make the air hum with the quiet, steady glow of forgotten corners?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 2,
+          "warmth": 6,
+          "brightness": 6,
+          "acousticness": 3,
+          "complexity": 2,
+          "nostalgia": 2
+        }
+      }
+    },
+    {
+      "id": "ft_test_0016",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Warm Cello (inst_cello_warm)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 4,
+          "complexity": 6,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0017",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "I want a melody that drifts like mist over a river, cool and untouchable.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 2,
+          "brightness": 5,
+          "acousticness": 6,
+          "complexity": 8,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0018",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 8,
+          "brightness": 4,
+          "acousticness": 7,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0019",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Please make the rain feel like a heartbeat, fast and full of old echoes.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 1,
+          "brightness": 2,
+          "acousticness": 3,
+          "complexity": 4,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0020",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Street Guitar (inst_guitar_street)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 7,
+          "brightness": 8,
+          "acousticness": 5,
+          "complexity": 6,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0021",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "I need something that feels like golden light dancing on forgotten memories.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 1,
+          "warmth": 2,
+          "brightness": 8,
+          "acousticness": 0,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0022",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0023",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Could you make a sound that walks slowly up ancient, sunlit stones?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 2,
+          "brightness": 8,
+          "acousticness": 5,
+          "complexity": 9,
+          "nostalgia": 2
+        }
+      }
+    },
+    {
+      "id": "ft_test_0024",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0025",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Can you make something that feels like sunlight dancing on a quiet, winding path.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 7,
+          "acousticness": 5,
+          "complexity": 6,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0026",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 4,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0027",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Can you make the clouds hum softly over worn, whispering paths?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 5,
+          "brightness": 5,
+          "acousticness": 9,
+          "complexity": 8,
+          "nostalgia": 2
+        }
+      }
+    },
+    {
+      "id": "ft_test_0028",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 70s Folk (style_70s_folk)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 4,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0029",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please compose a joyful echo of laughter by the water’s edge.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 6,
+          "brightness": 7,
+          "acousticness": 5,
+          "complexity": 9,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0030",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 7,
+          "acousticness": 6,
+          "complexity": 7,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0031",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Make the rain sing gently through a small, empty corner of the world.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 1,
+          "brightness": 3,
+          "acousticness": 9,
+          "complexity": 3,
+          "nostalgia": 5
+        }
+      }
+    },
+    {
+      "id": "ft_test_0032",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0033",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Give me a slow, deep breath of comfort on a misty, lonely road.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 1,
+          "warmth": 6,
+          "brightness": 1,
+          "acousticness": 0,
+          "complexity": 6,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0034",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 70s Folk (style_70s_folk)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 9,
+          "complexity": 4,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0035",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Give me a warm, simple sound that dances like rain on cobblestones.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 9,
+          "warmth": 5,
+          "brightness": 3,
+          "acousticness": 7,
+          "complexity": 0,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0036",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Hope Star (mood_hope_star)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 7,
+          "acousticness": 3,
+          "complexity": 6,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0037",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please make something that glows like old lanterns in the afternoon.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 5,
+          "brightness": 7,
+          "acousticness": 6,
+          "complexity": 2,
+          "nostalgia": 6
+        }
+      }
+    },
+    {
+      "id": "ft_test_0038",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Warm Cello (inst_cello_warm)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 3,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0039",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "I need a sound that wraps around me like sunlight on a quiet climb.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 7,
+          "brightness": 6,
+          "acousticness": 3,
+          "complexity": 6,
+          "nostalgia": 2
+        }
+      }
+    },
+    {
+      "id": "ft_test_0040",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 7,
+          "acousticness": 4,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0041",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Could you make the rain feel like a distant, fading dream at dusk?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 3,
+          "brightness": 2,
+          "acousticness": 3,
+          "complexity": 7,
+          "nostalgia": 6
+        }
+      }
+    },
+    {
+      "id": "ft_test_0042",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 7,
+          "acousticness": 5,
+          "complexity": 6,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0043",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I'd love the river to laugh and splash through a stormy day.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 6,
+          "brightness": 3,
+          "acousticness": 5,
+          "complexity": 0,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0044",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0045",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Please compose a quiet whisper of rain walking beside me.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 0,
+          "warmth": 5,
+          "brightness": 3,
+          "acousticness": 3,
+          "complexity": 3,
+          "nostalgia": 5
+        }
+      }
+    },
+    {
+      "id": "ft_test_0046",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0047",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Make the past feel warm and close, like rain on a familiar street.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 3,
+          "acousticness": 9,
+          "complexity": 8,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0048",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0049",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I need something that hugs me softly as the rain falls by the water.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 7,
+          "brightness": 2,
+          "acousticness": 5,
+          "complexity": 10,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0050",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Hope Star (mood_hope_star)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 6,
+          "brightness": 7,
+          "acousticness": 6,
+          "complexity": 6,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0051",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Can you make sunlight feel like a secret in a hidden, wet alley?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 10,
+          "acousticness": 10,
+          "complexity": 5,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0052",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 70s Folk (style_70s_folk)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 7,
+          "acousticness": 9,
+          "complexity": 3,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0053",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Give me a light, empty space where the morning barely touches.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 1,
+          "brightness": 7,
+          "acousticness": 3,
+          "complexity": 1,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0054",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 4,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0055",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I want rain to feel like a cozy, laughing fire in a small room.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 10,
+          "brightness": 1,
+          "acousticness": 9,
+          "complexity": 2,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0056",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0057",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please make the dark glow with old stories told by flickering light.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 1,
+          "warmth": 6,
+          "brightness": 1,
+          "acousticness": 8,
+          "complexity": 7,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0058",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 3,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0059",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I need the rain to fall in simple, quiet steps on an empty road.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 5,
+          "brightness": 1,
+          "acousticness": 2,
+          "complexity": 0,
+          "nostalgia": 0
+        }
+      }
+    },
+    {
+      "id": "ft_test_0060",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 70s Folk (style_70s_folk)\n- instrument: Warm Cello (inst_cello_warm)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 8,
+          "complexity": 3,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0061",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I need something that wraps around me like quiet rain by the water.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 2,
+          "warmth": 7,
+          "brightness": 2,
+          "acousticness": 3,
+          "complexity": 5,
+          "nostalgia": 6
+        }
+      }
+    },
+    {
+      "id": "ft_test_0062",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 6,
+          "complexity": 3,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0063",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Could you make light dance on cobblestones under endless blue?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 3,
+          "brightness": 9,
+          "acousticness": 10,
+          "complexity": 6,
+          "nostalgia": 1
+        }
+      }
+    },
+    {
+      "id": "ft_test_0064",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 3,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0065",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Can you make the river sparkle with joy I can almost touch?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 0,
+          "brightness": 7,
+          "acousticness": 4,
+          "complexity": 5,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0066",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Street Guitar (inst_guitar_street)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 9,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0067",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "I'd love a whisper that lingers like steam in a small room.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 3,
+          "brightness": 4,
+          "acousticness": 9,
+          "complexity": 0,
+          "nostalgia": 5
+        }
+      }
+    },
+    {
+      "id": "ft_test_0068",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Night Drive (mood_night_drive)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 6,
+          "acousticness": 5,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0069",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Please compose sunlight breaking through memories in a damp alley.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 9,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 7,
+          "complexity": 7,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0070",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 7,
+          "acousticness": 3,
+          "complexity": 5,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0071",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Make the night feel alive with echoes of trains long gone.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 4,
+          "brightness": 7,
+          "acousticness": 2,
+          "complexity": 2,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0072",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Snake Music Box (inst_analog_synth)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 6,
+          "brightness": 5,
+          "acousticness": 2,
+          "complexity": 5,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0073",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "I want warm, glowing sounds that feel like a sunny walk up old stone steps.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 5,
+          "complexity": 3,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0074",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 7,
+          "brightness": 8,
+          "acousticness": 4,
+          "complexity": 6,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0075",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "I want time to slow in this bright, empty little corner.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 1,
+          "brightness": 7,
+          "acousticness": 2,
+          "complexity": 1,
+          "nostalgia": 8
+        }
+      }
+    },
+    {
+      "id": "ft_test_0076",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 3,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0077",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please make the square glow with ghosts of laughter and neon.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 1,
+          "warmth": 1,
+          "brightness": 8,
+          "acousticness": 4,
+          "complexity": 0,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0078",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 8,
+          "brightness": 4,
+          "acousticness": 8,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0079",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Can you make something that hums like footsteps on wet cobblestones at dawn.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 1,
+          "brightness": 1,
+          "acousticness": 8,
+          "complexity": 7,
+          "nostalgia": 6
+        }
+      }
+    },
+    {
+      "id": "ft_test_0080",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Street Guitar (inst_guitar_street)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 9,
+          "complexity": 3,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0081",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Could you make the street sigh with rain and fading light?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 1,
+          "brightness": 0,
+          "acousticness": 7,
+          "complexity": 8,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0082",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 80s City Pop (style_80s_citypop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Hope Star (mood_hope_star)\n- gimmick: River Flow (gimmick_river_flow)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 7,
+          "acousticness": 6,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0083",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Can you make the hill hum with stories only cobblestones know?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 10,
+          "warmth": 9,
+          "brightness": 8,
+          "acousticness": 5,
+          "complexity": 1,
+          "nostalgia": 7
+        }
+      }
+    },
+    {
+      "id": "ft_test_0084",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s EDM (style_2010s_edm)\n- instrument: Vintage Violin (inst_violin_vintage)\n- mood: Pocket Memory (mood_pocket_memory)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0085",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I'd love rain to sound like footsteps on ancient lantern-lit stones.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 2,
+          "brightness": 1,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 2
+        }
+      }
+    },
+    {
+      "id": "ft_test_0086",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Fairy Harp (inst_soft_strings)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 7,
+          "acousticness": 6,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0087",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Please compose light that wraps around corners like a secret.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 8,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 4,
+          "complexity": 4,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0088",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Rainfall Layer (gimmick_rainfall)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 9,
+          "brightness": 4,
+          "acousticness": 8,
+          "complexity": 3,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0089",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Make the street shimmer with colors that slip through fingers.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 6,
+          "brightness": 10,
+          "acousticness": 6,
+          "complexity": 5,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0090",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 90s Hip-Hop (style_90s_hiphop)\n- instrument: Street Guitar (inst_guitar_street)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Filter Rise (gimmick_filter_rise)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 7,
+          "brightness": 5,
+          "acousticness": 5,
+          "complexity": 6,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0091",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "Give me a back alley that feels like a hug after the rain.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 7,
+          "acousticness": 9,
+          "complexity": 9,
+          "nostalgia": 5
+        }
+      }
+    },
+    {
+      "id": "ft_test_0092",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Warm Cello (inst_cello_warm)\n- mood: Night Drive (mood_night_drive)\n- gimmick: Harmony Stack (gimmick_harmony_stack)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 8,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0093",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "I need a warm, simple pulse that feels like clouds parting over empty benches.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 4,
+          "complexity": 1,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0094",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2000s Pop (style_2000s_pop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Campfire Crackle (gimmick_campfire_crackle)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 9,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0095",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "sunny",
+      "request_text": "Please make the sunset whisper old stories to empty sidewalks.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 3,
+          "warmth": 0,
+          "brightness": 6,
+          "acousticness": 2,
+          "complexity": 9,
+          "nostalgia": 10
+        }
+      }
+    },
+    {
+      "id": "ft_test_0096",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "rainy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 60s Parade Jazz (style_60s_parade_jazz)\n- instrument: Garden Music Box (inst_musicbox_garden)\n- mood: Rain Ambience (mood_rain_ambience)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 4,
+          "warmth": 8,
+          "brightness": 5,
+          "acousticness": 8,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0097",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "cloudy",
+      "request_text": "Could you make this tiny room glow with light and quiet thoughts?",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 6,
+          "warmth": 3,
+          "brightness": 9,
+          "acousticness": 7,
+          "complexity": 2,
+          "nostalgia": 4
+        }
+      }
+    },
+    {
+      "id": "ft_test_0098",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Upright Piano (inst_piano_upright)\n- mood: Sun Glow (mood_sun_glow)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 8,
+          "brightness": 8,
+          "acousticness": 7,
+          "complexity": 5,
+          "nostalgia": 9
+        }
+      }
+    },
+    {
+      "id": "ft_test_0099",
+      "scenario": "request_text",
+      "source_type": "request_text",
+      "weather": "rainy",
+      "request_text": "I need rain to sound like a train that never quite arrives.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 7,
+          "warmth": 8,
+          "brightness": 0,
+          "acousticness": 8,
+          "complexity": 7,
+          "nostalgia": 3
+        }
+      }
+    },
+    {
+      "id": "ft_test_0100",
+      "scenario": "rule_prompt",
+      "source_type": "rule_prompt",
+      "weather": "cloudy",
+      "request_text": "Compose nostalgic retro pixel-town background music.\nReturn instrumental music suitable for a game scene.\nThis is a rule-based prompt generated from selected Kotone parts.\nSelected Kotone combination:\n- style: 2010s Dance Pop (style_2010s_dance_pop)\n- instrument: Warm Cello (inst_cello_warm)\n- mood: Cozy Hearth (mood_cozy_hearth)\n- gimmick: Beat Mute (gimmick_beat_mute)\nStyle: warm, cozy, handcrafted, street evening, non-vocal, emotional but simple.",
+      "target_scale": 10,
+      "target_hidden_params": {
+        "vector": {
+          "energy": 5,
+          "warmth": 9,
+          "brightness": 6,
+          "acousticness": 7,
+          "complexity": 4,
+          "nostalgia": 9
+        }
+      }
+    }
+  ]
+}
