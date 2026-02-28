@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-02-27T08:59:51.017Z",
+  "generator": "scripts/assets/generate-gemini-master-sheets-v2.mjs",
+  "preset": "mvp_master_sheets",
+  "outputDir": "public/assets/master-sheets",
+  "items": [
+    {
+      "id": "ui_world_mega_sheet",
+      "file": "ui_world_mega_sheet_4096x4096.png",
+      "targetSize": "4096x4096",
+      "actualSize": "4096x4096",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 17,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27T08:59:17.789Z"
+    },
+    {
+      "id": "bg_world_mega_sheet",
+      "file": "bg_world_mega_sheet_4096x4096.png",
+      "targetSize": "4096x4096",
+      "actualSize": "4096x4096",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 58,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27T08:59:50.565Z"
+    },
+    {
+      "id": "character_master_player",
+      "file": "character_master_player_2048x2048.png",
+      "targetSize": "2048x2048",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "character_master_mob01",
+      "file": "character_master_mob01_2048x2048.png",
+      "targetSize": "2048x2048",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "portrait_sheet_player",
+      "file": "portrait_sheet_player_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "portrait_sheet_cust_anna",
+      "file": "portrait_sheet_cust_anna_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "portrait_sheet_cust_ben",
+      "file": "portrait_sheet_cust_ben_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "portrait_sheet_cust_cara",
+      "file": "portrait_sheet_cust_cara_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "portrait_sheet_cust_dan",
+      "file": "portrait_sheet_cust_dan_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "town_interaction_sheet",
+      "file": "town_interaction_sheet_2048x1024.png",
+      "targetSize": "2048x1024",
+      "actualSize": "1456x720",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "shop_ui_sheet",
+      "file": "shop_ui_sheet_2048x2048.png",
+      "targetSize": "2048x2048",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "otoword_icon_sheet",
+      "file": "otoword_icon_sheet_2048x2048.png",
+      "targetSize": "2048x2048",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "compose_ui_sheet",
+      "file": "compose_ui_sheet_2048x2048.png",
+      "targetSize": "2048x2048",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "fx_sheet",
+      "file": "fx_sheet_1024x1024.png",
+      "targetSize": "1024x1024",
+      "actualSize": "1024x1024",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "bg_town_sheet",
+      "file": "bg_town_sheet_1920x1080.png",
+      "targetSize": "1920x1080",
+      "actualSize": "1376x768",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "bg_shop_sheet",
+      "file": "bg_shop_sheet_1920x1080.png",
+      "targetSize": "1920x1080",
+      "actualSize": "1376x768",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    },
+    {
+      "id": "bg_compose_sheet",
+      "file": "bg_compose_sheet_1920x1080.png",
+      "targetSize": "1920x1080",
+      "actualSize": "1376x768",
+      "model": {
+        "text": "gemini-2.5-flash",
+        "image": "nano-banana-pro-preview"
+      },
+      "retries": 0,
+      "qualityScore": 0,
+      "qualityPassed": false,
+      "alpha": {
+        "required": true,
+        "transparentPixelRatio": 0
+      },
+      "createdAt": "2026-02-27"
+    }
+  ]
+}

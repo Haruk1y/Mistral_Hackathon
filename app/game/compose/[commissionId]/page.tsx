@@ -1,18 +1,14 @@
-type ComposePageProps = {
-  params: Promise<{
-    commissionId: string;
-  }>;
-};
+import { CompositionWorkbench } from "@/components/composition-workbench";
 
-export default async function ComposePage({ params }: ComposePageProps) {
+export default async function ComposePage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ commissionId: string }>;
+  searchParams: Promise<{ cast?: string }>;
+}) {
   const { commissionId } = await params;
+  const { cast } = await searchParams;
 
-  return (
-    <div className="card">
-      <h2>Compose</h2>
-      <p>Commission ID: {commissionId}</p>
-      <p>言葉スロットで音楽の方向性を選ぶ最小UIです。</p>
-      <img className="placeholder" src="/assets/placeholders/compose.svg" alt="Compose placeholder" />
-    </div>
-  );
+  return <CompositionWorkbench commissionId={commissionId} streetCastId={cast} />;
 }

@@ -1,19 +1,20 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { GameProvider } from "@/components/game-context";
+import { GameNav } from "@/components/game-nav";
+import { LocaleProvider } from "@/components/locale-context";
+import { StageLayer, VirtualStage } from "@/components/virtual-stage";
 
 export default function GameLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="game-shell">
-      <header className="game-nav">
-        <div className="brand">ことねのアトリエ</div>
-        <nav className="links">
-          <Link href="/game/street">Street</Link>
-          <Link href="/game/compose/demo">Compose</Link>
-          <Link href="/game/shop">Shop</Link>
-          <Link href="/game/gallery">Gallery</Link>
-        </nav>
-      </header>
-      <section className="game-content">{children}</section>
-    </main>
+    <LocaleProvider>
+      <GameProvider>
+        <main className="game-shell">
+          <GameNav />
+          <VirtualStage>
+            <StageLayer>{children}</StageLayer>
+          </VirtualStage>
+        </main>
+      </GameProvider>
+    </LocaleProvider>
   );
 }

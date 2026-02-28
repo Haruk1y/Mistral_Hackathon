@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "virtualResolution": { "w": 960, "h": 540 },
+  "layout": {
+    "compose": {
+      "statusbar": { "x": 460, "y": 20, "w": 480, "h": 64 },
+      "portraitFrame": { "x": 20, "y": 32, "w": 192, "h": 192 },
+      "dialoguePanel": { "x": 20, "y": 240, "w": 420, "h": 160 },
+      "composePanel": { "x": 440, "y": 96, "w": 520, "h": 268 },
+      "waveformFrame": { "x": 540, "y": 390, "w": 408, "h": 72 }
+    }
+  }
+}

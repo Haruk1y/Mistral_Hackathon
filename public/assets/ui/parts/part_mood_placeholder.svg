@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Mood placeholder">
+  <rect width="160" height="160" fill="#d0e4f0"/>
+  <rect x="8" y="8" width="144" height="144" fill="none" stroke="#567083" stroke-width="4" stroke-dasharray="8 6"/>
+  <text x="80" y="84" text-anchor="middle" fill="#365668" font-size="18" font-family="sans-serif">MOOD</text>
+</svg>
