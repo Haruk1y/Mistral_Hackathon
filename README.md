@@ -20,6 +20,10 @@ This project is centered on three external AI components that shape both the pro
 | **ElevenLabs API** | Generates final music from player-selected Kotone combinations in the runtime loop | `lib/music-provider.ts`, `lib/music-jobs.ts` |
 | **Weights & Biases (W&B + Weave + MCP)** | Tracks evaluation/training, stores failure cases, and drives self-improvement planning across cycles | `scripts/wandb/weave_eval_runner.py`, `scripts/wandb/fetch_mcp_eval_context.mjs`, `scripts/loop/run_self_improvement_cycle.mjs` |
 
+- 🐈 Our fine-tuned Ministral model: https://huggingface.co/uzumibi/atelier-kotone-ministral3b-ft
+- 🛢️ Our dataset: https://huggingface.co/datasets/Haruk1y/atelier-kotone-ft-request-hidden
+
+
 ## Core Concept
 
 ![Atelier Kotone Slide 2](./public/assets/Atelier%20Kotone/page2_1.png)
