@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "@/components/locale-context";
+import { PixelAudioPlayer } from "@/components/pixel-audio-player";
 import { PixelPanel, PixelTag } from "@/components/pixel-ui";
 import { useGame } from "@/components/game-context";
 import { CATALOG_PARTS } from "@/lib/catalog";
@@ -10,7 +11,7 @@ const getPartName = (partId: string) => CATALOG_PARTS.find((part) => part.id ===
 
 export const GalleryView = () => {
   const { tracks, state } = useGame();
-  const { text } = useLocale();
+  const { locale, text } = useLocale();
   const weatherClass = `scene-weather-${state?.weather ?? "sunny"}`;
 
   return (
@@ -37,7 +38,7 @@ export const GalleryView = () => {
                     ))}
                   </div>
                 </div>
-                <audio controls src={track.audioUrl} className="audio-player" />
+                <PixelAudioPlayer src={track.audioUrl} locale={locale} />
               </li>
             ))}
           </ul>

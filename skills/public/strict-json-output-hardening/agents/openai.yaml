@@ -1,0 +1,4 @@
+interface:
+  display_name: "Strict JSON Output Hardening"
+  short_description: "Harden strict JSON generation for LLM outputs."
+  default_prompt: "Use $strict-json-output-hardening to enforce strict JSON outputs with parser-based eval gates and a retraining feedback loop."

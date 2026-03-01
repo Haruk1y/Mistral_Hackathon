@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WEATHER_ICON } from "@/lib/catalog";
+import { useDemoControls } from "@/components/demo-controls-context";
 import { useGame } from "@/components/game-context";
 import { useLocale } from "@/components/locale-context";
 import { LanguageToggle } from "@/components/language-toggle";
@@ -19,6 +20,8 @@ export const GameNav = () => {
   const pathname = usePathname();
   const { state } = useGame();
   const { locale, text } = useLocale();
+  const { showDemoControls } = useDemoControls();
+  const navItems = showDemoControls ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.href !== "/game/kotone");
 
   return (
     <header className="game-nav">
@@ -26,7 +29,7 @@ export const GameNav = () => {
         <span>{text("navBrand")}</span>
       </div>
       <nav className="game-nav-links">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}

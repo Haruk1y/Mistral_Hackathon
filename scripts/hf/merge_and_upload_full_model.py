@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, hf_hub_download
 from peft import PeftModel
 from transformers import AutoTokenizer, Mistral3ForConditionalGeneration
 
@@ -112,6 +112,31 @@ def ensure_peft_generation_compat(model: torch.nn.Module) -> None:
     setattr(model, "prepare_inputs_for_generation", _prepare_inputs_for_generation)
 
 
+def copy_base_metadata_files(base_model_id: str, local_dir: Path) -> None:
+    # Keep tokenizer/runtime metadata compatible with MistralCommonBackend.
+    filenames = [
+        "tekken.json",
+        "params.json",
+        "generation_config.json",
+        "processor_config.json",
+        "SYSTEM_PROMPT.txt",
+        "chat_template.jinja",
+    ]
+    for filename in filenames:
+        try:
+            downloaded = hf_hub_download(
+                repo_id=base_model_id,
+                filename=filename,
+                repo_type="model",
+            )
+        except Exception as error:  # noqa: BLE001
+            print(f"[save] skipped optional metadata file {filename}: {error}")
+            continue
+        destination = local_dir / filename
+        destination.write_bytes(Path(downloaded).read_bytes())
+        print(f"[save] copied {filename}")
+
+
 def main() -> None:
     args = parse_args()
     output_model_id = args.output_model_id or default_output_repo(args.adapter_model_id)
@@ -155,6 +180,8 @@ def main() -> None:
         print("[save] tokenizer saved")
     except Exception as error:  # noqa: BLE001
         raise RuntimeError("failed to save tokenizer") from error
+
+    copy_base_metadata_files(args.base_model_id, local_dir)
 
     readme_path = local_dir / "README.md"
     readme_path.write_text(

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mistral Model FT Playbook"
+  short_description: "Mistral model fine-tuning and serving playbook."
+  default_prompt: "Use $mistral-model-ft-playbook to choose a Mistral model, fine-tune it on Hugging Face with PEFT, and validate strict JSON inference behavior."
