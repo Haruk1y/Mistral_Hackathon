@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mistral Hidden Params FT"
+  short_description: "Ministral hidden-params fine-tuning workflow."
+  default_prompt: "Use $mistral-hidden-params-ft to run dataset resplitting, TRL fine-tuning, JSON inference validation, and adapter/full-model packaging on Hugging Face."

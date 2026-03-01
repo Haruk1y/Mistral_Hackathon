@@ -1,0 +1,4 @@
+interface:
+  display_name: "HF Job Ops Playbook"
+  short_description: "Operate Hugging Face Jobs reliably for ML."
+  default_prompt: "Use $hf-job-ops-playbook to submit, monitor, triage, and retry Hugging Face Jobs with reproducible run tracking."

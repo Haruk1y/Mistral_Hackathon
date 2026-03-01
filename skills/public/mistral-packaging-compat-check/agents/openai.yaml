@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mistral Packaging Compat Check"
+  short_description: "Validate Mistral model packaging and inference paths."
+  default_prompt: "Use $mistral-packaging-compat-check to verify adapter/full packaging, tokenizer metadata, and inference-path compatibility for Mistral models."

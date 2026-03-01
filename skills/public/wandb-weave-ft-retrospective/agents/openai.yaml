@@ -1,0 +1,4 @@
+interface:
+  display_name: "WandB Weave FT Retrospective"
+  short_description: "Generate fine-tuning improvement plans from traces."
+  default_prompt: "Use $wandb-weave-ft-retrospective to analyze W&B/Weave traces and produce the next fine-tuning improvement plan with concrete data actions."

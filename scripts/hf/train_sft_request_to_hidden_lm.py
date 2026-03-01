@@ -5,7 +5,7 @@
 #   "accelerate>=0.34.0",
 #   "datasets>=3.0.0",
 #   "peft>=0.13.0",
-#   "trl>=0.29.0",
+#   "trl>=0.23.1",
 #   "transformers @ git+https://github.com/huggingface/transformers",
 #   "mistral-common>=1.8.6",
 #   "huggingface-hub>=0.34.0",
@@ -17,9 +17,12 @@
 
 """Headless TRL SFT for request_text to hidden-params JSON generation.
 
-This script trains with TRL SFTTrainer using prompt-completion format.
-The completion is a strict JSON object with keys:
-energy, warmth, brightness, acousticness, complexity, nostalgia.
+This script trains a causal LM objective (no regression head) so inference can
+directly return strict JSON object:
+{
+  "energy": int, "warmth": int, "brightness": int,
+  "acousticness": int, "complexity": int, "nostalgia": int
+}
 """
 
 from __future__ import annotations
@@ -38,11 +41,7 @@ from datasets import Dataset, load_dataset
 from huggingface_hub import HfApi
 from peft import LoraConfig, PeftModel, get_peft_model
 from torch.utils.data import DataLoader
-from transformers import (
-    Mistral3ForConditionalGeneration,
-    MistralCommonBackend,
-    TrainerCallback,
-)
+from transformers import Mistral3ForConditionalGeneration, MistralCommonBackend, TrainerCallback
 from trl import SFTConfig, SFTTrainer
 
 KEYS = ("energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia")
@@ -187,14 +186,6 @@ def load_splits(args: argparse.Namespace) -> tuple[Dataset, Dataset]:
         return ds["train"], ds["validation"]
 
     raise ValueError("Specify --dataset-repo or --local-train")
-
-
-def _unwrap_token_field(field: Any) -> list[int]:
-    if isinstance(field, list) and field and isinstance(field[0], list):
-        return [int(v) for v in field[0]]
-    if isinstance(field, list):
-        return [int(v) for v in field]
-    return []
 
 
 def _extract_request_text(row: dict[str, Any]) -> str:
@@ -358,7 +349,7 @@ def build_inference_prompt(request_text: str, source_type: str) -> str:
     )
 
 
-def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_length: int, target_scale: int) -> Dataset:
+def build_prompt_completion_dataset(dataset: Dataset, split_name: str, target_scale: int) -> Dataset:
     normalized = dataset.map(
         lambda row: normalize_row(row, target_scale),
         remove_columns=dataset.column_names,
@@ -375,14 +366,11 @@ def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_len
             request_text=str(sample["request_text"]),
             source_type=str(sample["source_type"]),
         )
-        response_prefix = "### Response:\n"
         assistant_json = json.dumps(target_vector, ensure_ascii=False)
-        prompt_text = f"{prompt}\n{response_prefix}"
 
         return {
-            "prompt": prompt_text,
+            "prompt": prompt,
             "completion": assistant_json,
-            "text": f"{prompt_text}{assistant_json}",
             "request_text": sample["request_text"],
             "source_type": sample["source_type"],
             "weather": sample["weather"],
@@ -391,8 +379,7 @@ def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_len
             "prompt_text": prompt_text,
         }
 
-    tokenized = normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")
-    return tokenized
+    return normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")
 
 
 class EvalGenerationCollator:
@@ -954,8 +941,10 @@ def main() -> None:
     if tokenizer.pad_token_id is None and tokenizer.eos_token_id is not None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    train_lm = build_sft_dataset(train_ds, tokenizer, "train", args.max_length, args.target_scale)
-    valid_lm = build_sft_dataset(valid_ds, tokenizer, "valid", args.max_length, args.target_scale)
+    train_lm = build_prompt_completion_dataset(train_ds, "train", args.target_scale)
+    valid_lm = build_prompt_completion_dataset(valid_ds, "valid", args.target_scale)
+    train_sft = train_lm.select_columns(["prompt", "completion"])
+    valid_sft = valid_lm.select_columns(["prompt", "completion"])
     detailed_eval_max_samples = max(0, int(args.detailed_eval_max_samples))
     if detailed_eval_max_samples > 0 and len(valid_lm) > detailed_eval_max_samples:
         detailed_eval_lm = valid_lm.select(range(detailed_eval_max_samples))
@@ -1021,8 +1010,6 @@ def main() -> None:
         max_steps=args.max_steps,
         bf16=True,
         report_to=report_to,
-        remove_unused_columns=False,
-        dataset_text_field="text",
         max_length=args.max_length,
         packing=False,
         completion_only_loss=True,
@@ -1037,9 +1024,9 @@ def main() -> None:
     trainer = SFTTrainer(
         model=model,
         args=train_args,
+        train_dataset=train_sft,
+        eval_dataset=valid_sft,
         processing_class=tokenizer,
-        train_dataset=train_lm,
-        eval_dataset=valid_lm,
     )
 
     def run_eval(dataset: Dataset, hard_cases_top_k: int) -> tuple[dict[str, float], list[dict[str, Any]]]:
@@ -1112,8 +1099,8 @@ def main() -> None:
 
         final_payload = {
             "objective/train_loss": train_result.metrics.get("train_loss"),
-            "dataset/train_examples": len(train_lm),
-            "dataset/valid_examples": len(valid_lm),
+            "dataset/train_examples": len(train_sft),
+            "dataset/valid_examples": len(valid_sft),
             "dataset/detailed_eval_examples": len(detailed_eval_lm),
             "dataset/detailed_eval_max_samples": detailed_eval_max_samples,
             "dataset/hard_cases_count": len(hard_cases),

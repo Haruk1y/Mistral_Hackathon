@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "@/components/locale-context";
+import { PixelAudioPlayer } from "@/components/pixel-audio-player";
 import { PixelButton, PixelPanel } from "@/components/pixel-ui";
 import { useGame } from "@/components/game-context";
 import { CATALOG_CUSTOMERS, CATALOG_PARTS, getPartDescription } from "@/lib/catalog";
@@ -172,14 +173,10 @@ export const CompositionWorkbench = ({
       }),
     [commission?.score, displayName, locale]
   );
-  const resultMetrics =
+  const resultMetricsText =
     commission?.score !== undefined && commission.rank
-      ? [
-          `${text("composeScoreLabel")}: ${commission.score}`,
-          `${text("composeRankLabel")}: ${commission.rank}`,
-          `${text("composeRewardLabel")}: +${commission.rewardMoney ?? 0}G`
-        ]
-      : [];
+      ? `${text("composeScoreLabel")}: ${commission.score} / ${text("composeRankLabel")}: ${commission.rank} / ${text("composeRewardLabel")}: +${commission.rewardMoney ?? 0}G`
+      : null;
 
   useEffect(() => {
     if (!commission?.interpreterOutput) return;
@@ -315,7 +312,7 @@ export const CompositionWorkbench = ({
       <PixelPanel title={generatedTrack ? text("composeResultTitle") : text("composePartsPanelTitle")} className="compose-parts-panel">
         {generatedTrack ? (
           <div className="compose-generated-result">
-            <audio controls src={generatedTrack.audioUrl} className="audio-player" />
+            <PixelAudioPlayer src={generatedTrack.audioUrl} locale={locale} />
             <div className="stack-row wrap">
               {Object.entries(generatedTrack.usedPartsBySlot).map(([slot, partId]) => (
                 <span key={`${generatedTrack.id}-${slot}`} className="pixel-tag">
@@ -326,11 +323,7 @@ export const CompositionWorkbench = ({
             <p className="compose-dialogue">{dialogue}</p>
             <div className="compose-result-footer">
               <div className="compose-result-metrics">
-                {resultMetrics.map((metric) => (
-                  <span key={metric} className="pixel-tag">
-                    {metric}
-                  </span>
-                ))}
+                {resultMetricsText ? <p className="compose-result-metrics-text">{resultMetricsText}</p> : null}
               </div>
               <div className="compose-result-actions">
                 <Link href="/game/street" className="pixel-button-link">

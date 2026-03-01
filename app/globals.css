@@ -825,6 +825,7 @@ a {
 
 .compose-dialogue {
   margin: 2px 0;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -841,6 +842,17 @@ a {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.compose-result-metrics-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: rgba(35, 23, 19, 0.85);
+  overflow-wrap: anywhere;
 }
 
 .compose-feedback-list {
@@ -903,8 +915,46 @@ a {
 }
 
 .audio-player {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 6px;
+}
+
+.audio-player-toggle {
+  border: 2px solid #563020;
+  background: linear-gradient(180deg, #f6d29e 0%, #d79a61 100%);
+  color: #2e1d15;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  padding: 5px 7px;
+  min-width: 64px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.audio-player-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.audio-player-seek {
+  width: 100%;
+  margin: 0;
+  accent-color: #8d5e3d;
+}
+
+.audio-player-seek:disabled {
+  opacity: 0.55;
+}
+
+.audio-player-time {
+  min-width: 78px;
+  text-align: right;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: rgba(35, 23, 19, 0.8);
 }
 
 .shop-layout {
@@ -1170,6 +1220,16 @@ a {
 
   .shop-grid {
     grid-template-columns: 1fr;
+  }
+
+  .audio-player {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .audio-player-time {
+    text-align: left;
+    min-width: 0;
   }
 
   .kotone-debug-grid {
