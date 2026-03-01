@@ -76,6 +76,64 @@ Hidden feature dimensions:
 
 This loop is repeated to balance quality, speed, and cost for game-ready inference.
 
+## Run Locally
+
+### Prerequisites
+
+- Node.js 20+ (Node.js 18.18+ also works with Next.js 15)
+- npm
+
+### 1) Install
+
+```bash
+npm install
+```
+
+### 2) Create local env file
+
+```bash
+cp .env.example .env.local
+```
+
+### 3) Choose runtime mode
+
+#### Demo mode (no external API keys)
+
+Use dataset/rule-based interpretation and fallback audio so the game can run without cloud keys.
+
+```bash
+INTERPRETER_BACKEND=dataset ELEVENLABS_ALLOW_FALLBACK_AUDIO=true npm run dev
+```
+
+#### Full mode (with real model/music APIs)
+
+Set at least:
+
+- `HF_TOKEN` (or `HF_API_TOKEN`)
+- `ELEVENLABS_API_KEY`
+
+Then run:
+
+```bash
+npm run dev
+```
+
+### 4) Open the app
+
+Open `http://localhost:3000`  
+The root route redirects to `/game/street`.
+
+### Optional checks
+
+```bash
+# unit tests
+npm test
+
+# evaluation pipeline
+npm run eval:run
+npm run eval:aggregate
+```
+
 ## Vision
 
 Just as we learn languages like English or Japanese to express ourselves, prompting will become a core literacy for the AI era.
@@ -91,3 +149,4 @@ Atelier Kotone is designed as a playful first step into that future through crea
 ![Atelier Kotone Slide 5](./public/assets/Atelier%20Kotone/page5_1.png)
 ![Atelier Kotone Slide 6](./public/assets/Atelier%20Kotone/page6_1.png)
 ![Atelier Kotone Slide 7](./public/assets/Atelier%20Kotone/page7_1.png)
+![Atelier Kotone Slide 8](./public/assets/Atelier%20Kotone/page8_1.png)
