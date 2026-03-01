@@ -16,7 +16,7 @@ This project is centered on three external AI components that shape both the pro
 
 | Technology | What it does in Atelier Kotone | Main implementation points |
 |---|---|---|
-| **Mistral (Mistral Large 3 + Ministral 3B)** | Generates teacher data, powers distillation, and runs hidden-parameter interpretation during gameplay | `scripts/ft/generate_teacher_pairs.mjs`, `scripts/hf/train_sft_request_to_hidden_lm.py`, `lib/interpreter.ts` |
+| **Mistral (Mistral Large 3 + Ministral 3B)** | Generates teacher data, powers distillation, and runs hidden-parameter interpretation with a **fine-tuned Ministral 3B model** during gameplay | `scripts/ft/generate_teacher_pairs.mjs`, `scripts/hf/train_sft_request_to_hidden_lm.py`, `lib/interpreter.ts` |
 | **ElevenLabs API** | Generates final music from player-selected Kotone combinations in the runtime loop | `lib/music-provider.ts`, `lib/music-jobs.ts` |
 | **Weights & Biases (W&B + Weave + MCP)** | Tracks evaluation/training, stores failure cases, and drives self-improvement planning across cycles | `scripts/wandb/weave_eval_runner.py`, `scripts/wandb/fetch_mcp_eval_context.mjs`, `scripts/loop/run_self_improvement_cycle.mjs` |
 
@@ -80,6 +80,7 @@ Hidden feature dimensions:
 ## AI Layer (Distillation Strategy)
 
 - Teacher data is generated with **Mistral 3 Large**, then distilled into **Ministral 3B** to target both quality and low latency.
+- We **fine-tuned** the distilled Ministral 3B model on our task-specific dataset so it can estimate hidden music parameters for gameplay evaluation.
 - The reason for distillation is practical gameplay: lower inference cost and faster response while keeping enough semantic quality.
 - In this prototype, some outputs are pre-generated due to current hosting constraints around local/real-time inference.
 - The intended full experience is real-time generation of random commissions and hidden targets with the distilled model.
