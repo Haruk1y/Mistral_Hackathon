@@ -1,5 +1,7 @@
 # Atelier Kotone
 
+![Atelier Kotone Slide 1](./public/assets/Atelier%20Kotone/page1_1.png)
+
 Atelier Kotone is a music-creation game where you compose songs by combining modular sound elements called Kotone.
 
 Players take on commissions from townspeople, each with abstract and emotional requests. By selecting and blending Kotone — such as style, instrument, mood, and special effects — you craft a piece of music that matches the client’s vision.
@@ -9,6 +11,9 @@ Earn money from satisfied customers, unlock new Kotone, expand your creative pal
 Atelier Kotone turns music creation into an accessible, playful experience — where imagination becomes sound.
 
 ## Core Concept
+
+![Atelier Kotone Slide 2](./public/assets/Atelier%20Kotone/page2_1.png)
+![Atelier Kotone Slide 3](./public/assets/Atelier%20Kotone/page3_1.png)
 
 Music prompting is still hard for beginners: people often know the feeling they want, but not how to express it in prompt language.
 
@@ -21,6 +26,9 @@ Instead of writing complex prompts directly, players compose with Kotone parts:
 - Gimmick
 
 This makes AI music creation approachable without requiring technical expertise.
+
+![Atelier Kotone Slide 4](./public/assets/Atelier%20Kotone/page4_1.png)
+![Atelier Kotone Slide 5](./public/assets/Atelier%20Kotone/page5_1.png)
 
 ## How It Plays
 
@@ -39,6 +47,7 @@ Players never see these values directly. The challenge is to infer the intent fr
 This creates a playful loop of experimentation, feedback, and improvement.
 
 ## Technical Game Loop
+![Atelier Kotone Slide 6](./public/assets/Atelier%20Kotone/page6_1.png)
 
 At runtime, the game follows this flow:
 
@@ -67,6 +76,7 @@ Hidden feature dimensions:
 - Final music output is generated with the **ElevenLabs API** based on player-selected Kotone.
 
 ## Training Pipeline (Distillation + Self-Improve)
+![Atelier Kotone Slide 7](./public/assets/Atelier%20Kotone/page7_1.png)
 
 1. Generate high-quality teacher data with **Mistral Large 3**.
 2. Fine-tune/distill into **Ministral 3B**.
@@ -139,14 +149,3 @@ npm run eval:aggregate
 Just as we learn languages like English or Japanese to express ourselves, prompting will become a core literacy for the AI era.
 
 Atelier Kotone is designed as a playful first step into that future through creativity, curiosity, and music.
-
-## Presentation Slides
-
-![Atelier Kotone Slide 1](./public/assets/Atelier%20Kotone/page1_1.png)
-![Atelier Kotone Slide 2](./public/assets/Atelier%20Kotone/page2_1.png)
-![Atelier Kotone Slide 3](./public/assets/Atelier%20Kotone/page3_1.png)
-![Atelier Kotone Slide 4](./public/assets/Atelier%20Kotone/page4_1.png)
-![Atelier Kotone Slide 5](./public/assets/Atelier%20Kotone/page5_1.png)
-![Atelier Kotone Slide 6](./public/assets/Atelier%20Kotone/page6_1.png)
-![Atelier Kotone Slide 7](./public/assets/Atelier%20Kotone/page7_1.png)
-![Atelier Kotone Slide 8](./public/assets/Atelier%20Kotone/page8_1.png)
