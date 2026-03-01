@@ -10,6 +10,16 @@ Earn money from satisfied customers, unlock new Kotone, expand your creative pal
 
 Atelier Kotone turns music creation into an accessible, playful experience — where imagination becomes sound.
 
+## Technology Highlights: Mistral + ElevenLabs + W&B
+
+This project is centered on three external AI components that shape both the product experience and model iteration workflow:
+
+| Technology | What it does in Atelier Kotone | Main implementation points |
+|---|---|---|
+| **Mistral (Mistral Large 3 + Ministral 3B)** | Generates teacher data, powers distillation, and runs hidden-parameter interpretation during gameplay | `scripts/ft/generate_teacher_pairs.mjs`, `scripts/hf/train_sft_request_to_hidden_lm.py`, `lib/interpreter.ts` |
+| **ElevenLabs API** | Generates final music from player-selected Kotone combinations in the runtime loop | `lib/music-provider.ts`, `lib/music-jobs.ts` |
+| **Weights & Biases (W&B + Weave + MCP)** | Tracks evaluation/training, stores failure cases, and drives self-improvement planning across cycles | `scripts/wandb/weave_eval_runner.py`, `scripts/wandb/fetch_mcp_eval_context.mjs`, `scripts/loop/run_self_improvement_cycle.mjs` |
+
 ## Core Concept
 
 ![Atelier Kotone Slide 2](./public/assets/Atelier%20Kotone/page2_1.png)
@@ -121,6 +131,11 @@ Set at least:
 
 - `HF_TOKEN` (or `HF_API_TOKEN`)
 - `ELEVENLABS_API_KEY`
+
+Recommended when running the full training/eval loop:
+
+- `MISTRAL_API_KEY` (teacher data generation)
+- `WANDB_API_KEY` (W&B/Weave/MCP logging and analysis)
 
 Then run:
 
