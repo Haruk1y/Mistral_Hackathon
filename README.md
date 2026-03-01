@@ -1,120 +1,93 @@
-# ことねのアトリエ (Atelier kotone)
+# Atelier Kotone
 
-言葉から音楽を作るゲーム体験を題材に、`request_text -> hidden_params` 推定モデルを継続改善するプロジェクトです。  
-実装の中心は「評価指標ごとに改善施策を分解し、再学習サイクルで検証する」ことにあります。
+Atelier Kotone is a music-creation game where you compose songs by combining modular sound elements called Kotone.
 
-## 最新評価スナップショット
+Players take on commissions from townspeople, each with abstract and emotional requests. By selecting and blending Kotone — such as style, instrument, mood, and special effects — you craft a piece of music that matches the client’s vision.
 
-- 生成時刻: `2026-02-28T10:00:39.546Z` (`artifacts/eval/summary/latest_summary.json`)
-- 評価データ: `frozen_eval_set.v1_teacher_mistral`
-- 評価件数: `70`
+Earn money from satisfied customers, unlock new Kotone, expand your creative palette, and build your personal music gallery.
 
-| mode | json_valid_rate | vector_mae | constraint_match_rate | slot_exact_match | intent_score_mean | output_sanity_score | p95_latency_ms | cost_per_100_requests_usd |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| rule_baseline | 1.0000 | 19.0762 | 0.2714 | 0.4143 | 59.9400 | 82.1143 | 0.0311 | 0.0200 |
-| prompt_baseline | 0.9857 | 20.3671 | 0.2174 | 0.4203 | 57.2290 | 83.4143 | 1558.7694 | 0.2800 |
-| fine_tuned | 1.0000 | 26.1286 | 0.1143 | 0.3607 | 45.1300 | 87.8429 | 1203.7898 | 0.1900 |
+Atelier Kotone turns music creation into an accessible, playful experience — where imagination becomes sound.
 
-補足:
-- `auto_improvement_delta` (`fine_tuned - prompt_baseline`):  
-  `intent_score_mean=-12.0990`, `vector_mae=+5.7614`, `json_valid_rate=+0.0143`
-- loop 完了率: `1.0` (`2/2 cycle`)
+## Core Concept
 
-## 評価指標ごとの実装工夫
+Music prompting is still hard for beginners: people often know the feeling they want, but not how to express it in prompt language.
 
-### 1) `json_valid_rate`（JSON整形の安定性）
+Atelier Kotone solves this by turning music intent into modular creative choices.  
+Instead of writing complex prompts directly, players compose with Kotone parts:
 
-- 厳密JSONの出力を促す固定プロンプトを評価・推論の両方で統一
-  - `lib/interpreter.ts`
-  - `scripts/eval/run_eval_local.mjs`
-  - `scripts/wandb/weave_eval_runner.py`
-- fenced code block / 生JSON どちらも復元する `extractJsonBlock` 実装でパース耐性を向上
-- `zod` スキーマ検証に通らないレスポンスは採用せず、ルールベース推定へフォールバック
-  - `lib/schemas.ts`
-  - `lib/interpreter.ts`
+- Style
+- Instrument
+- Mood
+- Gimmick
 
-### 2) `vector_mae`, `mse_raw`, `mse_norm`, `r2_score`（回帰精度）
+This makes AI music creation approachable without requiring technical expertise.
 
-- 評価スケールを `target_scale=10` に固定し、入力データ側のスケール差を正規化して比較可能性を担保
-  - `scripts/eval/run_eval_local.mjs`
-  - `scripts/wandb/weave_eval_runner.py`
-- 次元別誤差 (`mae_raw_*`) を計測し、hard case 上位を継続的に抽出
-  - `lib/metrics/hidden_params.ts`
-  - `scripts/wandb/generate_weave_failure_playbook.mjs`
-- 教師データ生成 -> 品質フィルタ -> train/valid/test分割 -> 再学習のデータパイプラインを分離
-  - `scripts/ft/generate_teacher_pairs.mjs`
-  - `scripts/ft/quality_filter.mjs`
-  - `scripts/ft/build_train_valid_test.mjs`
+## How It Plays
 
-### 3) `constraint_match_rate`, `slot_exact_match`（制約整合・離散選択精度）
+1. Accept a commission from a townsperson.
+2. Read an emotional, abstract request.
+3. Combine Kotone parts to shape the song.
+4. Deliver the result and get rewarded.
+5. Unlock more Kotone and expand your options.
+6. Build your personal gallery of finished music.
 
-- 予測ベクトルから `constraints` と `slot top1` を導出する評価関数を固定化し、比較を自動化
-  - `lib/metrics/constraints.ts`
-  - `scripts/eval/run_eval_local.mjs`
-  - `scripts/wandb/weave_eval_runner.py`
-- スロット種別不整合（例: style枠にinstrumentを入れる）を防ぐ整合性チェックを実装
-  - `lib/score.ts` (`ensureSlotCategoryIntegrity`)
+## Hidden Target Design
 
-### 4) `intent_score_mean`（ゲーム体験としての意図一致）
+Each commission has hidden target parameters behind the scenes.  
+Players never see these values directly. The challenge is to infer the intent from the request and find the Kotone combination that best matches it.
 
-- スコアを単一値でなく内訳に分解:
-  - `vectorScore`（距離）
-  - `tagScore`（required/optional/forbidden）
-  - `preferenceScore`
-  - `synergyScore` / `antiSynergyPenalty`
-- 上記内訳に基づくコーチング文言をスロット単位で返し、改善方向を可視化
-  - `lib/score.ts`
+This creates a playful loop of experimentation, feedback, and improvement.
 
-### 5) `output_sanity_score`（出力妥当性）
+## Technical Game Loop
 
-- JSON不正時の明示的ペナルティ + ベクトル分散に応じた健全性評価を導入
-  - `scripts/eval/run_eval_local.mjs`
-  - `scripts/wandb/weave_eval_runner.py`
-- parse error と trace を必ず記録し、失敗原因を追跡可能にした
+At runtime, the game follows this flow:
 
-### 6) `p95_inference_latency_ms`, `cost_per_100_requests_usd`（運用効率）
+1. A commission request is generated/interpreted by **Ministral 3B**.
+2. The same model defines hidden target feature parameters for that request.
+3. The player selects Kotone parts and builds a composition prompt.
+4. The prompt is sent to **ElevenLabs** to generate music.
+5. **Ministral 3B** estimates the resulting feature parameters from the selected Kotone/prompt.
+6. The game compares target vs. estimated parameters and returns final score + feedback.
 
-- `p50/p95` を同時記録し、平均値だけでなく tail latency を監視
-- modeごとに単価を分離管理し、100リクエスト換算のコストで比較
-- HF推論失敗時の Mistral fallback を用意し、停止より継続性を優先
-  - `scripts/eval/run_eval_local.mjs`
-  - `scripts/wandb/weave_eval_runner.py`
+Hidden feature dimensions:
 
-## 実験管理と改善ループ
+- Energy
+- Warmth
+- Brightness
+- Acousticness
+- Complexity
+- Nostalgia
 
-- 各評価サンプルに `trace_id` / `trace_url` を付与し、Weaveで失敗ケースを直接追跡
-- `artifacts/eval/runs` と `artifacts/eval/samples` を分離して保存し、再集計を容易化
-- サイクル管理 (`cycle_n`) で、失敗分析 -> データ増強 -> 再学習 -> 再評価を自動化
-  - `scripts/loop/run_self_improvement_cycle.mjs`
-  - `scripts/eval/aggregate_metrics.mjs`
-  - `scripts/hf/check_prize_readiness.mjs`
+## AI Layer (Distillation Strategy)
 
-## 再現コマンド
+- Teacher data is generated with **Mistral 3 Large**, then distilled into **Ministral 3B** to target both quality and low latency.
+- The reason for distillation is practical gameplay: lower inference cost and faster response while keeping enough semantic quality.
+- In this prototype, some outputs are pre-generated due to current hosting constraints around local/real-time inference.
+- The intended full experience is real-time generation of random commissions and hidden targets with the distilled model.
+- Final music output is generated with the **ElevenLabs API** based on player-selected Kotone.
 
-```bash
-# 開発
-npm run dev
+## Training Pipeline (Distillation + Self-Improve)
 
-# 単体テスト
-npm test
+1. Generate high-quality teacher data with **Mistral Large 3**.
+2. Fine-tune/distill into **Ministral 3B**.
+3. Run evaluation in **Weights & Biases**.
+4. Use **W&B MCP** to inspect loss/failures and propose hyperparameter updates.
+5. Generate additional data for weak cases and retrain.
 
-# 評価実行（Python runner -> 必要時 Node fallback）
-npm run eval:run
+This loop is repeated to balance quality, speed, and cost for game-ready inference.
 
-# 評価サマリ集計
-npm run eval:aggregate
+## Vision
 
-# Fine-tuning用データ作成
-npm run ft:generate
-npm run ft:filter
-npm run ft:split
+Just as we learn languages like English or Japanese to express ourselves, prompting will become a core literacy for the AI era.
 
-# 自己改善サイクル実行
-npm run loop:cycle
-```
+Atelier Kotone is designed as a playful first step into that future through creativity, curiosity, and music.
 
-## 関連ドキュメント
+## Presentation Slides
 
-- `docs/hackathon/WANDB_REPORT_OUTLINE.md`
-- `docs/FINETUNE_REQUEST_TO_HIDDEN_PARAMS_PLAN.md`
-- `docs/hackathon/HF_MINISTRAL3B_FT_RUNBOOK.md`
+![Atelier Kotone Slide 1](./public/assets/Atelier%20Kotone/page1_1.png)
+![Atelier Kotone Slide 2](./public/assets/Atelier%20Kotone/page2_1.png)
+![Atelier Kotone Slide 3](./public/assets/Atelier%20Kotone/page3_1.png)
+![Atelier Kotone Slide 4](./public/assets/Atelier%20Kotone/page4_1.png)
+![Atelier Kotone Slide 5](./public/assets/Atelier%20Kotone/page5_1.png)
+![Atelier Kotone Slide 6](./public/assets/Atelier%20Kotone/page6_1.png)
+![Atelier Kotone Slide 7](./public/assets/Atelier%20Kotone/page7_1.png)
