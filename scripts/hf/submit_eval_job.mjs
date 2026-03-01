@@ -4,12 +4,16 @@ import { resolve } from "node:path";
 import { loadEnvFiles } from "../utils/load-env.mjs";
 
 const root = resolve(new URL("../../", import.meta.url).pathname);
-const submissionLogPath = resolve(root, "artifacts/hf_jobs/eval_submissions.jsonl");
+const submissionLogPath = resolve(
+  root,
+  "artifacts/hf_jobs/eval_submissions.jsonl",
+);
 loadEnvFiles(root);
 
-const flavor = process.env.HF_EVAL_JOB_FLAVOR || process.env.HF_JOB_FLAVOR || "a10g-small";
+const flavor =
+  process.env.HF_EVAL_JOB_FLAVOR || process.env.HF_JOB_FLAVOR || "a10g-small";
 const timeout = process.env.HF_EVAL_JOB_TIMEOUT || "2h";
-const namespace = process.env.HF_NAMESPACE || "Haruk1y";
+const namespace = process.env.HF_NAMESPACE || "uzumibi";
 const shouldSubmit = process.env.HF_EVAL_JOB_SUBMIT === "true";
 const scriptPath = resolve(root, "scripts/wandb/weave_eval_runner.py");
 
@@ -23,40 +27,71 @@ const withPackages = (
 
 const envConfig = {
   EVAL_MODE: process.env.EVAL_MODE || "fine_tuned",
-  EVAL_DATASET_PATH: process.env.EVAL_DATASET_PATH || "data/eval/frozen_eval_set.v1.json",
-  EVAL_DATASET_REPO_ID: process.env.EVAL_DATASET_REPO_ID || process.env.HF_FT_DATASET_REPO_ID || "Haruk1y/atelier-kotone-ft-request-hidden",
-  EVAL_DATASET_CONFIG: process.env.EVAL_DATASET_CONFIG || process.env.HF_FT_DATASET_CONFIG || "",
+  EVAL_DATASET_PATH:
+    process.env.EVAL_DATASET_PATH || "data/eval/frozen_eval_set.v1.json",
+  EVAL_DATASET_REPO_ID:
+    process.env.EVAL_DATASET_REPO_ID ||
+    process.env.HF_FT_DATASET_REPO_ID ||
+    "Haruk1y/atelier-kotone-ft-request-hidden",
+  EVAL_DATASET_CONFIG:
+    process.env.EVAL_DATASET_CONFIG || process.env.HF_FT_DATASET_CONFIG || "",
   EVAL_DATASET_SPLIT: process.env.EVAL_DATASET_SPLIT || "test",
   EVAL_DATASET_MAX_SAMPLES: process.env.EVAL_DATASET_MAX_SAMPLES || "0",
   EVAL_TARGET_SCALE: process.env.EVAL_TARGET_SCALE || "10",
   EVAL_TOP_FAILURES: process.env.EVAL_TOP_FAILURES || "20",
   EVAL_WEAVE_ENABLED: process.env.EVAL_WEAVE_ENABLED || "true",
   EVAL_WANDB_ENABLED: process.env.EVAL_WANDB_ENABLED || "true",
-  HF_INFERENCE_BACKEND: process.env.HF_INFERENCE_BACKEND || "local_transformers",
-  EVAL_LOCAL_BASE_MODEL_ID: process.env.EVAL_LOCAL_BASE_MODEL_ID || process.env.HF_BASE_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512",
-  EVAL_LOCAL_ADAPTER_MODEL_ID: process.env.EVAL_LOCAL_ADAPTER_MODEL_ID || process.env.EVAL_FINE_TUNED_MODEL_ID || process.env.HF_FT_OUTPUT_MODEL_ID || "",
-  EVAL_LOCAL_FINE_TUNED_IS_ADAPTER: process.env.EVAL_LOCAL_FINE_TUNED_IS_ADAPTER || "true",
+  HF_INFERENCE_BACKEND:
+    process.env.HF_INFERENCE_BACKEND || "local_transformers",
+  EVAL_LOCAL_BASE_MODEL_ID:
+    process.env.EVAL_LOCAL_BASE_MODEL_ID ||
+    process.env.HF_BASE_MODEL_ID ||
+    "mistralai/Ministral-3-3B-Instruct-2512",
+  EVAL_LOCAL_ADAPTER_MODEL_ID:
+    process.env.EVAL_LOCAL_ADAPTER_MODEL_ID ||
+    process.env.EVAL_FINE_TUNED_MODEL_ID ||
+    process.env.HF_FT_OUTPUT_MODEL_ID ||
+    "",
+  EVAL_LOCAL_FINE_TUNED_IS_ADAPTER:
+    process.env.EVAL_LOCAL_FINE_TUNED_IS_ADAPTER || "true",
   EVAL_LOCAL_DEVICE: process.env.EVAL_LOCAL_DEVICE || "auto",
   EVAL_LOCAL_DTYPE: process.env.EVAL_LOCAL_DTYPE || "auto",
   EVAL_LOCAL_MAX_NEW_TOKENS: process.env.EVAL_LOCAL_MAX_NEW_TOKENS || "96",
-  EVAL_LOCAL_TRUST_REMOTE_CODE: process.env.EVAL_LOCAL_TRUST_REMOTE_CODE || "false",
+  EVAL_LOCAL_TRUST_REMOTE_CODE:
+    process.env.EVAL_LOCAL_TRUST_REMOTE_CODE || "true",
   EVAL_LOCAL_CACHE_DIR: process.env.EVAL_LOCAL_CACHE_DIR || "",
   EVAL_PROMPT_BASELINE_MODEL_ID:
-    process.env.EVAL_PROMPT_BASELINE_MODEL_ID || process.env.HF_BASE_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512",
-  EVAL_FINE_TUNED_MODEL_ID: process.env.EVAL_FINE_TUNED_MODEL_ID || process.env.HF_FT_OUTPUT_MODEL_ID || "",
-  EVAL_LARGE_BASELINE_MODEL_ID: process.env.EVAL_LARGE_BASELINE_MODEL_ID || process.env.MISTRAL_LARGE_MODEL_ID || "mistral-large-latest",
+    process.env.EVAL_PROMPT_BASELINE_MODEL_ID ||
+    process.env.HF_BASE_MODEL_ID ||
+    "mistralai/Ministral-3-3B-Instruct-2512",
+  EVAL_FINE_TUNED_MODEL_ID:
+    process.env.EVAL_FINE_TUNED_MODEL_ID ||
+    process.env.HF_FT_OUTPUT_MODEL_ID ||
+    "",
+  EVAL_LARGE_BASELINE_MODEL_ID:
+    process.env.EVAL_LARGE_BASELINE_MODEL_ID ||
+    process.env.MISTRAL_LARGE_MODEL_ID ||
+    "mistral-large-latest",
   EVAL_REQUIRE_HF_DIRECT: process.env.EVAL_REQUIRE_HF_DIRECT || "false",
-  EVAL_MISTRAL_FALLBACK_ENABLED: process.env.EVAL_MISTRAL_FALLBACK_ENABLED || "false",
+  EVAL_MISTRAL_FALLBACK_ENABLED:
+    process.env.EVAL_MISTRAL_FALLBACK_ENABLED || "false",
   WANDB_PROJECT: process.env.WANDB_PROJECT || "atelier-kotone-ft",
   WANDB_ENTITY: process.env.WANDB_ENTITY || "",
   WANDB_RUN_GROUP: process.env.WANDB_RUN_GROUP || "hf-eval-local-transformers",
-  WEAVE_PROJECT: process.env.WEAVE_PROJECT || process.env.WANDB_PROJECT || "atelier-kotone-ft",
+  WEAVE_PROJECT:
+    process.env.WEAVE_PROJECT ||
+    process.env.WANDB_PROJECT ||
+    "atelier-kotone-ft",
 };
 
-const envArgs = Object.entries(envConfig).flatMap(([key, value]) => ["--env", `${key}=${value}`]);
+const envArgs = Object.entries(envConfig).flatMap(([key, value]) => [
+  "--env",
+  `${key}=${value}`,
+]);
 const withArgs = withPackages.flatMap((pkg) => ["--with", pkg]);
 const secretNames = ["HF_TOKEN", "WANDB_API_KEY", "MISTRAL_API_KEY"].filter(
-  (name) => typeof process.env[name] === "string" && process.env[name].length > 0,
+  (name) =>
+    typeof process.env[name] === "string" && process.env[name].length > 0,
 );
 const secretArgs = secretNames.flatMap((name) => ["--secrets", name]);
 
@@ -107,7 +142,10 @@ if (!shouldSubmit) {
 }
 
 try {
-  const whoami = execSync("hf auth whoami", { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  const whoami = execSync("hf auth whoami", {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
   if (!whoami || whoami.includes("Not logged in")) {
     console.error("HF CLI is not authenticated. Run: hf auth login");
     process.exit(1);
@@ -149,13 +187,17 @@ const record = {
 await writeSubmissionRecord(record);
 
 if (result.status !== 0) {
-  console.error(`HF eval job submission failed. Logged to ${submissionLogPath}`);
+  console.error(
+    `HF eval job submission failed. Logged to ${submissionLogPath}`,
+  );
   process.exit(result.status ?? 1);
 }
 
 if (jobId) {
   console.log(`Submitted HF Eval Job ID: ${jobId}`);
 } else {
-  console.log("Submitted HF eval job, but job_id could not be parsed from CLI output.");
+  console.log(
+    "Submitted HF eval job, but job_id could not be parsed from CLI output.",
+  );
 }
 console.log(`Submission record saved: ${submissionLogPath}`);

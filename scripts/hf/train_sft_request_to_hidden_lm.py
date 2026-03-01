@@ -5,6 +5,7 @@
 #   "accelerate>=0.34.0",
 #   "datasets>=3.0.0",
 #   "peft>=0.13.0",
+#   "trl>=0.29.0",
 #   "transformers @ git+https://github.com/huggingface/transformers",
 #   "mistral-common>=1.8.6",
 #   "huggingface-hub>=0.34.0",
@@ -14,16 +15,11 @@
 # ]
 # ///
 
-"""Headless next-token SFT for request_text to hidden-params JSON generation.
+"""Headless TRL SFT for request_text to hidden-params JSON generation.
 
-This script trains a causal LM objective (no regression head) so inference can
-directly return strict JSON object:
-{
-  "vector": {
-    "energy": int, "warmth": int, "brightness": int,
-    "acousticness": int, "complexity": int, "nostalgia": int
-  }
-}
+This script trains with TRL SFTTrainer using prompt-completion format.
+The completion is a strict JSON object with keys:
+energy, warmth, brightness, acousticness, complexity, nostalgia.
 """
 
 from __future__ import annotations
@@ -45,10 +41,9 @@ from torch.utils.data import DataLoader
 from transformers import (
     Mistral3ForConditionalGeneration,
     MistralCommonBackend,
-    Trainer,
     TrainerCallback,
-    TrainingArguments,
 )
+from trl import SFTConfig, SFTTrainer
 
 KEYS = ("energy", "warmth", "brightness", "acousticness", "complexity", "nostalgia")
 WEATHER_VALUES = {"sunny", "cloudy", "rainy"}
@@ -344,11 +339,21 @@ def build_inference_prompt(request_text: str, source_type: str) -> str:
     return "\n".join(
         [
             "You estimate 6 hidden music parameters.",
-            "Return strict JSON only with this schema:",
-            '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-            "Each vector value must be integer between 0 and 10.",
+            "Each value must be integer between 0 and 10.",
+            "",
+            "- energy: silent(0) ↔ intense(10)",
+            "- warmth: mechanical(0) ↔ warm(10)",
+            "- brightness: dark(0) ↔ bright(10)",
+            "- acousticness: electronic(0) ↔ acoustic(10)",
+            "- complexity: simple(0) ↔ complex(10)",
+            "- nostalgia: futuristic(0) ↔ nostalgic(10)",
+            "",
+            "Return JSON only with exactly these keys:",
+            "energy, warmth, brightness, acousticness, complexity, nostalgia",
             f"source_type={source_type}",
-            f"request_text={request_text}",
+            "",
+            "Request text:",
+            request_text,
         ]
     )
 
@@ -370,65 +375,24 @@ def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_len
             request_text=str(sample["request_text"]),
             source_type=str(sample["source_type"]),
         )
-        assistant_json = json.dumps({"vector": target_vector}, ensure_ascii=False)
-        eos = tokenizer.eos_token or ""
-        full_text = f"{prompt}\n{assistant_json}{eos}"
-
-        tokenized_full = tokenizer(
-            full_text,
-            truncation=True,
-            max_length=max_length,
-            return_attention_mask=True,
-        )
-        tokenized_prompt = tokenizer(
-            prompt,
-            truncation=True,
-            max_length=max_length,
-            return_attention_mask=False,
-        )
-
-        input_ids = _unwrap_token_field(tokenized_full["input_ids"])
-        attention_mask = _unwrap_token_field(tokenized_full["attention_mask"])
-        prompt_ids = _unwrap_token_field(tokenized_prompt["input_ids"])
-        prompt_len = min(len(prompt_ids), len(input_ids))
-        labels = [-100] * prompt_len + input_ids[prompt_len:]
-
-        if len(labels) < len(input_ids):
-            labels.extend([-100] * (len(input_ids) - len(labels)))
+        response_prefix = "### Response:\n"
+        assistant_json = json.dumps(target_vector, ensure_ascii=False)
+        prompt_text = f"{prompt}\n{response_prefix}"
 
         return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "labels": labels,
+            "prompt": prompt_text,
+            "completion": assistant_json,
+            "text": f"{prompt_text}{assistant_json}",
             "request_text": sample["request_text"],
             "source_type": sample["source_type"],
             "weather": sample["weather"],
             "target_scale": target_scale,
             "target_raw": [float(target_vector[key]) for key in KEYS],
-            "prompt_text": prompt,
+            "prompt_text": prompt_text,
         }
 
-    return normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")
-
-
-class SFTDataCollator:
-    def __init__(self, tokenizer: Any):
-        self.tokenizer = tokenizer
-
-    def __call__(self, features: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
-        inputs = [{"input_ids": item["input_ids"], "attention_mask": item["attention_mask"]} for item in features]
-        batch = self.tokenizer.pad(inputs, padding=True, return_tensors="pt")
-        max_len = int(batch["input_ids"].shape[1])
-
-        labels = []
-        for item in features:
-            row = list(item["labels"])
-            if len(row) < max_len:
-                row = row + [-100] * (max_len - len(row))
-            labels.append(row[:max_len])
-
-        batch["labels"] = torch.tensor(labels, dtype=torch.long)
-        return batch
+    tokenized = normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")
+    return tokenized
 
 
 class EvalGenerationCollator:
@@ -440,21 +404,6 @@ class EvalGenerationCollator:
             "weather": [str(item["weather"]) for item in features],
             "target_raw": [list(item["target_raw"]) for item in features],
         }
-
-
-class HiddenParamSFTTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
-        outputs = model(
-            input_ids=inputs["input_ids"],
-            attention_mask=inputs["attention_mask"],
-            labels=inputs["labels"],
-            use_cache=False,
-            return_dict=True,
-        )
-        loss = outputs.loss
-        if return_outputs:
-            return loss, outputs
-        return loss
 
 
 def ensure_peft_generation_compat(model: torch.nn.Module) -> None:
@@ -1054,7 +1003,7 @@ def main() -> None:
     if has_trackio:
         report_to.append("trackio")
 
-    train_args = TrainingArguments(
+    train_args = SFTConfig(
         output_dir=args.output_dir,
         run_name=args.run_name,
         num_train_epochs=args.epochs,
@@ -1073,21 +1022,24 @@ def main() -> None:
         bf16=True,
         report_to=report_to,
         remove_unused_columns=False,
+        dataset_text_field="text",
+        max_length=args.max_length,
+        packing=False,
+        completion_only_loss=True,
     )
 
-    collator = SFTDataCollator(tokenizer)
     metrics_dir = Path(args.output_dir)
     metrics_dir.mkdir(parents=True, exist_ok=True)
     iter_eval_metrics_path = metrics_dir / "iter_eval_metrics.jsonl"
     if iter_eval_metrics_path.exists():
         iter_eval_metrics_path.unlink()
 
-    trainer = HiddenParamSFTTrainer(
+    trainer = SFTTrainer(
         model=model,
         args=train_args,
+        processing_class=tokenizer,
         train_dataset=train_lm,
         eval_dataset=valid_lm,
-        data_collator=collator,
     )
 
     def run_eval(dataset: Dataset, hard_cases_top_k: int) -> tuple[dict[str, float], list[dict[str, Any]]]:
