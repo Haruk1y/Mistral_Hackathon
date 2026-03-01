@@ -15,7 +15,7 @@
 # ]
 # ///
 
-"""Headless next-token SFT for request_text to hidden-params JSON generation.
+"""Headless TRL SFT for request_text to hidden-params JSON generation.
 
 This script trains a causal LM objective (no regression head) so inference can
 directly return strict JSON object:
@@ -342,7 +342,9 @@ def build_inference_prompt(request_text: str, source_type: str) -> str:
             "Return JSON only with exactly these keys:",
             "energy, warmth, brightness, acousticness, complexity, nostalgia",
             f"source_type={source_type}",
-            f"request_text={request_text}",
+            "",
+            "Request text:",
+            request_text,
         ]
     )
 
@@ -374,7 +376,7 @@ def build_prompt_completion_dataset(dataset: Dataset, split_name: str, target_sc
             "weather": sample["weather"],
             "target_scale": target_scale,
             "target_raw": [float(target_vector[key]) for key in KEYS],
-            "prompt_text": prompt,
+            "prompt_text": prompt_text,
         }
 
     return normalized.map(to_features, remove_columns=["target"], desc=f"tokenize:{split_name}")

@@ -19,15 +19,22 @@ const trainScriptRelPath =
 const scriptPath = resolve(root, trainScriptRelPath);
 
 const envConfig = {
-  HF_BASE_MODEL_ID: process.env.HF_BASE_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512",
-  HF_FT_DATASET_REPO_ID: process.env.HF_FT_DATASET_REPO_ID || "",
+  HF_BASE_MODEL_ID:
+    process.env.HF_BASE_MODEL_ID || "mistralai/Ministral-3-3B-Instruct-2512",
+  HF_FT_DATASET_REPO_ID:
+    process.env.HF_FT_DATASET_REPO_ID ||
+    "Haruk1y/atelier-kotone-ft-request-hidden",
   HF_FT_DATASET_CONFIG: process.env.HF_FT_DATASET_CONFIG || "",
   HF_FT_TRAIN_SPLIT: process.env.HF_FT_TRAIN_SPLIT || "train",
   HF_FT_VALID_SPLIT: process.env.HF_FT_VALID_SPLIT || "validation",
-  HF_FT_OUTPUT_MODEL_ID: process.env.HF_FT_OUTPUT_MODEL_ID || "Haruk1y/atelier-kotone-ministral3b-ft",
-  HF_FT_OUTPUT_DIR: process.env.HF_FT_OUTPUT_DIR || "outputs/ministral3b-request-hidden",
+  HF_FT_OUTPUT_MODEL_ID:
+    process.env.HF_FT_OUTPUT_MODEL_ID ||
+    `${namespace}/atelier-kotone-ministral3b-ft`,
+  HF_FT_OUTPUT_DIR:
+    process.env.HF_FT_OUTPUT_DIR || "outputs/ministral3b-request-hidden",
   HF_FT_INIT_ADAPTER_MODEL_ID: process.env.HF_FT_INIT_ADAPTER_MODEL_ID || "",
-  HF_FT_RUN_NAME: process.env.HF_FT_RUN_NAME || `ministral3b-nexttoken-${Date.now()}`,
+  HF_FT_RUN_NAME:
+    process.env.HF_FT_RUN_NAME || `ministral3b-nexttoken-${Date.now()}`,
   HF_FT_OBJECTIVE: ftObjective,
   HF_FT_EPOCHS: process.env.HF_FT_EPOCHS || "2",
   HF_FT_LR: process.env.HF_FT_LR || "0.00002",
@@ -35,12 +42,15 @@ const envConfig = {
   HF_FT_GRAD_ACCUM: process.env.HF_FT_GRAD_ACCUM || "8",
   HF_FT_WARMUP_RATIO: process.env.HF_FT_WARMUP_RATIO || "0.1",
   HF_FT_MAX_LENGTH: process.env.HF_FT_MAX_LENGTH || "768",
-  HF_FT_TARGET_SCALE: process.env.HF_FT_TARGET_SCALE || process.env.FT_TARGET_SCALE || "10",
+  HF_FT_TARGET_SCALE:
+    process.env.HF_FT_TARGET_SCALE || process.env.FT_TARGET_SCALE || "10",
   HF_FT_LOGGING_STEPS: process.env.HF_FT_LOGGING_STEPS || "1",
   HF_FT_EVAL_STEPS: process.env.HF_FT_EVAL_STEPS || "25",
   HF_FT_DETAILED_EVAL_STEPS: process.env.HF_FT_DETAILED_EVAL_STEPS || "50",
-  HF_FT_DETAILED_EVAL_MAX_SAMPLES: process.env.HF_FT_DETAILED_EVAL_MAX_SAMPLES || "25",
-  HF_FT_GENERATION_MAX_NEW_TOKENS: process.env.HF_FT_GENERATION_MAX_NEW_TOKENS || "96",
+  HF_FT_DETAILED_EVAL_MAX_SAMPLES:
+    process.env.HF_FT_DETAILED_EVAL_MAX_SAMPLES || "25",
+  HF_FT_GENERATION_MAX_NEW_TOKENS:
+    process.env.HF_FT_GENERATION_MAX_NEW_TOKENS || "96",
   HF_FT_MAX_STEPS: process.env.HF_FT_MAX_STEPS || "-1",
   HF_FT_HARD_CASE_TOP_K: process.env.HF_FT_HARD_CASE_TOP_K || "80",
   HF_FT_LORA_R: process.env.HF_FT_LORA_R || "16",
@@ -48,7 +58,8 @@ const envConfig = {
   HF_FT_LORA_DROPOUT: process.env.HF_FT_LORA_DROPOUT || "0.05",
   HF_FT_PUSH_TO_HUB: process.env.HF_FT_PUSH_TO_HUB || "true",
   FT_DATASET_VERSION: process.env.FT_DATASET_VERSION || "v1",
-  FT_SOURCE_TYPE_MIX: process.env.FT_SOURCE_TYPE_MIX || "request_text+rule_prompt",
+  FT_SOURCE_TYPE_MIX:
+    process.env.FT_SOURCE_TYPE_MIX || "request_text+rule_prompt",
   WANDB_PROJECT: process.env.WANDB_PROJECT || "atelier-kotone-ft",
   WANDB_ENTITY: process.env.WANDB_ENTITY || "",
   WANDB_RUN_GROUP: process.env.WANDB_RUN_GROUP || "hf-ft-balanced",
@@ -59,8 +70,15 @@ const envConfig = {
   TRACKIO_SPACE_ID: process.env.TRACKIO_SPACE_ID || "",
 };
 
-const envArgs = Object.entries(envConfig).flatMap(([key, value]) => ["--env", `${key}=${value}`]);
-const secretArgs = ["--secrets", "HF_TOKEN", "--secrets", "WANDB_API_KEY"];
+const envArgs = Object.entries(envConfig).flatMap(([key, value]) => [
+  "--env",
+  `${key}=${value}`,
+]);
+const secretNames = ["HF_TOKEN", "WANDB_API_KEY"].filter(
+  (name) =>
+    typeof process.env[name] === "string" && process.env[name].length > 0,
+);
+const secretArgs = secretNames.flatMap((name) => ["--secrets", name]);
 
 const args = [
   "jobs",
@@ -106,8 +124,24 @@ if (!shouldSubmit) {
   process.exit(0);
 }
 
+if (!secretNames.includes("HF_TOKEN")) {
+  console.error(
+    "HF_TOKEN is missing in local env. Cannot submit training job.",
+  );
+  process.exit(1);
+}
+if (!secretNames.includes("WANDB_API_KEY")) {
+  console.error(
+    "WANDB_API_KEY is missing in local env. W&B logging will be disabled in job.",
+  );
+  process.exit(1);
+}
+
 try {
-  const whoami = execSync("hf auth whoami", { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  const whoami = execSync("hf auth whoami", {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
   if (!whoami || whoami.includes("Not logged in")) {
     console.error("HF CLI is not authenticated. Run: hf auth login");
     process.exit(1);
@@ -155,6 +189,8 @@ if (result.status !== 0) {
 if (jobId) {
   console.log(`Submitted HF Job ID: ${jobId}`);
 } else {
-  console.log("Submitted HF job, but job_id could not be parsed from CLI output.");
+  console.log(
+    "Submitted HF job, but job_id could not be parsed from CLI output.",
+  );
 }
 console.log(`Submission record saved: ${submissionLogPath}`);

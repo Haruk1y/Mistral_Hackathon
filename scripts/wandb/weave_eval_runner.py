@@ -22,6 +22,8 @@ Outputs:
 
 from __future__ import annotations
 
+import asyncio
+import inspect
 import json
 import os
 import re
@@ -993,6 +995,88 @@ def maybe_init_wandb(enabled: bool, project: str, entity: str | None, group: str
     except Exception:  # noqa: BLE001
         return None
 
+def maybe_run_weave_evaluation(
+    weave_module: Any,
+    sample_rows: list[dict[str, Any]],
+    mode: str,
+    run_id: str,
+) -> dict[str, Any] | None:
+    if weave_module is None:
+        return None
+
+    dataset_rows: list[dict[str, Any]] = []
+    predictions_by_request: dict[str, dict[str, Any]] = {}
+    for row in sample_rows:
+        request_text = str(row.get("request_text", "")).strip()
+        target = row.get("target_vector")
+        if not request_text or not isinstance(target, dict):
+            continue
+        dataset_rows.append(
+            {
+                "request_text": request_text,
+                "target": target,
+            }
+        )
+        predictions_by_request[request_text] = {
+            "vector": row.get("predicted_vector") if isinstance(row.get("predicted_vector"), dict) else {},
+            "json_valid": bool(row.get("json_valid", False)),
+            "parse_error": row.get("parse_error"),
+        }
+
+    if not dataset_rows:
+        return None
+
+    @weave_module.op()
+    def mae_scorer(output: dict, target: dict) -> dict:
+        vector = output.get("vector", {}) if isinstance(output, dict) else {}
+        abs_errors = {
+            axis: abs(float(vector.get(axis, 0.0)) - float(target.get(axis, 0.0)))
+            for axis in KEYS
+        }
+        return {
+            "mae": mean(list(abs_errors.values())),
+            "abs_errors": abs_errors,
+        }
+
+    @weave_module.op()
+    def json_valid_scorer(output: dict) -> dict:
+        is_valid = bool(output.get("json_valid")) if isinstance(output, dict) else False
+        return {"json_valid": is_valid}
+
+    class PrecomputedEvalModel(weave_module.Model):
+        predictions: dict[str, dict[str, Any]]
+
+        @weave_module.op()
+        def predict(self, request_text: str) -> dict[str, Any]:
+            return self.predictions.get(
+                request_text,
+                {"vector": {}, "json_valid": False, "parse_error": "missing_precomputed_prediction"},
+            )
+
+    try:
+        evaluation = weave_module.Evaluation(
+            dataset=dataset_rows,
+            scorers=[mae_scorer, json_valid_scorer],
+        )
+        model = PrecomputedEvalModel(predictions=predictions_by_request)
+        eval_result = evaluation.evaluate(model)
+        if inspect.isawaitable(eval_result):
+            eval_result = asyncio.run(eval_result)
+
+        return {
+            "mode": mode,
+            "run_id": run_id,
+            "dataset_size": len(dataset_rows),
+            "result": eval_result,
+        }
+    except Exception as error:  # noqa: BLE001
+        return {
+            "mode": mode,
+            "run_id": run_id,
+            "dataset_size": len(dataset_rows),
+            "error": str(error),
+        }
+
 
 def load_eval_items(path: Path) -> list[dict[str, Any]]:
     raw = path.read_text(encoding="utf-8")
@@ -1399,6 +1483,13 @@ def main() -> None:
     runs_dir.mkdir(parents=True, exist_ok=True)
     samples_dir.mkdir(parents=True, exist_ok=True)
 
+    weave_evaluation_summary = maybe_run_weave_evaluation(
+        weave_module=weave,
+        sample_rows=sample_rows,
+        mode=mode,
+        run_id=run_id,
+    )
+
     run_payload = {
         "dataset_version": dataset_version,
         "dataset_path": str(cfg.dataset_path),
@@ -1425,6 +1516,7 @@ def main() -> None:
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "metrics": metrics,
         "weave_project": cfg.weave_project,
+        "weave_evaluation_summary": weave_evaluation_summary,
     }
     sample_payload = {
         "run_id": run_id,
