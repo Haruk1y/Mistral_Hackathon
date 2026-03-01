@@ -1,11 +1,12 @@
 import { nanoid } from "nanoid";
 import { CATALOG_PARTS, REQUEST_TEMPLATES } from "@/lib/catalog";
+import { findVectorByRequestText, findVectorByRulePromptOrSlots } from "@/lib/ft-test-dataset";
+import { buildTargetProfileFromVector, toTargetHiddenParams } from "@/lib/target-profile-utils";
 import type {
   InterpreterRequest,
   InterpreterResponse,
   Part,
   SlotKey,
-  TargetHiddenParams,
   TargetProfile
 } from "@/lib/types";
 import { SLOT_KEYS } from "@/lib/types";
@@ -47,14 +48,6 @@ const keywordProfiles: Array<{ keywords: string[]; profile: TargetProfile }> = [
     profile: REQUEST_TEMPLATES[3].targetProfile
   }
 ];
-
-const toHiddenParams = (profile: TargetProfile): TargetHiddenParams => ({
-  vector: profile.vector,
-  tags: [...new Set([...profile.requiredTags, ...profile.optionalTags])],
-  constraints: {
-    ...profile.constraints
-  }
-});
 
 const pickProfile = (requestText: string): TargetProfile => {
   const lower = requestText.toLowerCase();
@@ -104,7 +97,8 @@ const buildResponseFromProfile = (
   profile: TargetProfile,
   modelSource: InterpreterResponse["evaluationMeta"]["model_source"],
   latencyMs: number,
-  parseError?: string
+  parseError?: string,
+  extraRationale: string[] = []
 ): InterpreterResponse => {
   const inventory = CATALOG_PARTS.filter((part) => input.inventoryPartIds.includes(part.id));
 
@@ -127,9 +121,10 @@ const buildResponseFromProfile = (
   return {
     recommended,
     targetProfile: profile,
-    targetHiddenParams: toHiddenParams(profile),
+    targetHiddenParams: toTargetHiddenParams(profile),
     hintToPlayer: "STYLEで文法を決め、MOODとGIMMICKで短尺フックを作ると成功率が上がります。",
     rationale: [
+      ...extraRationale,
       `weather=${input.weather} を加味して targetProfile を選定しました。`,
       "requiredTags に一致するパーツを優先して候補化しました。",
       "forbiddenTags は減点し、上位3候補を返しています。"
@@ -183,11 +178,50 @@ const resolveHfModelConfig = () => {
   };
 };
 
+type InterpreterBackendMode = "auto" | "hf" | "dataset" | "rule";
+
+const normalizeInterpreterBackend = (input: string | undefined): InterpreterBackendMode => {
+  const lowered = (input || "auto").trim().toLowerCase();
+  if (lowered === "hf") return "hf";
+  if (lowered === "dataset") return "dataset";
+  if (lowered === "rule") return "rule";
+  return "auto";
+};
+
+const callDatasetLookup = async (
+  input: InterpreterRequest,
+  startedAt: number
+): Promise<InterpreterResponse | null> => {
+  const requestText = input.requestText.trim();
+  const maybeRulePrompt = requestText.replace(/^RULE_PROMPT:\s*/i, "").trim();
+
+  let vectorMatch = await findVectorByRulePromptOrSlots({ rulePrompt: maybeRulePrompt });
+  if (!vectorMatch) {
+    vectorMatch = await findVectorByRequestText(maybeRulePrompt);
+  }
+  if (!vectorMatch) return null;
+
+  const baseProfile = pickProfile(maybeRulePrompt);
+  const profile = buildTargetProfileFromVector(vectorMatch.vector, baseProfile);
+  const latencyMs = Math.max(0, performance.now() - startedAt);
+
+  return buildResponseFromProfile(input, profile, "rule_baseline", latencyMs, undefined, [
+    `dataset_lookup_strategy=${vectorMatch.strategy}`
+  ]);
+};
+
 const callHfModel = async (input: InterpreterRequest): Promise<InterpreterResponse | null> => {
   const { modelId: hfModelId, modelSource } = resolveHfModelConfig();
   const hfToken = process.env.HF_API_TOKEN || process.env.HF_TOKEN;
   const hfInferenceBaseUrl =
     (process.env.HF_INFERENCE_BASE_URL || "https://router.huggingface.co/hf-inference/models").replace(/\/$/, "");
+  const hfOpenaiBaseUrl = (process.env.HF_OPENAI_BASE_URL || "https://router.huggingface.co/v1").replace(/\/$/, "");
+  const hfOpenaiModelId = (process.env.HF_OPENAI_MODEL_ID || "").trim();
+  const hfOpenaiModelSuffix = (process.env.HF_OPENAI_MODEL_SUFFIX || "").trim();
+  const hfInferenceBackendRaw = (process.env.HF_INFERENCE_BACKEND || "auto").trim().toLowerCase().replaceAll("_", "-");
+  const hfInferenceBackend = ["auto", "text-generation", "chat-completions"].includes(hfInferenceBackendRaw)
+    ? hfInferenceBackendRaw
+    : "auto";
 
   if (!hfToken) {
     return null;
@@ -205,34 +239,90 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     "Use only provided inventory part IDs in recommended arrays."
   ].join("\n");
 
-  const response = await fetch(`${hfInferenceBaseUrl}/${hfModelId}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${hfToken}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 550,
+  const callTextGeneration = async (): Promise<string | null> => {
+    const response = await fetch(`${hfInferenceBaseUrl}/${hfModelId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 550,
+          temperature: 0.2,
+          return_full_text: false
+        }
+      })
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const payload = await response.json();
+    const text = Array.isArray(payload)
+      ? payload[0]?.generated_text || ""
+      : payload.generated_text || payload?.[0]?.generated_text || "";
+    return text ? String(text) : null;
+  };
+
+  const resolveChatModelId = () => {
+    const baseModel = hfOpenaiModelId || hfModelId;
+    if (hfOpenaiModelSuffix && !baseModel.endsWith(hfOpenaiModelSuffix)) {
+      return `${baseModel}${hfOpenaiModelSuffix}`;
+    }
+    return baseModel;
+  };
+
+  const callChatCompletions = async (): Promise<string | null> => {
+    const response = await fetch(`${hfOpenaiBaseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: resolveChatModelId(),
         temperature: 0.2,
-        return_full_text: false
-      }
-    })
-  });
+        max_tokens: 550,
+        messages: [
+          {
+            role: "system",
+            content: "You output only strict JSON for the requested schema."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload = await response.json();
+    let content = payload?.choices?.[0]?.message?.content ?? "";
+    if (Array.isArray(content)) {
+      content = content
+        .map((part) => {
+          if (!part || typeof part !== "object") return "";
+          if (part.type === "text" || part.type === "output_text") return String(part.text || "");
+          if ("content" in part) return String(part.content || "");
+          return "";
+        })
+        .join("");
+    }
+    return typeof content === "string" && content.trim() ? content : null;
+  };
 
-  if (!response.ok) {
-    return null;
+  let text: string | null = null;
+  if (hfInferenceBackend === "auto" || hfInferenceBackend === "text-generation") {
+    text = await callTextGeneration();
   }
-
-  const payload = await response.json();
-  const text = Array.isArray(payload)
-    ? payload[0]?.generated_text || ""
-    : payload.generated_text || payload?.[0]?.generated_text || "";
-
-  if (!text) {
-    return null;
+  if (!text && (hfInferenceBackend === "auto" || hfInferenceBackend === "chat-completions")) {
+    text = await callChatCompletions();
   }
+  if (!text) return null;
 
   const jsonBlock = extractJsonBlock(text);
   if (!jsonBlock) {
@@ -243,7 +333,7 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
     const parsed = JSON.parse(jsonBlock) as Partial<InterpreterResponse>;
 
     if (!parsed.targetHiddenParams && parsed.targetProfile) {
-      parsed.targetHiddenParams = toHiddenParams(parsed.targetProfile);
+      parsed.targetHiddenParams = toTargetHiddenParams(parsed.targetProfile);
     }
 
     const latency = Math.max(0, performance.now() - startedAt);
@@ -268,9 +358,35 @@ const callHfModel = async (input: InterpreterRequest): Promise<InterpreterRespon
 
 export const runInterpreter = async (input: InterpreterRequest): Promise<InterpreterResponse> => {
   const startedAt = performance.now();
-  const hfResponse = await callHfModel(input);
-  if (hfResponse) {
-    return hfResponse;
+  const backend = normalizeInterpreterBackend(process.env.INTERPRETER_BACKEND);
+
+  if (backend === "rule") {
+    const profile = pickProfile(input.requestText);
+    return buildResponseFromProfile(input, profile, "rule_baseline", Math.max(0, performance.now() - startedAt));
+  }
+
+  if (backend === "dataset" || backend === "auto") {
+    const datasetResponse = await callDatasetLookup(input, startedAt);
+    if (datasetResponse) {
+      return datasetResponse;
+    }
+    if (backend === "dataset") {
+      const profile = pickProfile(input.requestText);
+      return buildResponseFromProfile(
+        input,
+        profile,
+        "rule_baseline",
+        Math.max(0, performance.now() - startedAt),
+        "dataset_lookup_miss"
+      );
+    }
+  }
+
+  if (backend === "hf" || backend === "auto") {
+    const hfResponse = await callHfModel(input);
+    if (hfResponse) {
+      return hfResponse;
+    }
   }
 
   const profile = pickProfile(input.requestText);

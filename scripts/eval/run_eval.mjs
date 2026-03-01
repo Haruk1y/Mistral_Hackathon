@@ -23,7 +23,11 @@ if (run.stdout) process.stdout.write(run.stdout);
 if (run.stderr) process.stderr.write(run.stderr);
 
 if (run.status !== 0) {
-  const allowFallback = !["0", "false", "no"].includes((process.env.EVAL_ALLOW_LOCAL_FALLBACK || "true").toLowerCase());
+  const backendMode = String(process.env.HF_INFERENCE_BACKEND || "auto")
+    .toLowerCase()
+    .replaceAll("_", "-");
+  const fallbackDefault = backendMode === "local-transformers" ? "false" : "true";
+  const allowFallback = !["0", "false", "no"].includes((process.env.EVAL_ALLOW_LOCAL_FALLBACK || fallbackDefault).toLowerCase());
   if (!allowFallback) {
     console.error(`uv ${args.join(" ")} failed with code ${run.status ?? 1}`);
     process.exit(run.status ?? 1);

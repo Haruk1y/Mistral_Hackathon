@@ -86,7 +86,7 @@ export const useGameState = () => {
         templateText: commission.requestText,
         weather: commission.weather,
         customerId: commission.customerId,
-        customerName: customer?.id,
+        customerName: customer?.name,
         customerPersonality: customer?.personality
       })
         .then((generated) => {
@@ -94,6 +94,8 @@ export const useGameState = () => {
             updateCommission(prev, commission.id, (current) => ({
               ...current,
               requestText: generated.requestText,
+              targetProfile: generated.targetProfile ?? current.targetProfile,
+              targetHiddenParams: generated.targetHiddenParams ?? current.targetHiddenParams,
               requestGenerationSource:
                 generated.modelSource === "fine_tuned"
                   ? "ft_model"

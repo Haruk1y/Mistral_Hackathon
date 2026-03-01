@@ -120,6 +120,8 @@ export type RequestGenerationResponse = {
   latencyMs: number;
   traceId?: string;
   parseError?: string;
+  targetProfile?: TargetProfile;
+  targetHiddenParams?: TargetHiddenParams;
 };
 
 export type InterpreterResponse = {

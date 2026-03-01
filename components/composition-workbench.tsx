@@ -20,54 +20,46 @@ const PART_CARD_BASE_ASSET =
 const buildCustomerDialogue = (input: {
   displayName: string;
   score: number;
-  weather: "sunny" | "cloudy" | "rainy";
   locale: "ja" | "en";
 }) => {
   if (input.locale === "ja") {
     if (input.score >= 88) {
-      return {
-        reaction: `${input.displayName}: 「わあ、今の一曲すごく好き。街の空気がそのまま音になったみたい。」`,
-        tip: "Kotone: 「次は余韻を少しだけ長めにして、情景をもっと深く見せましょう。」"
-      };
+      return `${input.displayName}: 「わあ、今の一曲すごく好き。街の空気がそのまま音になったみたい。」`;
     }
 
     if (input.score >= 72) {
-      return {
-        reaction: `${input.displayName}: 「いい感じ。雰囲気は掴めてるから、もう一歩だけ色を揃えたいな。」`,
-        tip:
-          input.weather === "rainy"
-            ? "Kotone: 「雨の夜を歩くような静かな流れを、もう少し前に出してみましょう。」"
-            : "Kotone: 「主役のフレーズを少しはっきりさせると、印象がぐっと強くなります。」"
-      };
+      return `${input.displayName}: 「いい感じ。雰囲気は掴めてるから、もう一歩だけ色を揃えたいな。」`;
     }
 
-    return {
-      reaction: `${input.displayName}: 「悪くないけど、私が欲しかった景色とは少し違うかも。」`,
-      tip: "Kotone: 「テンポ感か空気感のどちらかを思い切って寄せると、狙いが伝わりやすくなります。」"
-    };
+    return `${input.displayName}: 「悪くないけど、私が欲しかった景色とは少し違うかも。」`;
   }
 
   if (input.score >= 88) {
-    return {
-      reaction: `${input.displayName}: "I love this one. It really sounds like our town right now."`,
-      tip: 'Kotone: "Next, try a slightly longer tail so the scene can breathe."'
-    };
+    return `${input.displayName}: "I love this one. It really sounds like our town right now."`;
   }
 
   if (input.score >= 72) {
-    return {
-      reaction: `${input.displayName}: "Nice direction. The mood is there, it just needs one more clear color."`,
-      tip:
-        input.weather === "rainy"
-          ? 'Kotone: "Push the calm rainy-night flow a little more."'
-          : 'Kotone: "Make the lead phrase stand out a bit more."'
-    };
+    return `${input.displayName}: "Nice direction. The mood is there, it just needs one more clear color."`;
   }
 
-  return {
-    reaction: `${input.displayName}: "Not bad, but it still feels a little far from what I imagined."`,
-    tip: 'Kotone: "Commit harder to either tempo feel or atmosphere for the next try."'
-  };
+  return `${input.displayName}: "Not bad, but it still feels a little far from what I imagined."`;
+};
+
+const toErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string" && error.trim().length > 0) return error;
+
+  if (error && typeof error === "object") {
+    if ("message" in error && typeof error.message === "string" && error.message.trim().length > 0) {
+      return error.message;
+    }
+
+    if (typeof Event !== "undefined" && error instanceof Event) {
+      return error.type ? `Event error: ${error.type}` : fallback;
+    }
+  }
+
+  return fallback;
 };
 
 export const CompositionWorkbench = ({
@@ -94,6 +86,7 @@ export const CompositionWorkbench = ({
   const [jobStatus, setJobStatus] = useState<MusicJobStatus | null>(null);
   const [autoInterpreterTargetId, setAutoInterpreterTargetId] = useState<string | null>(null);
   const [isComposing, setIsComposing] = useState(false);
+  const [composeError, setComposeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!commission) return;
@@ -162,7 +155,10 @@ export const CompositionWorkbench = ({
     return candidate;
   }, [commission, streetCastId]);
 
-  const displayName = commission ? commission.customerId.toLowerCase() : "unknown";
+  const displayName =
+    locale === "en"
+      ? streetCast?.nameEn ?? customer?.name ?? (commission ? commission.customerId.toUpperCase() : "unknown")
+      : streetCast?.name ?? customer?.name ?? (commission ? commission.customerId.toUpperCase() : "unknown");
   const displayPortraitAsset = streetCast?.portraitAsset ?? customer?.portraitAsset;
   const generatedTrack = commission?.trackId ? state?.tracks[commission.trackId] : undefined;
 
@@ -172,11 +168,18 @@ export const CompositionWorkbench = ({
       buildCustomerDialogue({
         displayName,
         score: commission?.score ?? 0,
-        weather: commission?.weather ?? "cloudy",
         locale
       }),
-    [commission?.score, commission?.weather, displayName, locale]
+    [commission?.score, displayName, locale]
   );
+  const resultMetrics =
+    commission?.score !== undefined && commission.rank
+      ? [
+          `${text("composeScoreLabel")}: ${commission.score}`,
+          `${text("composeRankLabel")}: ${commission.rank}`,
+          `${text("composeRewardLabel")}: +${commission.rewardMoney ?? 0}G`
+        ]
+      : [];
 
   useEffect(() => {
     if (!commission?.interpreterOutput) return;
@@ -200,6 +203,7 @@ export const CompositionWorkbench = ({
     if (!commission || !allSlotsSelected) return;
 
     setIsComposing(true);
+    setComposeError(null);
     try {
       const jobId = await submitComposition(commission.id, selectedPartsBySlot);
       if (!jobId) return;
@@ -223,6 +227,15 @@ export const CompositionWorkbench = ({
 
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
+    } catch (unknownError) {
+      console.error("Compose flow failed", unknownError);
+      setJobStatus("failed");
+      setComposeError(
+        toErrorMessage(
+          unknownError,
+          locale === "ja" ? "作曲処理でエラーが発生しました。" : "An error occurred while composing."
+        )
+      );
     } finally {
       setIsComposing(false);
     }
@@ -290,29 +303,13 @@ export const CompositionWorkbench = ({
           </PixelButton>
         </div>
 
-        {commission.score !== undefined && commission.rank ? (
-          <div className="result-box">
-            <h4>{text("composeResultTitle")}</h4>
-            <p>
-              {text("composeScoreLabel")}: {commission.score} / {text("composeRankLabel")}: {commission.rank}
-            </p>
-            <p>
-              {text("composeRewardLabel")}: +{commission.rewardMoney ?? 0}G
-            </p>
-            <div className="compose-result-actions">
-              <Link href="/game/street" className="pixel-button-link">
-                {text("galleryBackToStreet")}
-              </Link>
-            </div>
-          </div>
-        ) : null}
-
         {jobStatus ? (
           <p className="muted">
             {text("composeMusicJobLabel")}: {jobStatusLabel(locale, jobStatus)}
           </p>
         ) : null}
         {error ? <p className="error-text">{error}</p> : null}
+        {composeError ? <p className="error-text">{composeError}</p> : null}
       </PixelPanel>
 
       <PixelPanel title={generatedTrack ? text("composeResultTitle") : text("composePartsPanelTitle")} className="compose-parts-panel">
@@ -326,8 +323,21 @@ export const CompositionWorkbench = ({
                 </span>
               ))}
             </div>
-            <p className="compose-dialogue">{dialogue.reaction}</p>
-            <p className="compose-dialogue muted">{dialogue.tip}</p>
+            <p className="compose-dialogue">{dialogue}</p>
+            <div className="compose-result-footer">
+              <div className="compose-result-metrics">
+                {resultMetrics.map((metric) => (
+                  <span key={metric} className="pixel-tag">
+                    {metric}
+                  </span>
+                ))}
+              </div>
+              <div className="compose-result-actions">
+                <Link href="/game/street" className="pixel-button-link">
+                  {text("galleryBackToStreet")}
+                </Link>
+              </div>
+            </div>
           </div>
         ) : activeOptions.length ? (
           <div className="slot-part-picker-layout">

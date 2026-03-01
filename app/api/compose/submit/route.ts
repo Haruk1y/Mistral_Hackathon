@@ -7,6 +7,7 @@ import {
   ensureSlotCategoryIntegrity,
   scoreComposition
 } from "@/lib/score";
+import { isCombinationCovered } from "@/lib/ft-test-dataset";
 import { submitCompositionSchema, targetProfileSchema } from "@/lib/schemas";
 
 const requestSchema = submitCompositionSchema.extend({
@@ -27,13 +28,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: slotIntegrityErrors }, { status: 400 });
     }
 
+    const isCovered = await isCombinationCovered(parsed.data.selectedPartsBySlot);
+    if (!isCovered) {
+      return NextResponse.json(
+        {
+          error: "selected_kotone_combination_not_covered_by_reference_dataset",
+          selectedPartsBySlot: parsed.data.selectedPartsBySlot
+        },
+        { status: 400 }
+      );
+    }
+
     const breakdown = scoreComposition(parsed.data.selectedPartsBySlot, parsed.data.targetProfile);
     const distanceBreakdown = buildDistanceBreakdown(
       parsed.data.selectedPartsBySlot,
       parsed.data.targetProfile
     );
     const rank = calculateRank(breakdown.total);
-    const rewardMoney = 30 + Math.round(breakdown.total * 1.8);
+    const rankBonusByRank = { S: 24, A: 14, B: 8, C: 3, D: 0 } as const;
+    const scoreReward = Math.round(breakdown.total * 1.6);
+    const rewardMoney = Math.max(20, scoreReward + rankBonusByRank[rank]);
 
     const response = {
       score: breakdown.total,

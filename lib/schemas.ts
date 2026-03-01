@@ -115,7 +115,9 @@ export const requestGenerationResponseSchema = z.object({
   ]),
   latencyMs: z.number().nonnegative(),
   traceId: z.string().optional(),
-  parseError: z.string().optional()
+  parseError: z.string().optional(),
+  targetProfile: targetProfileSchema.optional(),
+  targetHiddenParams: targetHiddenParamsSchema.optional()
 });
 
 export const interpreterResponseSchema = z.object({

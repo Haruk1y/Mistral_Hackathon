@@ -87,6 +87,13 @@ def env_bool(name: str, default: bool) -> bool:
     return value.lower() in {"1", "true", "yes", "on"}
 
 
+def normalize_backend_mode(value: str) -> str:
+    lowered = str(value or "auto").strip().lower().replace("_", "-")
+    if lowered in {"auto", "text-generation", "chat-completions", "local-transformers"}:
+        return lowered
+    return "auto"
+
+
 def clamp(value: float, min_v: float, max_v: float) -> float:
     return max(min_v, min(max_v, value))
 
@@ -287,84 +294,402 @@ def rule_based_predict(request_text: str) -> dict[str, int]:
     return default
 
 
-def hf_predict_vector(
-    model_id: str,
+@dataclass(frozen=True)
+class LocalTransformersSpec:
+    base_model_id: str
+    adapter_model_id: str
+    device: str
+    dtype: str
+    max_new_tokens: int
+    trust_remote_code: bool
+    cache_dir: str | None
+
+
+_LOCAL_TRANSFORMERS_CACHE: dict[str, tuple[Any, Any]] = {}
+
+
+def _local_transformers_cache_key(spec: LocalTransformersSpec) -> str:
+    return "|".join(
+        [
+            spec.base_model_id,
+            spec.adapter_model_id,
+            spec.device,
+            spec.dtype,
+            "1" if spec.trust_remote_code else "0",
+            spec.cache_dir or "",
+        ]
+    )
+
+
+def _resolve_torch_dtype(torch_module: Any, dtype_name: str) -> Any:
+    normalized = (dtype_name or "auto").strip().lower()
+    if normalized in {"", "auto"}:
+        return "auto"
+    mapping = {
+        "bfloat16": getattr(torch_module, "bfloat16", None),
+        "bf16": getattr(torch_module, "bfloat16", None),
+        "float16": getattr(torch_module, "float16", None),
+        "fp16": getattr(torch_module, "float16", None),
+        "float32": getattr(torch_module, "float32", None),
+        "fp32": getattr(torch_module, "float32", None),
+    }
+    resolved = mapping.get(normalized)
+    if resolved is None:
+        raise ValueError(f"unsupported_local_dtype:{dtype_name}")
+    return resolved
+
+
+def _load_local_transformers_bundle(
+    spec: LocalTransformersSpec,
+    hf_token: str,
+) -> tuple[Any, Any]:
+    cache_key = _local_transformers_cache_key(spec)
+    cached = _LOCAL_TRANSFORMERS_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+
+    try:
+        import torch  # type: ignore
+        from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
+    except Exception as error:  # noqa: BLE001
+        raise RuntimeError(f"missing_local_transformers_dependency:{error}") from error
+
+    auth_token = hf_token.strip() or None
+    common_kwargs: dict[str, Any] = {
+        "trust_remote_code": spec.trust_remote_code,
+    }
+    if auth_token:
+        common_kwargs["token"] = auth_token
+    if spec.cache_dir:
+        common_kwargs["cache_dir"] = spec.cache_dir
+
+    tokenizer = AutoTokenizer.from_pretrained(spec.base_model_id, **common_kwargs)
+    if tokenizer.pad_token_id is None:
+        if tokenizer.eos_token is not None:
+            tokenizer.pad_token = tokenizer.eos_token
+        else:
+            tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+
+    model_kwargs: dict[str, Any] = dict(common_kwargs)
+    model_kwargs["torch_dtype"] = _resolve_torch_dtype(torch, spec.dtype)
+    if spec.device == "auto":
+        model_kwargs["device_map"] = "auto"
+
+    model = AutoModelForCausalLM.from_pretrained(spec.base_model_id, **model_kwargs)
+
+    adapter_model_id = spec.adapter_model_id.strip()
+    if adapter_model_id:
+        try:
+            from peft import PeftModel  # type: ignore
+        except Exception as error:  # noqa: BLE001
+            raise RuntimeError(f"missing_local_peft_dependency:{error}") from error
+
+        adapter_kwargs: dict[str, Any] = {}
+        if auth_token:
+            adapter_kwargs["token"] = auth_token
+        if spec.cache_dir:
+            adapter_kwargs["cache_dir"] = spec.cache_dir
+        if spec.trust_remote_code:
+            adapter_kwargs["trust_remote_code"] = True
+
+        model = PeftModel.from_pretrained(model, adapter_model_id, **adapter_kwargs)
+
+    if spec.device != "auto":
+        try:
+            model.to(spec.device)
+        except Exception as error:  # noqa: BLE001
+            raise RuntimeError(f"local_model_move_failed:{error}") from error
+    model.eval()
+
+    _LOCAL_TRANSFORMERS_CACHE[cache_key] = (tokenizer, model)
+    return tokenizer, model
+
+
+def local_transformers_predict_vector(
+    spec: LocalTransformersSpec,
     request_text: str,
     weather: str,
-    token: str,
-    timeout_s: int = 90,
+    hf_token: str,
 ) -> tuple[dict[str, int] | None, str | None]:
-    if not token:
-        return None, "HF_TOKEN missing"
+    if not spec.base_model_id.strip():
+        return None, "local_base_model_missing"
+
+    def parse_generated_text(text: str) -> tuple[dict[str, int] | None, str | None]:
+        if not text:
+            return None, "empty_generated_text"
+        blob = extract_json_blob(text)
+        if not blob:
+            return None, "json_block_not_found"
+        try:
+            parsed = json.loads(blob)
+        except json.JSONDecodeError as error:
+            return None, f"json_decode_error:{error}"
+        if not isinstance(parsed, dict):
+            return None, "parsed_payload_not_object"
+        try:
+            vector = sanitize_vector(parsed)
+        except Exception as error:  # noqa: BLE001
+            return None, f"invalid_vector:{error}"
+        return vector, None
 
     prompt = "\n".join(
         [
             "You estimate 6 hidden music parameters.",
             "Return strict JSON only with schema:",
-            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-            "Copy request_text exactly from input.",
-            f"Values in hidden_params must be integers between 0 and {EVAL_TARGET_SCALE}.",
-            f"weather={weather}",
+            '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Each vector value must be integer between 0 and 10.",
             f"request_text={request_text}",
         ]
     )
 
-    base_url = env_str("HF_INFERENCE_BASE_URL", "https://router.huggingface.co/hf-inference/models").rstrip("/")
-    url = f"{base_url}/{model_id}"
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 96,
-            "temperature": 0.1,
-            "return_full_text": False,
-        },
-    }
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-    }
-
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=timeout_s)
-    except requests.RequestException as error:
-        return None, f"inference_error:{error}"
-
-    if response.status_code >= 400:
-        return None, f"http_{response.status_code}:{response.text[:240]}"
-
-    try:
-        data = response.json()
-    except json.JSONDecodeError as error:
-        return None, f"non_json_response:{error}"
-
-    text = ""
-    if isinstance(data, list) and data:
-        first = data[0]
-        if isinstance(first, dict):
-            text = str(first.get("generated_text", "")).strip()
-    elif isinstance(data, dict):
-        text = str(data.get("generated_text", "")).strip()
-
-    if not text:
-        return None, "empty_generated_text"
-
-    blob = extract_json_blob(text)
-    if not blob:
-        return None, "json_block_not_found"
-
-    try:
-        parsed = json.loads(blob)
-    except json.JSONDecodeError as error:
-        return None, f"json_decode_error:{error}"
-
-    if not isinstance(parsed, dict):
-        return None, "parsed_payload_not_object"
-
-    try:
-        vector = sanitize_vector(parsed)
+        tokenizer, model = _load_local_transformers_bundle(spec, hf_token)
     except Exception as error:  # noqa: BLE001
-        return None, f"invalid_vector:{error}"
-    return vector, None
+        return None, f"local_backend_init_error:{error}"
+
+    try:
+        import torch  # type: ignore
+    except Exception as error:  # noqa: BLE001
+        return None, f"missing_local_transformers_dependency:{error}"
+
+    messages = [
+        {"role": "system", "content": "You output only strict JSON with six integer fields."},
+        {"role": "user", "content": prompt},
+    ]
+
+    input_text = prompt
+    if hasattr(tokenizer, "apply_chat_template"):
+        try:
+            input_text = str(tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True))
+        except TypeError:
+            input_text = str(tokenizer.apply_chat_template(messages, tokenize=False))
+        except Exception:
+            input_text = prompt
+
+    try:
+        model_inputs = tokenizer(input_text, return_tensors="pt")
+    except Exception as error:  # noqa: BLE001
+        return None, f"local_tokenize_error:{error}"
+
+    target_device: Any = None
+    if spec.device != "auto":
+        target_device = spec.device
+    else:
+        try:
+            first_param = next(model.parameters())
+            if str(first_param.device) != "meta":
+                target_device = first_param.device
+        except Exception:
+            target_device = None
+
+    if target_device is not None:
+        try:
+            model_inputs = {key: value.to(target_device) for key, value in model_inputs.items()}
+        except Exception as error:  # noqa: BLE001
+            return None, f"local_input_move_error:{error}"
+
+    try:
+        generation_kwargs: dict[str, Any] = {
+            "max_new_tokens": max(1, int(spec.max_new_tokens)),
+            "do_sample": False,
+        }
+        if tokenizer.pad_token_id is not None:
+            generation_kwargs["pad_token_id"] = int(tokenizer.pad_token_id)
+        if tokenizer.eos_token_id is not None:
+            generation_kwargs["eos_token_id"] = int(tokenizer.eos_token_id)
+
+        with torch.no_grad():
+            output_ids = model.generate(**model_inputs, **generation_kwargs)
+
+        input_len = int(model_inputs["input_ids"].shape[-1])
+        if hasattr(output_ids, "__getitem__"):
+            generated_ids = output_ids[0][input_len:]
+            text = tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+        else:
+            text = str(output_ids)
+    except Exception as error:  # noqa: BLE001
+        return None, f"local_generate_error:{error}"
+
+    return parse_generated_text(text)
+
+
+def hf_predict_vector(
+    model_id: str,
+    request_text: str,
+    weather: str,
+    token: str,
+    backend_mode: str,
+    text_generation_base_url: str,
+    chat_completions_base_url: str,
+    chat_completions_model_id: str,
+    chat_completions_model_suffix: str,
+    timeout_s: int = 90,
+) -> tuple[dict[str, int] | None, str | None, str]:
+    if not token:
+        return None, "HF_TOKEN missing", "hf_not_configured"
+
+    def build_prompt() -> str:
+        return "\n".join(
+            [
+                "You estimate 6 hidden music parameters.",
+                "Return strict JSON only with schema:",
+                '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+                "Each vector value must be integer between 0 and 10.",
+                f"request_text={request_text}",
+            ]
+        )
+
+    def parse_generated_text(text: str) -> tuple[dict[str, int] | None, str | None]:
+        if not text:
+            return None, "empty_generated_text"
+        blob = extract_json_blob(text)
+        if not blob:
+            return None, "json_block_not_found"
+        try:
+            parsed = json.loads(blob)
+        except json.JSONDecodeError as error:
+            return None, f"json_decode_error:{error}"
+        if not isinstance(parsed, dict):
+            return None, "parsed_payload_not_object"
+        try:
+            vector = sanitize_vector(parsed)
+        except Exception as error:  # noqa: BLE001
+            return None, f"invalid_vector:{error}"
+        return vector, None
+
+    def call_text_generation(prompt: str) -> tuple[dict[str, int] | None, str | None]:
+        url = f"{text_generation_base_url.rstrip('/')}/{model_id}"
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 96,
+                "temperature": 0.1,
+                "return_full_text": False,
+            },
+        }
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=timeout_s)
+        except requests.RequestException as error:
+            return None, f"inference_error:{error}"
+        if response.status_code >= 400:
+            return None, f"http_{response.status_code}:{response.text[:240]}"
+        try:
+            data = response.json()
+        except json.JSONDecodeError as error:
+            return None, f"non_json_response:{error}"
+
+        text = ""
+        if isinstance(data, list) and data:
+            first = data[0]
+            if isinstance(first, dict):
+                text = str(first.get("generated_text", "")).strip()
+        elif isinstance(data, dict):
+            text = str(data.get("generated_text", "")).strip()
+        return parse_generated_text(text)
+
+    def resolve_chat_model_id() -> str:
+        base_model = chat_completions_model_id.strip() if chat_completions_model_id.strip() else model_id
+        suffix = chat_completions_model_suffix.strip()
+        if suffix and not base_model.endswith(suffix):
+            return f"{base_model}{suffix}"
+        return base_model
+
+    def call_chat_completions(prompt: str) -> tuple[dict[str, int] | None, str | None]:
+        url = f"{chat_completions_base_url.rstrip('/')}/chat/completions"
+        payload = {
+            "model": resolve_chat_model_id(),
+            "temperature": 0.1,
+            "max_tokens": 96,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You output only strict JSON with six integer fields.",
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
+        }
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=timeout_s)
+        except requests.RequestException as error:
+            return None, f"chat_request_error:{error}"
+        if response.status_code >= 400:
+            return None, f"chat_http_{response.status_code}:{response.text[:240]}"
+        try:
+            data = response.json()
+        except json.JSONDecodeError as error:
+            return None, f"chat_non_json_response:{error}"
+
+        text = ""
+        choices = data.get("choices") if isinstance(data, dict) else None
+        if isinstance(choices, list) and choices:
+            first = choices[0]
+            if isinstance(first, dict):
+                message = first.get("message")
+                if isinstance(message, dict):
+                    content = message.get("content", "")
+                    if isinstance(content, list):
+                        text_parts: list[str] = []
+                        for part in content:
+                            if isinstance(part, dict):
+                                if part.get("type") in {"text", "output_text"}:
+                                    text_parts.append(str(part.get("text", "")))
+                                elif "content" in part:
+                                    text_parts.append(str(part.get("content", "")))
+                        text = "".join(text_parts).strip()
+                    else:
+                        text = str(content).strip()
+        return parse_generated_text(text)
+
+    backend_normalized = backend_mode.strip().lower().replace("_", "-")
+    if backend_normalized not in {"auto", "text-generation", "chat-completions"}:
+        backend_normalized = "auto"
+
+    prompt = build_prompt()
+    attempt_errors: list[str] = []
+
+    text_backend_label = (
+        "hf_router_hf_inference"
+        if "router.huggingface.co" in text_generation_base_url
+        else "hf_text_generation"
+    )
+    chat_backend_label = (
+        "hf_router_chat_completions"
+        if "router.huggingface.co" in chat_completions_base_url
+        else "hf_endpoint_chat_completions"
+    )
+
+    if backend_normalized in {"auto", "text-generation"}:
+        vector, error = call_text_generation(prompt)
+        if vector is not None:
+            return vector, None, text_backend_label
+        if error:
+            attempt_errors.append(f"text_generation:{error}")
+        if backend_normalized == "text-generation":
+            joined = ";".join(attempt_errors) if attempt_errors else "text_generation_failed"
+            return None, joined, text_backend_label
+
+    if backend_normalized in {"auto", "chat-completions"}:
+        vector, error = call_chat_completions(prompt)
+        if vector is not None:
+            return vector, None, chat_backend_label
+        if error:
+            attempt_errors.append(f"chat_completions:{error}")
+
+    joined = ";".join(attempt_errors) if attempt_errors else "hf_predict_failed"
+    default_backend = chat_backend_label if backend_normalized == "chat-completions" else text_backend_label
+    return None, joined, default_backend
 
 
 def should_try_mistral_fallback(parse_error: str | None) -> bool:
@@ -372,8 +697,8 @@ def should_try_mistral_fallback(parse_error: str | None) -> bool:
         return False
     lowered = parse_error.lower()
     return (
-        lowered.startswith("http_404")
-        or lowered.startswith("http_410")
+        "http_404" in lowered
+        or "http_410" in lowered
         or "no longer supported" in lowered
         or "model_not_supported" in lowered
     )
@@ -396,10 +721,8 @@ def mistral_predict_vector(
         [
             "You estimate 6 hidden music parameters.",
             "Return strict JSON only with schema:",
-            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-            "Copy request_text exactly from input.",
-            f"Values in hidden_params must be integers between 0 and {EVAL_TARGET_SCALE}.",
-            f"weather={weather}",
+            '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Each vector value must be integer between 0 and 10.",
             f"request_text={request_text}",
         ]
     )
@@ -493,11 +816,29 @@ def weave_trace_url(entity: str | None, project: str, trace_id: str) -> str | No
 class EvalConfig:
     mode: str
     dataset_path: Path
+    dataset_repo_id: str
+    dataset_config: str
+    dataset_split: str
+    dataset_max_samples: int
     target_scale: int
     prompt_model_id: str
     fine_tuned_model_id: str
     large_model_id: str
     hf_token: str
+    hf_inference_backend: str
+    hf_inference_base_url: str
+    hf_openai_base_url: str
+    hf_openai_model_id: str
+    hf_openai_model_suffix: str
+    local_base_model_id: str
+    local_adapter_model_id: str
+    local_fine_tuned_is_adapter: bool
+    local_device: str
+    local_dtype: str
+    local_max_new_tokens: int
+    local_trust_remote_code: bool
+    local_cache_dir: str
+    require_hf_direct: bool
     mistral_api_key: str
     mistral_base_url: str
     mistral_prompt_model_id: str
@@ -517,6 +858,10 @@ def load_config(root: Path) -> EvalConfig:
     return EvalConfig(
         mode=env_str("EVAL_MODE", "prompt_baseline"),
         dataset_path=Path(env_str("EVAL_DATASET_PATH", str(root / "data/eval/frozen_eval_set.v1.json"))),
+        dataset_repo_id=env_str("EVAL_DATASET_REPO_ID", env_str("HF_FT_DATASET_REPO_ID", "")),
+        dataset_config=env_str("EVAL_DATASET_CONFIG", env_str("HF_FT_DATASET_CONFIG", "")),
+        dataset_split=env_str("EVAL_DATASET_SPLIT", "test"),
+        dataset_max_samples=env_int("EVAL_DATASET_MAX_SAMPLES", 0),
         target_scale=EVAL_TARGET_SCALE,
         prompt_model_id=env_str("EVAL_PROMPT_BASELINE_MODEL_ID", env_str("HF_BASE_MODEL_ID", "mistralai/Ministral-3-3B-Instruct-2512")),
         fine_tuned_model_id=env_str("EVAL_FINE_TUNED_MODEL_ID", env_str("HF_FT_OUTPUT_MODEL_ID", "")),
@@ -525,6 +870,20 @@ def load_config(root: Path) -> EvalConfig:
             env_str("MISTRAL_LARGE_MODEL_ID", "mistral-large-latest"),
         ),
         hf_token=env_str("HF_TOKEN", env_str("HF_API_TOKEN", "")),
+        hf_inference_backend=env_str("HF_INFERENCE_BACKEND", "auto"),
+        hf_inference_base_url=env_str("HF_INFERENCE_BASE_URL", "https://router.huggingface.co/hf-inference/models"),
+        hf_openai_base_url=env_str("HF_OPENAI_BASE_URL", "https://router.huggingface.co/v1"),
+        hf_openai_model_id=env_str("HF_OPENAI_MODEL_ID", ""),
+        hf_openai_model_suffix=env_str("HF_OPENAI_MODEL_SUFFIX", ""),
+        local_base_model_id=env_str("EVAL_LOCAL_BASE_MODEL_ID", ""),
+        local_adapter_model_id=env_str("EVAL_LOCAL_ADAPTER_MODEL_ID", ""),
+        local_fine_tuned_is_adapter=env_bool("EVAL_LOCAL_FINE_TUNED_IS_ADAPTER", True),
+        local_device=env_str("EVAL_LOCAL_DEVICE", "auto"),
+        local_dtype=env_str("EVAL_LOCAL_DTYPE", "auto"),
+        local_max_new_tokens=env_int("EVAL_LOCAL_MAX_NEW_TOKENS", 96),
+        local_trust_remote_code=env_bool("EVAL_LOCAL_TRUST_REMOTE_CODE", False),
+        local_cache_dir=env_str("EVAL_LOCAL_CACHE_DIR", ""),
+        require_hf_direct=env_bool("EVAL_REQUIRE_HF_DIRECT", False),
         mistral_api_key=env_str("MISTRAL_API_KEY", ""),
         mistral_base_url=env_str("MISTRAL_BASE_URL", "https://api.mistral.ai/v1"),
         mistral_prompt_model_id=env_str("EVAL_MISTRAL_PROMPT_MODEL_ID", env_str("MISTRAL_BASE_MODEL", "mistral-small-latest")),
@@ -557,6 +916,26 @@ def ensure_mode(mode: str) -> str:
 def cost_per_request(mode: str) -> float:
     env_key = f"EVAL_COST_PER_REQUEST_{mode.upper()}"
     return env_float(env_key, DEFAULT_COST_PER_REQUEST_USD.get(mode, 0.0))
+
+
+def resolve_local_transformers_spec(mode: str, model_id: str, cfg: EvalConfig) -> LocalTransformersSpec:
+    normalized_mode = ensure_mode(mode)
+    base_model_id = model_id.strip()
+    adapter_model_id = cfg.local_adapter_model_id.strip()
+
+    if normalized_mode == "fine_tuned" and cfg.local_fine_tuned_is_adapter:
+        adapter_model_id = cfg.local_adapter_model_id.strip() or cfg.fine_tuned_model_id.strip()
+        base_model_id = cfg.local_base_model_id.strip() or cfg.prompt_model_id.strip() or base_model_id
+
+    return LocalTransformersSpec(
+        base_model_id=base_model_id,
+        adapter_model_id=adapter_model_id,
+        device=cfg.local_device.strip() or "auto",
+        dtype=cfg.local_dtype.strip() or "auto",
+        max_new_tokens=max(1, int(cfg.local_max_new_tokens)),
+        trust_remote_code=cfg.local_trust_remote_code,
+        cache_dir=cfg.local_cache_dir.strip() or None,
+    )
 
 
 def compute_r2(target_values: list[float], sq_errors: list[float]) -> float:
@@ -600,9 +979,13 @@ def maybe_init_wandb(enabled: bool, project: str, entity: str | None, group: str
             config={
                 "mode": mode,
                 "dataset_path": env_str("EVAL_DATASET_PATH", ""),
+                "dataset_repo_id": env_str("EVAL_DATASET_REPO_ID", env_str("HF_FT_DATASET_REPO_ID", "")),
+                "dataset_split": env_str("EVAL_DATASET_SPLIT", "test"),
                 "prompt_model_id": env_str("EVAL_PROMPT_BASELINE_MODEL_ID", ""),
                 "fine_tuned_model_id": env_str("EVAL_FINE_TUNED_MODEL_ID", ""),
                 "large_model_id": env_str("EVAL_LARGE_BASELINE_MODEL_ID", ""),
+                "hf_inference_backend": normalize_backend_mode(env_str("HF_INFERENCE_BACKEND", "auto")),
+                "eval_local_fine_tuned_is_adapter": env_bool("EVAL_LOCAL_FINE_TUNED_IS_ADAPTER", True),
                 "target_scale": EVAL_TARGET_SCALE,
             },
         )
@@ -639,16 +1022,144 @@ def load_eval_items(path: Path) -> list[dict[str, Any]]:
     return items
 
 
+def resolve_runtime_root() -> Path:
+    explicit = env_str("EVAL_PROJECT_ROOT", "")
+    if explicit:
+        return Path(explicit).expanduser().resolve()
+
+    script_path = Path(__file__).resolve()
+    if len(script_path.parents) >= 3:
+        candidate = script_path.parents[2]
+        if (candidate / "scripts").exists() and (candidate / "artifacts").exists():
+            return candidate
+
+    return Path.cwd().resolve()
+
+
+def _as_dict(value: Any) -> dict[str, Any] | None:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return None
+        try:
+            parsed = json.loads(stripped)
+        except json.JSONDecodeError:
+            return None
+        if isinstance(parsed, dict):
+            return parsed
+    return None
+
+
+def _build_target_hidden_params(raw_row: dict[str, Any]) -> dict[str, Any] | None:
+    payload = _as_dict(raw_row.get("target_hidden_params"))
+    if payload is None:
+        payload = _as_dict(raw_row.get("hidden_params"))
+    if payload is None:
+        payload = _as_dict(raw_row.get("target_vector"))
+    if payload is None:
+        payload = _as_dict(raw_row.get("vector"))
+
+    if payload is None:
+        return None
+
+    vector = payload.get("vector") if isinstance(payload.get("vector"), dict) else payload
+    if not isinstance(vector, dict):
+        return None
+    if not all(key in vector for key in KEYS):
+        return None
+
+    cleaned: dict[str, int] = {}
+    for key in KEYS:
+        try:
+            cleaned[key] = int(round(float(vector[key])))
+        except (TypeError, ValueError):
+            return None
+
+    target_scale = raw_row.get("target_scale") or payload.get("target_scale") or EVAL_TARGET_SCALE
+    try:
+        normalized_target_scale = int(target_scale)
+    except (TypeError, ValueError):
+        normalized_target_scale = EVAL_TARGET_SCALE
+
+    return {
+        "vector": cleaned,
+        "target_scale": normalized_target_scale,
+    }
+
+
+def load_eval_items_from_hf_dataset(
+    repo_id: str,
+    split: str,
+    config_name: str,
+    max_samples: int,
+) -> list[dict[str, Any]]:
+    if not repo_id.strip():
+        raise ValueError("EVAL_DATASET_REPO_ID is required when local dataset file is missing")
+
+    try:
+        from datasets import load_dataset  # type: ignore
+    except Exception as error:  # noqa: BLE001
+        raise RuntimeError(f"missing_hf_datasets_dependency:{error}") from error
+
+    dataset = load_dataset(repo_id, config_name or None, split=split)
+    items: list[dict[str, Any]] = []
+    limit = max(0, int(max_samples))
+    for idx, row_any in enumerate(dataset):
+        if limit > 0 and len(items) >= limit:
+            break
+        if not isinstance(row_any, dict):
+            continue
+        row = row_any
+        target_hidden_params = _build_target_hidden_params(row)
+        if target_hidden_params is None:
+            continue
+        request_text = str(
+            row.get("request_text")
+            or row.get("request")
+            or row.get("input")
+            or ""
+        ).strip()
+        if not request_text:
+            continue
+
+        item: dict[str, Any] = {
+            "id": row.get("id") or f"{split}_{idx:04d}",
+            "request_text": request_text,
+            "weather": str(row.get("weather") or "sunny"),
+            "source_type": row.get("source_type") or "hf_dataset",
+            "target_hidden_params": target_hidden_params,
+            "target_scale": target_hidden_params.get("target_scale", EVAL_TARGET_SCALE),
+        }
+        items.append(item)
+
+    return items
+
+
 def main() -> None:
-    root = Path(__file__).resolve().parents[2]
+    root = resolve_runtime_root()
     cfg = load_config(root)
     mode = ensure_mode(cfg.mode)
+    backend_mode = normalize_backend_mode(cfg.hf_inference_backend)
 
-    items = load_eval_items(cfg.dataset_path)
-    dataset_version = env_str("EVAL_DATASET_VERSION", cfg.dataset_path.stem)
+    if cfg.dataset_path.exists():
+        items = load_eval_items(cfg.dataset_path)
+        default_dataset_version = cfg.dataset_path.stem
+    else:
+        items = load_eval_items_from_hf_dataset(
+            repo_id=cfg.dataset_repo_id,
+            split=cfg.dataset_split,
+            config_name=cfg.dataset_config,
+            max_samples=cfg.dataset_max_samples,
+        )
+        default_dataset_version = f"{cfg.dataset_repo_id}:{cfg.dataset_split}"
+    dataset_version = env_str("EVAL_DATASET_VERSION", default_dataset_version)
 
     if not isinstance(items, list) or len(items) == 0:
-        raise ValueError(f"No eval items in dataset: {cfg.dataset_path}")
+        raise ValueError(
+            f"No eval items. dataset_path={cfg.dataset_path}, dataset_repo_id={cfg.dataset_repo_id}, split={cfg.dataset_split}"
+        )
 
     model_source = mode
     if mode == "rule_baseline":
@@ -709,9 +1220,38 @@ def main() -> None:
         if mode == "rule_baseline":
             predicted_vector = rule_based_predict(request_text)
         else:
-            predicted_vector, parse_error = hf_predict_vector(model_id, request_text, weather, cfg.hf_token)
-            inference_backend = "hf_router_hf_inference"
-            if predicted_vector is None and cfg.mistral_fallback_enabled and should_try_mistral_fallback(parse_error):
+            if backend_mode == "local-transformers":
+                local_spec = resolve_local_transformers_spec(mode, model_id, cfg)
+                predicted_vector, parse_error = local_transformers_predict_vector(
+                    local_spec,
+                    request_text,
+                    weather,
+                    cfg.hf_token,
+                )
+                inference_backend = "local_transformers"
+                if local_spec.adapter_model_id:
+                    effective_model_id = f"{local_spec.base_model_id}+adapter:{local_spec.adapter_model_id}"
+                else:
+                    effective_model_id = local_spec.base_model_id
+            else:
+                predicted_vector, parse_error, inference_backend = hf_predict_vector(
+                    model_id,
+                    request_text,
+                    weather,
+                    cfg.hf_token,
+                    backend_mode,
+                    cfg.hf_inference_base_url,
+                    cfg.hf_openai_base_url,
+                    cfg.hf_openai_model_id,
+                    cfg.hf_openai_model_suffix,
+                )
+            if (
+                predicted_vector is None
+                and backend_mode != "local-transformers"
+                and not cfg.require_hf_direct
+                and cfg.mistral_fallback_enabled
+                and should_try_mistral_fallback(parse_error)
+            ):
                 fallback_model_id = cfg.mistral_prompt_model_id
                 if mode == "fine_tuned":
                     fallback_model_id = cfg.mistral_fine_tuned_model_id or cfg.mistral_prompt_model_id
@@ -845,6 +1385,9 @@ def main() -> None:
         "p95_inference_latency_ms": percentile(latencies, 95),
         "p50_inference_latency_ms": percentile(latencies, 50),
         "cost_per_100_requests_usd": mean(costs) * 100.0,
+        "hf_direct_rate": mean([1.0 if str(row.get("inference_backend", "")).startswith("hf_") else 0.0 for row in sample_rows]),
+        "local_transformers_rate": mean([1.0 if row.get("inference_backend") == "local_transformers" else 0.0 for row in sample_rows]),
+        "mistral_fallback_rate": mean([1.0 if row.get("inference_backend") == "mistral_chat_fallback" else 0.0 for row in sample_rows]),
     }
 
     valid_rows = [row for row in sample_rows if row.get("json_valid") and isinstance(row.get("mae_raw"), (float, int))]
@@ -858,10 +1401,26 @@ def main() -> None:
 
     run_payload = {
         "dataset_version": dataset_version,
+        "dataset_path": str(cfg.dataset_path),
+        "dataset_repo_id": cfg.dataset_repo_id,
+        "dataset_split": cfg.dataset_split,
+        "dataset_config": cfg.dataset_config,
         "target_scale": cfg.target_scale,
         "mode": mode,
         "model_source": model_source,
         "model_id": model_id,
+        "hf_inference_backend": backend_mode,
+        "hf_inference_base_url": cfg.hf_inference_base_url,
+        "hf_openai_base_url": cfg.hf_openai_base_url,
+        "hf_openai_model_id": cfg.hf_openai_model_id,
+        "hf_openai_model_suffix": cfg.hf_openai_model_suffix,
+        "eval_local_base_model_id": cfg.local_base_model_id,
+        "eval_local_adapter_model_id": cfg.local_adapter_model_id,
+        "eval_local_fine_tuned_is_adapter": cfg.local_fine_tuned_is_adapter,
+        "eval_local_device": cfg.local_device,
+        "eval_local_dtype": cfg.local_dtype,
+        "eval_local_max_new_tokens": cfg.local_max_new_tokens,
+        "require_hf_direct": cfg.require_hf_direct,
         "evaluated_count": len(items),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "metrics": metrics,

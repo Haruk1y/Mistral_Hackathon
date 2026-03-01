@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-02-28T23:25:03.278Z",
+  "split": {
+    "train": 884,
+    "valid": 110,
+    "test": 112,
+    "total": 1106,
+    "source_rows_total": 553
+  },
+  "source_path": "/Users/yajima/Desktop/dev/Mistral_Hackathon/data/ft/teacher_pairs.cycle_4.jsonl",
+  "output_prefix": "ft_request_param",
+  "expansion": {
+    "request_text_rows_per_source": 1,
+    "rule_prompt_rows_per_source": 1
+  },
+  "source_vector_stats": {
+    "energy": {
+      "mean": 38.943942133815554,
+      "min": 0,
+      "max": 80
+    },
+    "warmth": {
+      "mean": 65.29113924050633,
+      "min": 0,
+      "max": 95
+    },
+    "brightness": {
+      "mean": 44.79204339963834,
+      "min": 0,
+      "max": 80
+    },
+    "acousticness": {
+      "mean": 51.00361663652803,
+      "min": 0,
+      "max": 95
+    },
+    "complexity": {
+      "mean": 36.02350813743219,
+      "min": 0,
+      "max": 70
+    },
+    "nostalgia": {
+      "mean": 68.41952983725136,
+      "min": 0,
+      "max": 95
+    }
+  }
+}

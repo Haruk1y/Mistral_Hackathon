@@ -538,7 +538,7 @@ a {
 }
 
 .customer-id-label {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-ui);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -820,12 +820,27 @@ a {
 
 .compose-generated-result {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .compose-dialogue {
   margin: 2px 0;
   line-height: 1.45;
+}
+
+.compose-result-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.compose-result-metrics {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .compose-feedback-list {
@@ -835,11 +850,16 @@ a {
 }
 
 .compose-result-actions {
-  margin-top: 8px;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .compose-result-actions .pixel-button-link {
-  width: 100%;
+  width: auto;
+  min-width: 132px;
+  padding: 5px 9px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .compose-loading-overlay {
@@ -1138,6 +1158,16 @@ a {
 }
 
 @media (max-width: 640px) {
+  .compose-result-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .compose-result-actions {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+
   .shop-grid {
     grid-template-columns: 1fr;
   }

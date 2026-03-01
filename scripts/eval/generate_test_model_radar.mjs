@@ -35,7 +35,7 @@ const latestRunByMode = async (mode) => {
   return latest;
 };
 
-const perDimMae = (rows) => {
+const perDimMae = (rows, runMetrics = {}) => {
   const totals = Object.fromEntries(DIM_KEYS.map((key) => [key, 0]));
   const counts = Object.fromEntries(DIM_KEYS.map((key) => [key, 0]));
 
@@ -52,6 +52,16 @@ const perDimMae = (rows) => {
   }
 
   const out = {};
+  const anyMeasured = DIM_KEYS.some((key) => counts[key] > 0);
+  if (!anyMeasured) {
+    const vectorMae = safeNum(runMetrics?.vector_mae);
+    for (const key of DIM_KEYS) {
+      const metricKey = `mae_raw_${key}`;
+      const metricValue = safeNum(runMetrics?.[metricKey]);
+      out[key] = metricValue > 0 ? metricValue : vectorMae;
+    }
+    return out;
+  }
   for (const key of DIM_KEYS) {
     out[key] = counts[key] > 0 ? totals[key] / counts[key] : 0;
   }
@@ -224,7 +234,7 @@ const main = async () => {
       run_file: runFile,
       sample_file: sampleFile,
       run_url: runPayload.wandb_run_url || "",
-      mae_by_dim: perDimMae(sampleRows),
+      mae_by_dim: perDimMae(sampleRows, runPayload?.metrics || {}),
       vector_mae: safeNum(runPayload?.metrics?.vector_mae),
       p95_latency_ms: safeNum(runPayload?.metrics?.p95_inference_latency_ms),
     });

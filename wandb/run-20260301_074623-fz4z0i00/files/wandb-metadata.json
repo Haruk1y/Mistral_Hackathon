@@ -1,0 +1,37 @@
+{
+  "os": "macOS-15.7.3-arm64-arm-64bit",
+  "python": "CPython 3.12.2",
+  "startedAt": "2026-02-28T22:46:23.763993Z",
+  "program": "/Users/yajima/Desktop/dev/Mistral_Hackathon/scripts/wandb/weave_eval_runner.py",
+  "codePath": "scripts/wandb/weave_eval_runner.py",
+  "codePathLocal": "scripts/wandb/weave_eval_runner.py",
+  "git": {
+    "remote": "git@github.com:Haruk1y/Mistral_Hackathon.git",
+    "commit": "06db4185bef07edbf7a5ddf581008190617b406c"
+  },
+  "email": "yajima.code@gmail.com",
+  "root": "/Users/yajima/Desktop/dev/Mistral_Hackathon",
+  "host": "yajimayoujunoMacBook-Air.local",
+  "executable": "/Users/yajima/Desktop/dev/Mistral_Hackathon/.uv-cache/archive-v0/FWcWYSj17erIgrA6RKqdb/bin/python3",
+  "cpu_count": 8,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "494384795648",
+      "used": "476201385984"
+    }
+  },
+  "memory": {
+    "total": "17179869184"
+  },
+  "apple": {
+    "name": "Apple M1",
+    "ecpuCores": 4,
+    "pcpuCores": 4,
+    "gpuCores": 8,
+    "memoryGb": 16,
+    "swapTotalBytes": "9663676416",
+    "ramTotalBytes": "17179869184"
+  },
+  "writerId": "ua2wv3c1rm0bs4hpf7l3lg14jua4zn8d"
+}

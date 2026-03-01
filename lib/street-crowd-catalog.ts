@@ -7,6 +7,7 @@ export type StreetCrowdCharacter = {
   id: string;
   customerId: Customer["id"];
   name: string;
+  nameEn: string;
   profile: string;
   portraitAsset: string;
   sprites: Record<StreetCrowdPoseKey, string>;
@@ -47,86 +48,110 @@ const CAST_CUSTOMER_BY_ID: Record<string, Customer["id"]> = {
 };
 
 const customerNameMap = new Map(CATALOG_CUSTOMERS.map((customer) => [customer.id, customer.name] as const));
+const CAST_PORTRAIT_VARIANT_BY_ID: Record<string, "face" | "face_alt"> = {
+  crowd_02: "face_alt",
+  crowd_12: "face_alt"
+};
 
-const CAST_PERSONAS: Record<string, { name: string; profile: string }> = {
+const CAST_PERSONAS: Record<string, { name: string; nameEn: string; profile: string }> = {
   crowd_01: {
     name: "ラルフ",
+    nameEn: "Ralph",
     profile: "白いバンダナの荷運び。朝の市場で一番乗りし、足取りに合う軽快なビートを好む。"
   },
   crowd_02: {
     name: "ノーラ",
+    nameEn: "Nora",
     profile: "灰色フードの薬草売り。雨上がりの路地で静かに店を開き、湿った空気に溶ける音を求める。"
   },
   crowd_03: {
     name: "レオ",
+    nameEn: "Leo",
     profile: "革エプロンの見習い職人。手を動かすときの集中を切らさない素直なリズムが好き。"
   },
   crowd_04: {
     name: "マーサ",
+    nameEn: "Martha",
     profile: "フード姿の旅商人。遠い街の土産話に合う素朴で温かな旋律を集めている。"
   },
   crowd_05: {
     name: "ヴィクター",
+    nameEn: "Victor",
     profile: "銀髪の元執事。襟を正したくなる端正な和声と、落ち着いたテンポを好む。"
   },
   crowd_06: {
     name: "こはる",
+    nameEn: "Anna",
     profile: "赤いおだんご髪の配達見習い。朝市に合う軽やかな曲が好き。"
   },
   crowd_07: {
     name: "ガロ",
+    nameEn: "Garo",
     profile: "太い眉の鍛冶屋。火花のように芯のある低音と、粘り強いグルーヴを求める。"
   },
   crowd_08: {
     name: "エドガー",
+    nameEn: "Edgar",
     profile: "丸眼鏡の古書修復士。紙の匂いと一緒に聴ける柔らかなアコースティックを愛する。"
   },
   crowd_09: {
     name: "湊",
+    nameEn: "Ben",
     profile: "丸メガネの書店手伝い。ページをめくる手が進む穏やかな曲を好む。"
   },
   crowd_10: {
     name: "フローレンス",
+    nameEn: "Florence",
     profile: "銀髪の食堂女将。夕方の客足がゆるむ頃に似合う、やさしいスウィングを集める。"
   },
   crowd_11: {
     name: "ハルト",
+    nameEn: "Haruto",
     profile: "槍持ちの見回り役。背筋が伸びるような明瞭なリズムと、無駄のない構成が好き。"
   },
   crowd_12: {
     name: "オズワルド",
+    nameEn: "Oswald",
     profile: "笑顔のパン職人。焼きたての香りに合う、あたたかく丸いサウンドを求める。"
   },
   crowd_13: {
     name: "ユリウス",
+    nameEn: "Julius",
     profile: "紺衣の航路案内人。潮の満ち引きを思わせるゆったりした抑揚を好む。"
   },
   crowd_14: {
     name: "澄江",
+    nameEn: "Cara",
     profile: "眼鏡の仕立て屋。夕暮れに似合う上品で落ち着いた旋律を求める。"
   },
   crowd_15: {
     name: "リタ",
+    nameEn: "Rita",
     profile: "赤髪の花売り。店先を明るくする、抜けの良いメロディが得意分野。"
   },
   crowd_16: {
     name: "トマス",
+    nameEn: "Thomas",
     profile: "笑い皺の深い時計職人。針の刻みに合う正確な拍と、控えめな装飾を好む。"
   },
   crowd_17: {
     name: "イアン",
+    nameEn: "Ian",
     profile: "若い旅の地図描き。遠回りしたくなるような、余韻の長い進行を集めている。"
   },
   crowd_18: {
     name: "オリーヴ",
+    nameEn: "Olive",
     profile: "巻き髪の薬師。深呼吸したくなる中域の温かさと穏やかな持続音を求める。"
   },
   crowd_19: {
     name: "ギデオン",
+    nameEn: "Gideon",
     profile: "白髭の旅人。古い街の思い出を呼び起こす温かな音を探している。"
   },
   crowd_20: {
     name: "宗玄",
+    nameEn: "Dan",
     profile: "白髭の旅人。古い街の思い出を呼び起こす温かな音を探している。"
   }
 };
@@ -136,13 +161,15 @@ export const STREET_CROWD_CHARACTERS: StreetCrowdCharacter[] = Array.from({ leng
   const castId = `crowd_${pad2(castNumber)}`;
   const customerId = CAST_CUSTOMER_BY_ID[castId] ?? customerForCast(castNumber);
   const persona = CAST_PERSONAS[castId];
+  const portraitVariant = CAST_PORTRAIT_VARIANT_BY_ID[castId] ?? "face";
 
   return {
     id: castId,
     customerId,
     name: persona?.name ?? customerNameMap.get(customerId) ?? customerId.toUpperCase(),
+    nameEn: persona?.nameEn ?? customerNameMap.get(customerId) ?? customerId.toUpperCase(),
     profile: persona?.profile ?? "街角で依頼を探している。",
-    portraitAsset: `/assets/characters/portraits/street-crowd-v2/por_${castId}_face_160.png`,
+    portraitAsset: `/assets/characters/portraits/street-crowd-v2/por_${castId}_${portraitVariant}_160.png`,
     sprites: {
       front: `crowd_${pad2(castNumber)}_front_64x96.png`,
       diag_left: `crowd_${pad2(castNumber)}_diag_left_64x96.png`,

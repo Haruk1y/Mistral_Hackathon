@@ -159,6 +159,61 @@ EVAL_ALLOW_LOCAL_FALLBACK=false EVAL_MODE=prompt_baseline npm run eval:run
 EVAL_ALLOW_LOCAL_FALLBACK=false EVAL_MODE=fine_tuned npm run eval:run
 npm run eval:aggregate
 ```
+
+### HF直推論モード（フォールバック禁止）
+
+`EVAL_REQUIRE_HF_DIRECT=true` を使うと、HF推論失敗時に `mistral_chat_fallback` へ落ちず、そのまま失敗理由を記録します。
+
+```bash
+EVAL_ALLOW_LOCAL_FALLBACK=false \
+EVAL_REQUIRE_HF_DIRECT=true \
+EVAL_MISTRAL_FALLBACK_ENABLED=false \
+HF_INFERENCE_BACKEND=auto \
+EVAL_MODE=fine_tuned \
+npm run eval:run
+```
+
+HF Routerの `hf-inference` で対象モデルが未提供の場合は、`HF_OPENAI_BASE_URL` を専用Endpointの `/v1` に向けて `HF_INFERENCE_BACKEND=chat-completions` で実行します。
+
+```bash
+EVAL_ALLOW_LOCAL_FALLBACK=false \
+EVAL_REQUIRE_HF_DIRECT=true \
+EVAL_MISTRAL_FALLBACK_ENABLED=false \
+HF_INFERENCE_BACKEND=chat-completions \
+HF_OPENAI_BASE_URL=https://<your-endpoint>.endpoints.huggingface.cloud/v1 \
+HF_OPENAI_MODEL_ID=<your-endpoint-name> \
+EVAL_MODE=fine_tuned \
+npm run eval:run
+```
+
+### HF Jobsでの `local_transformers` 評価（デプロイ不要）
+
+Inference Providers未対応モデルでも、HF Jobs上で `transformers + peft` を直接ロードして評価できます。  
+この経路は `weave_eval_runner.py` に `HF_INFERENCE_BACKEND=local_transformers` を指定して使います。
+
+実行例（fine_tunedをbase+adapterで評価）:
+
+```bash
+HF_EVAL_JOB_SUBMIT=true \
+EVAL_MODE=fine_tuned \
+HF_INFERENCE_BACKEND=local_transformers \
+EVAL_DATASET_REPO_ID=Haruk1y/atelier-kotone-ft-request-hidden \
+EVAL_DATASET_SPLIT=test \
+EVAL_LOCAL_FINE_TUNED_IS_ADAPTER=true \
+EVAL_LOCAL_BASE_MODEL_ID=mistralai/Ministral-3-3B-Instruct-2512 \
+EVAL_LOCAL_ADAPTER_MODEL_ID=Haruk1y/atelier-kotone-ministral3b-ft-selfimprove1 \
+WANDB_PROJECT=atelier-kotone-ft-kotoneonly-v1 \
+WEAVE_PROJECT=atelier-kotone-ft-kotoneonly-v1 \
+WANDB_RUN_GROUP=kotoneonly_eval_local_transformers \
+npm run hf:eval:job:submit
+```
+
+補足:
+- `hf:eval:job:submit` は `hf jobs uv run` で `scripts/wandb/weave_eval_runner.py` を実行します。
+- Job環境に `EVAL_DATASET_PATH` が存在しない場合、`EVAL_DATASET_REPO_ID` + `EVAL_DATASET_SPLIT` から自動ロードします。
+- `WANDB_API_KEY` は W&B Run/Weave記録に必須、`HF_TOKEN` はモデル取得に使用します（どちらもsecretsで渡す）。
+- `EVAL_LOCAL_FINE_TUNED_IS_ADAPTER=true` のとき、`EVAL_LOCAL_BASE_MODEL_ID + EVAL_LOCAL_ADAPTER_MODEL_ID` で推論します。
+- `EVAL_ALLOW_LOCAL_FALLBACK` の既定は、`local_transformers` 指定時に `false` 扱いです（Nodeフォールバックを防止）。
 2. MCPでW&B Models + Weave tracesを取得
 ```bash
 WANDB_MCP_ENABLED=true LOOP_CYCLE_ID=cycle_n npm run wandb:mcp:fetch

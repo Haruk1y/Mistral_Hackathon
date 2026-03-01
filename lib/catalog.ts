@@ -553,25 +553,25 @@ export const SHOP_DEFAULT_STOCK = CATALOG_PARTS.map((part) => ({
 export const CATALOG_CUSTOMERS: Customer[] = [
   {
     id: "anna",
-    name: "Koharu",
+    name: "Anna",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_06_face_160.png",
     personality: "Courier apprentice with red buns. Loves light music for the morning market."
   },
   {
     id: "ben",
-    name: "Minato",
+    name: "Ben",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_09_face_160.png",
     personality: "Bookshop assistant with round glasses. Prefers calm tunes that help pages turn."
   },
   {
     id: "cara",
-    name: "Sumie",
+    name: "Cara",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_14_face_160.png",
     personality: "Tailor with glasses. Wants elegant and composed melodies for dusk."
   },
   {
     id: "dan",
-    name: "Sogen",
+    name: "Dan",
     portraitAsset: "/assets/characters/portraits/street-crowd-v2/por_crowd_20_face_160.png",
     personality: "White-bearded traveler. Seeks warm sounds that recall old-town memories."
   }

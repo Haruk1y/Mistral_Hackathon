@@ -56,12 +56,25 @@ const fineTunedModelId = process.env.EVAL_FINE_TUNED_MODEL_ID || process.env.HF_
 const modelId = mode === "fine_tuned" ? fineTunedModelId : mode === "prompt_baseline" ? promptModelId : "rule_based_keyword_v1";
 const hfToken = process.env.HF_TOKEN || process.env.HF_API_TOKEN || "";
 const hfInferenceBaseUrl = (process.env.HF_INFERENCE_BASE_URL || "https://router.huggingface.co/hf-inference/models").replace(/\/$/, "");
+const hfOpenaiBaseUrl = (process.env.HF_OPENAI_BASE_URL || "https://router.huggingface.co/v1").replace(/\/$/, "");
+const hfOpenaiModelId = (process.env.HF_OPENAI_MODEL_ID || "").trim();
+const hfOpenaiModelSuffix = (process.env.HF_OPENAI_MODEL_SUFFIX || "").trim();
+const normalizeHfBackend = (value) => {
+  const lowered = String(value || "auto")
+    .trim()
+    .toLowerCase()
+    .replaceAll("_", "-");
+  if (["auto", "text-generation", "chat-completions"].includes(lowered)) return lowered;
+  return "auto";
+};
+const hfInferenceBackend = normalizeHfBackend(process.env.HF_INFERENCE_BACKEND || "auto");
 const mistralApiKey = process.env.MISTRAL_API_KEY || "";
 const mistralBaseUrl = (process.env.MISTRAL_BASE_URL || "https://api.mistral.ai/v1").replace(/\/$/, "");
 const mistralPromptModelId = process.env.EVAL_MISTRAL_PROMPT_MODEL_ID || process.env.MISTRAL_BASE_MODEL || "mistral-small-latest";
 const mistralFineTunedModelId =
   process.env.EVAL_MISTRAL_FINE_TUNED_MODEL_ID || process.env.MISTRAL_FINE_TUNED_MODEL_ID || process.env.MISTRAL_FT_MODEL_ID || "";
 const allowMistralFallback = !["0", "false", "no"].includes((process.env.EVAL_MISTRAL_FALLBACK_ENABLED || "true").toLowerCase());
+const requireHfDirect = ["1", "true", "yes", "on"].includes((process.env.EVAL_REQUIRE_HF_DIRECT || "false").toLowerCase());
 const traceProject = process.env.WEAVE_PROJECT || "atelier-kotone-weave";
 const traceEntity = process.env.WANDB_ENTITY || "";
 const topFailures = Math.max(1, Number(process.env.EVAL_TOP_FAILURES || 20));
@@ -196,18 +209,37 @@ const rulePredict = (requestText) => {
 };
 
 const hfPredict = async (requestText, weather) => {
-  if (!hfToken) return { vector: null, parseError: "HF_TOKEN missing" };
-  try {
-    const prompt = [
-      "You estimate 6 hidden music parameters.",
-      "Return strict JSON only with schema:",
-      '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-      "Copy request_text exactly from input.",
-      `Each hidden_params value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
-      `weather=${weather}`,
-      `request_text=${requestText}`,
-    ].join("\n");
+  if (!hfToken) return { vector: null, parseError: "HF_TOKEN missing", backend: "hf_not_configured" };
 
+  const prompt = [
+    "You estimate 6 hidden music parameters.",
+    "Return strict JSON only with schema:",
+    '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+    `Each vector value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
+    `weather=${weather}`,
+    `request_text=${requestText}`,
+  ].join("\n");
+
+  const parseVectorText = (text) => {
+    const block = extractJsonBlock(String(text || ""));
+    if (!block) return { vector: null, parseError: "json_block_not_found" };
+    const parsed = JSON.parse(block);
+    return { vector: sanitizeVector(parsed), parseError: null };
+  };
+
+  const textBackendName = hfInferenceBaseUrl.includes("router.huggingface.co") ? "hf_router_hf_inference" : "hf_text_generation";
+  const chatBackendName = hfOpenaiBaseUrl.includes("router.huggingface.co")
+    ? "hf_router_chat_completions"
+    : "hf_endpoint_chat_completions";
+  const resolveChatModelId = () => {
+    const baseModel = hfOpenaiModelId || modelId;
+    if (hfOpenaiModelSuffix && !baseModel.endsWith(hfOpenaiModelSuffix)) {
+      return `${baseModel}${hfOpenaiModelSuffix}`;
+    }
+    return baseModel;
+  };
+
+  const callTextGeneration = async () => {
     const response = await fetch(`${hfInferenceBaseUrl}/${modelId}`, {
       method: "POST",
       headers: {
@@ -229,13 +261,80 @@ const hfPredict = async (requestText, weather) => {
     }
     const payload = await response.json();
     const text = Array.isArray(payload) ? payload[0]?.generated_text || "" : payload?.generated_text || "";
-    const block = extractJsonBlock(String(text || ""));
-    if (!block) return { vector: null, parseError: "json_block_not_found" };
-    const parsed = JSON.parse(block);
-    return { vector: sanitizeVector(parsed), parseError: null };
+    return parseVectorText(text);
+  };
+
+  const callChatCompletions = async () => {
+    const response = await fetch(`${hfOpenaiBaseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: resolveChatModelId(),
+        temperature: 0.1,
+        max_tokens: 96,
+        messages: [
+          {
+            role: "system",
+            content: "You output only strict JSON with six integer fields.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      }),
+    });
+    if (!response.ok) {
+      const body = await response.text();
+      return { vector: null, parseError: `chat_http_${response.status}:${String(body || "").slice(0, 240)}` };
+    }
+    const payload = await response.json();
+    let content = payload?.choices?.[0]?.message?.content ?? "";
+    if (Array.isArray(content)) {
+      content = content
+        .map((part) => {
+          if (!part || typeof part !== "object") return "";
+          if (part.type === "text" || part.type === "output_text") return String(part.text || "");
+          if ("content" in part) return String(part.content || "");
+          return "";
+        })
+        .join("");
+    }
+    return parseVectorText(content);
+  };
+
+  const attemptErrors = [];
+  try {
+    if (hfInferenceBackend === "auto" || hfInferenceBackend === "text-generation") {
+      const textResult = await callTextGeneration();
+      if (textResult.vector) return { ...textResult, backend: textBackendName };
+      if (textResult.parseError) attemptErrors.push(`text_generation:${textResult.parseError}`);
+      if (hfInferenceBackend === "text-generation") {
+        return {
+          vector: null,
+          parseError: attemptErrors.join(";") || "text_generation_failed",
+          backend: textBackendName,
+        };
+      }
+    }
+
+    if (hfInferenceBackend === "auto" || hfInferenceBackend === "chat-completions") {
+      const chatResult = await callChatCompletions();
+      if (chatResult.vector) return { ...chatResult, backend: chatBackendName };
+      if (chatResult.parseError) attemptErrors.push(`chat_completions:${chatResult.parseError}`);
+    }
   } catch (error) {
-    return { vector: null, parseError: error instanceof Error ? error.message : String(error) };
+    attemptErrors.push(error instanceof Error ? error.message : String(error));
   }
+
+  return {
+    vector: null,
+    parseError: attemptErrors.join(";") || "hf_predict_failed",
+    backend: hfInferenceBackend === "chat-completions" ? chatBackendName : textBackendName,
+  };
 };
 
 const shouldTryMistralFallback = (parseError) => {
@@ -257,9 +356,8 @@ const mistralPredict = async (requestText, weather, mistralModelId) => {
     const prompt = [
       "You estimate 6 hidden music parameters.",
       "Return strict JSON only with schema:",
-      '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-      "Copy request_text exactly from input.",
-      `Each hidden_params value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
+      '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+      `Each vector value must be integer between 0 and ${EVAL_TARGET_SCALE}.`,
       `weather=${weather}`,
       `request_text=${requestText}`,
     ].join("\n");
@@ -351,8 +449,8 @@ const run = async () => {
       const predicted = await hfPredict(item.request_text || "", item.weather || "sunny");
       vector = predicted.vector;
       parseError = predicted.parseError;
-      inferenceBackend = "hf_router_hf_inference";
-      if (!vector && allowMistralFallback && shouldTryMistralFallback(parseError)) {
+      inferenceBackend = predicted.backend;
+      if (!vector && !requireHfDirect && allowMistralFallback && shouldTryMistralFallback(parseError)) {
         const fallbackModelId = mode === "fine_tuned" ? mistralFineTunedModelId || mistralPromptModelId : mistralPromptModelId;
         const fallback = await mistralPredict(item.request_text || "", item.weather || "sunny", fallbackModelId);
         if (fallback.vector) {
@@ -463,6 +561,8 @@ const run = async () => {
     p95_inference_latency_ms: percentile(latencies, 95),
     p50_inference_latency_ms: percentile(latencies, 50),
     cost_per_100_requests_usd: mean(costList) * 100,
+    hf_direct_rate: mean(rows.map((row) => (String(row.inference_backend || "").startsWith("hf_") ? 1 : 0))),
+    mistral_fallback_rate: mean(rows.map((row) => (row.inference_backend === "mistral_chat_fallback" ? 1 : 0))),
   };
 
   const failuresTopK = rows

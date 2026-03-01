@@ -1,34 +1,36 @@
 {
-  "generated_at": "2026-02-28T10:32:00+09:00",
+  "generated_at": "2026-03-01T08:00:00+09:00",
   "skills_used": [
     {
       "name": "weights-and-biases",
-      "purpose": "W&B/Weave tracking, failure trace collection, self-improvement evidence",
+      "purpose": "W&B/Weave evaluation tracking, failure trace extraction, and report generation",
       "evidence": [
-        "docs/hackathon/SKILLS_WORKFLOW_LOG.md",
-        "artifacts/loop/cycle_3/mcp_eval_snapshot.json",
-        "artifacts/wandb/weave_failure_playbook.md"
+        "artifacts/eval/summary/weave_eval_comparison.latest.json",
+        "artifacts/wandb/weave_failure_playbook.md",
+        "artifacts/wandb/report_draft.md",
+        "docs/hackathon/SKILLS_WORKFLOW_LOG.md"
       ]
     },
     {
       "name": "hugging-face-jobs",
-      "purpose": "6-run FT campaign submission and retrain job execution",
+      "purpose": "HF training job execution and operational status tracking",
       "evidence": [
         "artifacts/hf_jobs/submissions.jsonl",
-        "artifacts/hf_jobs/balanced_6run_validation_snapshot.json"
+        "https://huggingface.co/jobs/Haruk1y/69a326185672f759367702cb"
       ]
     },
     {
       "name": "hf-mcp",
-      "purpose": "W&B MCP probe and context fetch for loop decision input",
+      "purpose": "MCP context collection for self-improvement decisions",
       "evidence": [
         "scripts/wandb/fetch_mcp_eval_context.mjs",
-        "artifacts/loop/cycle_3/mcp_decision_input.json"
+        "artifacts/loop/cycle_4/mcp_eval_snapshot.json",
+        "artifacts/loop/cycle_4/mcp_decision_input.json"
       ]
     }
   ],
   "notes": [
-    "cycle_3 snapshot source=wandb_mcp_probe+api_fallback",
-    "iter_eval logging is now per-step and warning-free in smoke run 9n2y76dc"
+    "cycle_4 snapshot source=wandb_mcp_tools_call (hosted MCP path)",
+    "comparison eval published as kotone-test-model-comparison-v3"
   ]
 }

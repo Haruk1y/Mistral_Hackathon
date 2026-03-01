@@ -140,6 +140,31 @@ def build_eval_output(sample_row: dict[str, Any], mode: str, model_id: str, run_
     }
 
 
+def build_summary_scores(run_metrics: dict[str, Any]) -> dict[str, float]:
+    scores: dict[str, float] = {}
+    vector_mae = safe_float(run_metrics.get("vector_mae")) or 0.0
+    p95_ms = safe_float(run_metrics.get("p95_inference_latency_ms")) or 0.0
+    json_valid_rate = safe_float(run_metrics.get("json_valid_rate")) or 0.0
+    output_sanity = safe_float(run_metrics.get("output_sanity_score")) or 0.0
+    constraint_match = safe_float(run_metrics.get("constraint_match_rate")) or 0.0
+    slot_exact = safe_float(run_metrics.get("slot_exact_match")) or 0.0
+    intent_score = safe_float(run_metrics.get("intent_score_mean")) or 0.0
+
+    scores["meta.json_valid"] = json_valid_rate
+    scores["meta.latency_ms"] = p95_ms
+    scores["meta.output_sanity"] = output_sanity
+    scores["meta.constraint_match"] = constraint_match
+    scores["meta.slot_exact_match"] = slot_exact
+    scores["meta.intent_score"] = intent_score
+    scores["mae_score.mae"] = vector_mae
+
+    for key in KEYS:
+        dim_key = f"mae_raw_{key}"
+        dim_value = safe_float(run_metrics.get(dim_key))
+        scores[f"mae_score.abs_errors.{key}"] = dim_value if dim_value is not None else vector_mae
+    return scores
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     comparison_path = Path(
@@ -224,6 +249,31 @@ def main() -> None:
             inputs = build_eval_inputs(sample_row)
             output = build_eval_output(sample_row, mode=mode, model_id=model_id, run_file=run_file, sample_file=sample_file)
             scores = build_example_scores(sample_row)
+            logger.log_example(inputs=inputs, output=output, scores=scores)
+            mode_examples += 1
+            total_examples += 1
+
+        if mode_examples == 0:
+            # Fallback: publish one synthetic example built from run-level metrics.
+            inputs = {
+                "id": f"{mode}-summary",
+                "request_text": f"{mode} summary-only comparison",
+                "source_type": "summary_fallback",
+                "weather": "",
+            }
+            output = {
+                "mode": mode,
+                "model_id": model_id,
+                "effective_model_id": model_id,
+                "json_valid": run_metrics.get("json_valid_rate"),
+                "parse_error": "sample_rows_missing",
+                "predicted_vector": None,
+                "target_vector": None,
+                "trace_url": run_url or None,
+                "run_file": run_file,
+                "sample_file": sample_file,
+            }
+            scores = build_summary_scores(run_metrics)
             logger.log_example(inputs=inputs, output=output, scores=scores)
             mode_examples += 1
             total_examples += 1

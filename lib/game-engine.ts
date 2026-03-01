@@ -209,7 +209,7 @@ export const migrateState = (state: GameState): GameState => {
 export const getPartById = (partId: string) => CATALOG_PARTS.find((part) => part.id === partId);
 
 export const getCustomerName = (customerId: string) =>
-  (CATALOG_CUSTOMERS.find((customer) => customer.id === customerId)?.id ?? customerId).toLowerCase();
+  CATALOG_CUSTOMERS.find((customer) => customer.id === customerId)?.name ?? customerId.toUpperCase();
 
 export const updateCommission = (
   state: GameState,

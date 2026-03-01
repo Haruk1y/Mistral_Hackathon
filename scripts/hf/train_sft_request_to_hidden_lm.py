@@ -14,13 +14,12 @@
 # ]
 # ///
 
-"""Headless next-token SFT for request_text + hidden_params pair JSON generation.
+"""Headless next-token SFT for request_text to hidden-params JSON generation.
 
 This script trains a causal LM objective (no regression head) so inference can
-directly return strict JSON pair:
+directly return strict JSON object:
 {
-  "request_text": str,
-  "hidden_params": {
+  "vector": {
     "energy": int, "warmth": int, "brightness": int,
     "acousticness": int, "complexity": int, "nostalgia": int
   }
@@ -41,7 +40,7 @@ from typing import Any
 import torch
 from datasets import Dataset, load_dataset
 from huggingface_hub import HfApi
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, PeftModel, get_peft_model
 from torch.utils.data import DataLoader
 from transformers import (
     Mistral3ForConditionalGeneration,
@@ -112,6 +111,11 @@ def parse_args() -> argparse.Namespace:
         default=env_str("HF_FT_OUTPUT_MODEL_ID", "mistral-hackaton-2026/atelier-kotone-ministral3b-ft"),
     )
     parser.add_argument("--output-dir", default=env_str("HF_FT_OUTPUT_DIR", "outputs/ministral3b-request-hidden"))
+    parser.add_argument(
+        "--init-adapter-model-id",
+        default=env_str("HF_FT_INIT_ADAPTER_MODEL_ID", ""),
+        help="Optional LoRA adapter repo id to continue SFT from existing adapter weights.",
+    )
 
     parser.add_argument("--epochs", type=int, default=env_int("HF_FT_EPOCHS", 2))
     parser.add_argument("--learning-rate", type=float, default=env_float("HF_FT_LR", 2e-5))
@@ -121,7 +125,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-length", type=int, default=env_int("HF_FT_MAX_LENGTH", 768))
     parser.add_argument("--logging-steps", type=int, default=env_int("HF_FT_LOGGING_STEPS", 1))
     parser.add_argument("--eval-steps", type=int, default=env_int("HF_FT_EVAL_STEPS", 25))
-    parser.add_argument("--detailed-eval-steps", type=int, default=env_int("HF_FT_DETAILED_EVAL_STEPS", 1))
+    parser.add_argument("--detailed-eval-steps", type=int, default=env_int("HF_FT_DETAILED_EVAL_STEPS", 50))
+    parser.add_argument(
+        "--detailed-eval-max-samples",
+        type=int,
+        default=env_int("HF_FT_DETAILED_EVAL_MAX_SAMPLES", 25),
+    )
     parser.add_argument("--max-steps", type=int, default=env_int("HF_FT_MAX_STEPS", -1))
     parser.add_argument("--hard-cases-top-k", type=int, default=env_int("HF_FT_HARD_CASE_TOP_K", 80))
     parser.add_argument(
@@ -331,16 +340,14 @@ def normalize_row(row: dict[str, Any], default_scale: int) -> dict[str, Any]:
     }
 
 
-def build_inference_prompt(request_text: str, weather: str, source_type: str, target_scale: int) -> str:
+def build_inference_prompt(request_text: str, source_type: str) -> str:
     return "\n".join(
         [
             "You estimate 6 hidden music parameters.",
             "Return strict JSON only with this schema:",
-            '{"request_text":"...", "hidden_params":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
-            "Copy request_text exactly from input.",
-            f"Each hidden_params value must be integer between 0 and {target_scale}.",
+            '{"vector":{"energy":0,"warmth":0,"brightness":0,"acousticness":0,"complexity":0,"nostalgia":0}}',
+            "Each vector value must be integer between 0 and 10.",
             f"source_type={source_type}",
-            f"weather={weather}",
             f"request_text={request_text}",
         ]
     )
@@ -361,17 +368,9 @@ def build_sft_dataset(dataset: Dataset, tokenizer: Any, split_name: str, max_len
         }
         prompt = build_inference_prompt(
             request_text=str(sample["request_text"]),
-            weather=str(sample["weather"]),
             source_type=str(sample["source_type"]),
-            target_scale=target_scale,
         )
-        assistant_json = json.dumps(
-            {
-                "request_text": str(sample["request_text"]),
-                "hidden_params": target_vector,
-            },
-            ensure_ascii=False,
-        )
+        assistant_json = json.dumps({"vector": target_vector}, ensure_ascii=False)
         eos = tokenizer.eos_token or ""
         full_text = f"{prompt}\n{assistant_json}{eos}"
 
@@ -789,6 +788,7 @@ def setup_wandb(args: argparse.Namespace) -> bool:
         config={
             "objective": "next_token_json_sft",
             "base_model": args.base_model,
+            "init_adapter_model_id": args.init_adapter_model_id,
             "hub_model_id": args.hub_model_id,
             "dataset_repo": args.dataset_repo,
             "dataset_version": args.dataset_version,
@@ -805,6 +805,7 @@ def setup_wandb(args: argparse.Namespace) -> bool:
             "logging_steps": args.logging_steps,
             "eval_steps": args.eval_steps,
             "detailed_eval_steps": args.detailed_eval_steps,
+            "detailed_eval_max_samples": args.detailed_eval_max_samples,
             "max_steps": args.max_steps,
             "hard_cases_top_k": args.hard_cases_top_k,
             "lora_r": args.lora_r,
@@ -866,6 +867,7 @@ def maybe_setup_trackio(args: argparse.Namespace) -> bool:
         config={
             "objective": "next_token_json_sft",
             "base_model": args.base_model,
+            "init_adapter_model_id": args.init_adapter_model_id,
             "hub_model_id": args.hub_model_id,
             "dataset_repo": args.dataset_repo,
             "target_scale": args.target_scale,
@@ -1005,23 +1007,41 @@ def main() -> None:
 
     train_lm = build_sft_dataset(train_ds, tokenizer, "train", args.max_length, args.target_scale)
     valid_lm = build_sft_dataset(valid_ds, tokenizer, "valid", args.max_length, args.target_scale)
+    detailed_eval_max_samples = max(0, int(args.detailed_eval_max_samples))
+    if detailed_eval_max_samples > 0 and len(valid_lm) > detailed_eval_max_samples:
+        detailed_eval_lm = valid_lm.select(range(detailed_eval_max_samples))
+    else:
+        detailed_eval_lm = valid_lm
+    print(
+        "[eval] validation examples="
+        f"{len(valid_lm)}, detailed_eval_examples={len(detailed_eval_lm)} "
+        f"(max_samples={detailed_eval_max_samples})"
+    )
 
     model = Mistral3ForConditionalGeneration.from_pretrained(
         args.base_model,
         torch_dtype="auto",
         attn_implementation="eager",
     )
-
-    peft_config = LoraConfig(
-        r=args.lora_r,
-        lora_alpha=args.lora_alpha,
-        lora_dropout=args.lora_dropout,
-        bias="none",
-        task_type="CAUSAL_LM",
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-    )
     ensure_peft_generation_compat(model.model.language_model)
-    model.model.language_model = get_peft_model(model.model.language_model, peft_config)
+    init_adapter_model_id = str(args.init_adapter_model_id or "").strip()
+    if init_adapter_model_id:
+        print(f"[init] loading adapter weights from {init_adapter_model_id}")
+        model.model.language_model = PeftModel.from_pretrained(
+            model.model.language_model,
+            init_adapter_model_id,
+            is_trainable=True,
+        )
+    else:
+        peft_config = LoraConfig(
+            r=args.lora_r,
+            lora_alpha=args.lora_alpha,
+            lora_dropout=args.lora_dropout,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        )
+        model.model.language_model = get_peft_model(model.model.language_model, peft_config)
 
     has_wandb = setup_wandb(args)
     has_trackio = maybe_setup_trackio(args)
@@ -1070,21 +1090,27 @@ def main() -> None:
         data_collator=collator,
     )
 
-    def eval_fn() -> tuple[dict[str, float], list[dict[str, Any]]]:
+    def run_eval(dataset: Dataset, hard_cases_top_k: int) -> tuple[dict[str, float], list[dict[str, Any]]]:
         return evaluate_generation(
             model=model,
-            dataset=valid_lm,
+            dataset=dataset,
             tokenizer=tokenizer,
             batch_size=max(1, args.batch_size),
             max_length=args.max_length,
             max_new_tokens=args.generation_max_new_tokens,
             target_scale=args.target_scale,
-            hard_cases_top_k=args.hard_cases_top_k,
+            hard_cases_top_k=hard_cases_top_k,
         )
+
+    def detailed_eval_fn() -> tuple[dict[str, float], list[dict[str, Any]]]:
+        return run_eval(dataset=detailed_eval_lm, hard_cases_top_k=args.hard_cases_top_k)
+
+    def final_eval_fn() -> tuple[dict[str, float], list[dict[str, Any]]]:
+        return run_eval(dataset=valid_lm, hard_cases_top_k=args.hard_cases_top_k)
 
     trainer.add_callback(
         DetailedEvalCallback(
-            eval_fn=eval_fn,
+            eval_fn=detailed_eval_fn,
             output_path=iter_eval_metrics_path,
             detailed_eval_steps=args.detailed_eval_steps,
             has_wandb=has_wandb,
@@ -1093,7 +1119,7 @@ def main() -> None:
     )
 
     train_result = trainer.train()
-    eval_result, hard_cases = eval_fn()
+    eval_result, hard_cases = final_eval_fn()
     hard_cases_path = metrics_dir / "hard_cases.valid.jsonl"
     hard_cases_path.write_text(
         "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in hard_cases),
@@ -1122,6 +1148,8 @@ def main() -> None:
         "weave_trace_path": str(weave_trace_path) if weave_trace_path else None,
         "train_examples": len(train_lm),
         "valid_examples": len(valid_lm),
+        "detailed_eval_max_samples": detailed_eval_max_samples,
+        "detailed_eval_examples": len(detailed_eval_lm),
         "adapter_dir": str(adapter_dir),
         "hub_model_id": args.hub_model_id if args.push_to_hub else None,
     }
@@ -1134,6 +1162,8 @@ def main() -> None:
             "objective/train_loss": train_result.metrics.get("train_loss"),
             "dataset/train_examples": len(train_lm),
             "dataset/valid_examples": len(valid_lm),
+            "dataset/detailed_eval_examples": len(detailed_eval_lm),
+            "dataset/detailed_eval_max_samples": detailed_eval_max_samples,
             "dataset/hard_cases_count": len(hard_cases),
             "dataset/version": args.dataset_version,
             "dataset/source_type_mix": args.source_type_mix,

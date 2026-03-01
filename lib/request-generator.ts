@@ -1,4 +1,6 @@
 import { nanoid } from "nanoid";
+import { pickRequestSampleFromTestDataset } from "@/lib/ft-test-dataset";
+import { buildTargetProfileFromVector, toTargetHiddenParams } from "@/lib/target-profile-utils";
 import type { RequestGenerationRequest, RequestGenerationResponse } from "@/lib/types";
 
 const resolveModelConfig = () => {
@@ -96,17 +98,75 @@ const forceParaphraseTemplate = (templateText: string, weather: RequestGeneratio
   return sentence.length <= 160 ? sentence : `${sentence.slice(0, 157).trimEnd()}...`;
 };
 
+type RequestBackendMode = "auto" | "hf" | "dataset";
+
+const normalizeRequestBackend = (value: string | undefined): RequestBackendMode => {
+  const lowered = (value || "auto").trim().toLowerCase();
+  if (lowered === "hf") return "hf";
+  if (lowered === "dataset") return "dataset";
+  return "auto";
+};
+
+const buildDatasetResponse = async (
+  input: RequestGenerationRequest,
+  startedAt: number,
+  parseError: string
+): Promise<RequestGenerationResponse | null> => {
+  const seed = `${input.customerId}|${input.weather}|${input.templateText}`;
+  const sample = await pickRequestSampleFromTestDataset(seed);
+  if (!sample) return null;
+
+  const targetProfile = buildTargetProfileFromVector(sample.vector);
+  return {
+    requestText: sample.requestText,
+    modelSource: "rule_baseline",
+    latencyMs: Math.max(0, performance.now() - startedAt),
+    parseError,
+    traceId: `request_${nanoid()}`,
+    targetProfile,
+    targetHiddenParams: toTargetHiddenParams(targetProfile)
+  };
+};
+
 export const generateRequestText = async (
   input: RequestGenerationRequest
 ): Promise<RequestGenerationResponse> => {
   const startedAt = performance.now();
+  const backend = normalizeRequestBackend(process.env.REQUEST_GENERATION_BACKEND);
   const hfToken = process.env.HF_API_TOKEN || process.env.HF_TOKEN;
   const modelConfig = resolveModelConfig();
   const fallbackParaphrase = forceParaphraseTemplate(input.templateText, input.weather);
   const hfInferenceBaseUrl =
     (process.env.HF_INFERENCE_BASE_URL || "https://router.huggingface.co/hf-inference/models").replace(/\/$/, "");
+  const hfOpenaiBaseUrl = (process.env.HF_OPENAI_BASE_URL || "https://router.huggingface.co/v1").replace(/\/$/, "");
+  const hfOpenaiModelId = (process.env.HF_OPENAI_MODEL_ID || "").trim();
+  const hfOpenaiModelSuffix = (process.env.HF_OPENAI_MODEL_SUFFIX || "").trim();
+  const hfInferenceBackendRaw = (process.env.HF_INFERENCE_BACKEND || "auto").trim().toLowerCase().replaceAll("_", "-");
+  const hfInferenceBackend = ["auto", "text-generation", "chat-completions"].includes(hfInferenceBackendRaw)
+    ? hfInferenceBackendRaw
+    : "auto";
+
+  if (backend === "dataset") {
+    const datasetResponse = await buildDatasetResponse(input, startedAt, "dataset_sample");
+    if (datasetResponse) {
+      return datasetResponse;
+    }
+    return {
+      requestText: fallbackParaphrase,
+      modelSource: "rule_baseline",
+      latencyMs: Math.max(0, performance.now() - startedAt),
+      parseError: "dataset_unavailable",
+      traceId: `request_${nanoid()}`
+    };
+  }
 
   if (!modelConfig) {
+    if (backend === "auto") {
+      const datasetResponse = await buildDatasetResponse(input, startedAt, "missing_fine_tuned_model_id;dataset_sample");
+      if (datasetResponse) {
+        return datasetResponse;
+      }
+    }
     return {
       requestText: fallbackParaphrase,
       modelSource: "rule_baseline",
@@ -117,6 +177,12 @@ export const generateRequestText = async (
   }
 
   if (!hfToken) {
+    if (backend === "auto") {
+      const datasetResponse = await buildDatasetResponse(input, startedAt, "missing_hf_token;dataset_sample");
+      if (datasetResponse) {
+        return datasetResponse;
+      }
+    }
     return {
       requestText: fallbackParaphrase,
       modelSource: "rule_baseline",
@@ -127,31 +193,87 @@ export const generateRequestText = async (
   }
 
   const { modelId, modelSource } = modelConfig;
-  const callInference = async (prompt: string) => {
-    const response = await fetch(`${hfInferenceBaseUrl}/${modelId}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${hfToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 56,
-          temperature: 0.65,
-          return_full_text: false
-        }
-      })
-    });
+  const resolveChatModelId = () => {
+    const baseModel = hfOpenaiModelId || modelId;
+    if (hfOpenaiModelSuffix && !baseModel.endsWith(hfOpenaiModelSuffix)) {
+      return `${baseModel}${hfOpenaiModelSuffix}`;
+    }
+    return baseModel;
+  };
 
-    if (!response.ok) {
-      const errorText = (await response.text()).slice(0, 220);
-      return { ok: false as const, parseError: `http_${response.status}:${errorText}` };
+  const callInference = async (prompt: string) => {
+    const errors: string[] = [];
+
+    if (hfInferenceBackend === "auto" || hfInferenceBackend === "text-generation") {
+      const response = await fetch(`${hfInferenceBaseUrl}/${modelId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 56,
+            temperature: 0.65,
+            return_full_text: false
+          }
+        })
+      });
+
+      if (response.ok) {
+        const payload = await response.json();
+        const generated = extractText(payload);
+        if (generated) {
+          return { ok: true as const, generated };
+        }
+        errors.push("text_generation:empty_generated_text");
+      } else {
+        const errorText = (await response.text()).slice(0, 220);
+        errors.push(`text_generation:http_${response.status}:${errorText}`);
+      }
+      if (hfInferenceBackend === "text-generation") {
+        return { ok: false as const, parseError: errors.join(";") || "text_generation_failed" };
+      }
     }
 
-    const payload = await response.json();
-    const generated = extractText(payload);
-    return { ok: true as const, generated };
+    if (hfInferenceBackend === "auto" || hfInferenceBackend === "chat-completions") {
+      const response = await fetch(`${hfOpenaiBaseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: resolveChatModelId(),
+          temperature: 0.65,
+          max_tokens: 56,
+          messages: [
+            {
+              role: "system",
+              content: "Output one sentence only."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ]
+        })
+      });
+      if (response.ok) {
+        const payload = await response.json();
+        const generated = extractText(payload);
+        if (generated) {
+          return { ok: true as const, generated };
+        }
+        errors.push("chat_completions:empty_generated_text");
+      } else {
+        const errorText = (await response.text()).slice(0, 220);
+        errors.push(`chat_completions:http_${response.status}:${errorText}`);
+      }
+    }
+
+    return { ok: false as const, parseError: errors.join(";") || "hf_inference_failed" };
   };
 
   const basePrompt = [
@@ -169,6 +291,16 @@ export const generateRequestText = async (
   try {
     const first = await callInference(basePrompt);
     if (!first.ok) {
+      if (backend === "auto") {
+        const datasetResponse = await buildDatasetResponse(
+          input,
+          startedAt,
+          `${first.parseError || "hf_inference_failed"};dataset_sample`
+        );
+        if (datasetResponse) {
+          return datasetResponse;
+        }
+      }
       return {
         requestText: fallbackParaphrase,
         modelSource: "rule_baseline",
@@ -213,6 +345,12 @@ export const generateRequestText = async (
       traceId: `request_${nanoid()}`
     };
   } catch {
+    if (backend === "auto") {
+      const datasetResponse = await buildDatasetResponse(input, startedAt, "network_or_parse_error;dataset_sample");
+      if (datasetResponse) {
+        return datasetResponse;
+      }
+    }
     return {
       requestText: fallbackParaphrase,
       modelSource: "rule_baseline",
